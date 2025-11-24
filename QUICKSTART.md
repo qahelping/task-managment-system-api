@@ -8,18 +8,13 @@
 - pip (устанавливается вместе с Python)
 
 ## Быстрая установка (5 минут)
+### 0. Клонирование проекта
 
 ### 1. Установка зависимостей
 
 ```bash
-# Создайте виртуальное окружение
-python -m venv venv
-
-# Активируйте его
-source venv/bin/activate  # macOS/Linux
-# или
-venv\Scripts\activate     # Windows
-
+# Создайте виртуальное окружение на python 3.11.1
+# и
 # Установите пакеты
 pip install -r requirements.txt
 ```
