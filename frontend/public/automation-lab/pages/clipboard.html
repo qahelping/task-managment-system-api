@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    
+    <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../assets/favicon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clipboard & Downloads - Web Automation Torture Lab</title>
+    <!-- Базовые стили страницы/компонентов -->
+    <link rel="stylesheet" href="../assets/indigo-styles.css"/>
+
+    <!-- Фон страницы: переливы/волны/аура/звёзды (подключать ПОСЛЕ базовых) -->
+    <link rel="stylesheet" href="../assets/aurora.css"/>
+</head>
+<body data-style="s2">
+<!-- Обязательные слои для звёзд -->
+<div class="sky" aria-hidden="true"></div>
+    <div class="layout">
+        <header class="header">
+            <div class="header-content">
+                <div class="brand">
+                <div class="brand-mark"><img src="../assets/logo.png" alt="Logo" class="brand-logo-img"></div>
+                <div class="brand-text">
+                    <div class="brand-title">Web Automation Torture Lab</div>
+                </div>
+            </div>
+                <button class="theme-toggle" id="themeToggle"><span class="theme-icon">🌙</span></button>
+            </div>
+        </header>
+        
+        <main class="main">
+            <div class="container">
+                <a href="../index.html" class="back-link">Назад</a>
+                <div class="page-header">
+                    <h2 class="page-title">Clipboard & Downloads</h2>
+                    <p class="page-description">Работа с буфером обмена, скачивание файлов, user gestures</p>
+                </div>
+
+                <div class="info-section" style="margin-bottom: 2rem;">
+                    <h3 class="section-title">Кейсы:</h3>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <h4>1. Clipboard API requires user gesture</h4>
+                            <p>Кнопка использует navigator.clipboard.writeText только при реальном click</p>
+                            <a href="clipboard/clipboard-api.html" class="feature-link">Открыть кейс →</a>
+                        </div>
+                        <div class="feature-card">
+                            <h4>2. Copy via execCommand fallback</h4>
+                            <p>Старый способ document.execCommand('copy') через hidden textarea</p>
+                            <a href="clipboard/execcommand.html" class="feature-link">Открыть кейс →</a>
+                        </div>
+                        <div class="feature-card">
+                            <h4>3. Download link opens new tab</h4>
+                            <p>Ссылка с target=_blank + download</p>
+                            <a href="clipboard/download-link.html" class="feature-link">Открыть кейс →</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="stress-controls">
+                    <button class="stress-btn" id="stressToggle">Toggle Stress Mode</button>
+                </div>
+                <div class="cases-grid" style="display: none;">
+                    <!-- Case 1: Clipboard API -->
+                    <div class="case-card">
+                        <h3 class="case-title">1. Clipboard API requires user gesture</h3>
+                        <div class="case-element" id="case1-element">
+                            <div id="token-display" style="padding: 1rem; background: var(--bg-primary); border-radius: 8px; margin-bottom: 1rem; font-family: monospace;">Token: ABC123XYZ</div>
+                            <button id="copy-token-btn" style="padding: 1rem 2rem; background: var(--accent-primary); color: white; border: none; border-radius: 8px;">Copy Token</button>
+                            <div id="copy-result" style="margin-top: 1rem; padding: 1rem; background: var(--bg-primary); border-radius: 8px; min-height: 30px;"></div>
+                        </div>
+                        <div class="problem-section">
+                            <span class="section-label problem-label">Problem</span>
+                            <div class="section-content">Кнопка использует navigator.clipboard.writeText но только при реальном click. Прямой вызов JS не даёт доступа.</div>
+                        </div>
+                        <div class="problem-section">
+                            <span class="section-label why-label">Why it happens</span>
+                            <div class="section-content">Браузеры требуют user gesture для доступа к clipboard API. Автоматизация может не иметь такого контекста.</div>
+                        </div>
+                        <div class="show-solution-wrapper">
+                            <input type="text" class="solution-key-input" placeholder="Введите ключ для просмотра решения">
+                            <button class="show-solution-btn" disabled>Показать решение</button>
+                        </div>
+                        <div class="solution-section solution-hidden">
+                            <span class="section-label solution-label">Solution: Selenium (Python)</span>
+                            <div class="code-wrapper">
+                                <div class="code-header">
+                                    <span class="code-label">Selenium (Python)</span>
+                                    <button class="copy-btn" onclick="copyToClipboard(`from selenium.webdriver.common.by import By\n\n# 1. Реальный click (не JS click)\ncopy_btn = driver.find_element(By.ID, 'copy-token-btn')\ncopy_btn.click()\n\n# 2. Если clipboard API не работает, fallback: читаем из DOM\n# token_element = driver.find_element(By.ID, 'token-display')\n# token_text = token_element.text.split(': ')[1]\n# print(f'Token: {token_text}')\n\n# 3. Для headless может потребоваться настройка permissions\n# options = webdriver.ChromeOptions()\n# options.add_argument('--enable-clipboard-api')`, this)">Copy</button>
+                                </div>
+                                <pre class="code-block">from selenium.webdriver.common.by import By
+
+# 1. Реальный click (не JS click)
+copy_btn = driver.find_element(By.ID, 'copy-token-btn')
+copy_btn.click()
+
+# 2. Если clipboard API не работает, fallback: читаем из DOM
+# token_element = driver.find_element(By.ID, 'token-display')
+# token_text = token_element.text.split(': ')[1]
+# print(f'Token: {token_text}')
+
+# 3. Для headless может потребоваться настройка permissions
+# options = webdriver.ChromeOptions()
+# options.add_argument('--enable-clipboard-api')</pre>
+                            </div>
+                        </div>
+                        <div class="solution-section solution-hidden">
+                            <span class="section-label solution-label">Solution: Playwright (TypeScript)</span>
+                            <div class="code-wrapper">
+                                <div class="code-header">
+                                    <span class="code-label">Playwright (TypeScript)</span>
+                                    <button class="copy-btn" onclick="copyToClipboard(`// 1. Выдаём permissions для clipboard\nawait context.grantPermissions(['clipboard-read', 'clipboard-write']);\n\n// 2. Кликаем кнопку\nawait page.locator('#copy-token-btn').click();\n\n// 3. Читаем из clipboard\nconst clipboardText = await page.evaluate(async () => {\n    return await navigator.clipboard.readText();\n});\nconsole.log('Copied:', clipboardText);`, this)">Copy</button>
+                                </div>
+                                <pre class="code-block">// 1. Выдаём permissions для clipboard
+await context.grantPermissions(['clipboard-read', 'clipboard-write']);
+
+// 2. Кликаем кнопку
+await page.locator('#copy-token-btn').click();
+
+// 3. Читаем из clipboard
+const clipboardText = await page.evaluate(async () => {
+    return await navigator.clipboard.readText();
+});
+console.log('Copied:', clipboardText);</pre>
+                            </div>
+                        </div>
+                        <button class="trigger-btn" onclick="triggerCase1()">Trigger</button>
+                        <div class="assert-section solution-hidden">
+                            <div class="assert-title">How to assert it's fixed:</div>
+                            <p>Проверить, что токен скопирован в буфер обмена</p>
+                        </div>
+                    </div>
+
+                    <!-- Case 2: execCommand fallback -->
+                    <div class="case-card">
+                        <h3 class="case-title">2. Copy via execCommand fallback</h3>
+                        <div class="case-element" id="case2-element">
+                            <textarea id="text-to-copy" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem;">Text to copy</textarea>
+                            <button id="copy-exec-btn" style="padding: 1rem 2rem; background: var(--accent-primary); color: white; border: none; border-radius: 8px;">Copy (execCommand)</button>
+                            <div id="exec-result" style="margin-top: 1rem; padding: 1rem; background: var(--bg-primary); border-radius: 8px; min-height: 30px;"></div>
+                        </div>
+                        <div class="problem-section">
+                            <span class="section-label problem-label">Problem</span>
+                            <div class="section-content">Старый способ document.execCommand('copy') через hidden textarea. Проблемы в headless/permissions.</div>
+                        </div>
+                        <div class="problem-section">
+                            <span class="section-label why-label">Why it happens</span>
+                            <div class="section-content">execCommand deprecated, но всё ещё используется. Может не работать в headless режиме или без user gesture.</div>
+                        </div>
+                        <div class="show-solution-wrapper">
+                            <input type="text" class="solution-key-input" placeholder="Введите ключ для просмотра решения">
+                            <button class="show-solution-btn" disabled>Показать решение</button>
+                        </div>
+                        <div class="solution-section solution-hidden">
+                            <span class="section-label solution-label">Solution: Selenium (Python)</span>
+                            <div class="code-wrapper">
+                                <div class="code-header">
+                                    <span class="code-label">Selenium (Python)</span>
+                                    <button class="copy-btn" onclick="copyToClipboard(`from selenium.webdriver.common.by import By\n\n# execCommand требует реального click\ncopy_btn = driver.find_element(By.ID, 'copy-exec-btn')\ncopy_btn.click()\n\n# Проверяем результат через DOM (если есть индикатор)\nresult = driver.find_element(By.ID, 'exec-result')\nassert 'copied' in result.text.lower()`, this)">Copy</button>
+                                </div>
+                                <pre class="code-block">from selenium.webdriver.common.by import By
+
+# execCommand требует реального click
+copy_btn = driver.find_element(By.ID, 'copy-exec-btn')
+copy_btn.click()
+
+# Проверяем результат через DOM (если есть индикатор)
+result = driver.find_element(By.ID, 'exec-result')
+assert 'copied' in result.text.lower()</pre>
+                            </div>
+                        </div>
+                        <div class="solution-section solution-hidden">
+                            <span class="section-label solution-label">Solution: Playwright (TypeScript)</span>
+                            <div class="code-wrapper">
+                                <div class="code-header">
+                                    <span class="code-label">Playwright (TypeScript)</span>
+                                    <button class="copy-btn" onclick="copyToClipboard(`await page.locator('#copy-exec-btn').click();\n\n// Проверяем результат\nawait expect(page.locator('#exec-result')).toContainText('copied');`, this)">Copy</button>
+                                </div>
+                                <pre class="code-block">await page.locator('#copy-exec-btn').click();
+
+// Проверяем результат
+await expect(page.locator('#exec-result')).toContainText('copied');</pre>
+                            </div>
+                        </div>
+                        <button class="trigger-btn" onclick="triggerCase2()">Trigger</button>
+                        <div class="assert-section solution-hidden">
+                            <div class="assert-title">How to assert it's fixed:</div>
+                            <p>Проверить, что текст скопирован через execCommand</p>
+                        </div>
+                    </div>
+
+                    <!-- Case 3: Download link -->
+                    <div class="case-card">
+                        <h3 class="case-title">3. Download link opens new tab</h3>
+                        <div class="case-element" id="case3-element">
+                            <a id="download-link" href="data:text/plain,Hello World" download="test.txt" target="_blank" style="display: inline-block; padding: 1rem 2rem; background: var(--accent-primary); color: white; text-decoration: none; border-radius: 8px;">Download File</a>
+                        </div>
+                        <div class="problem-section">
+                            <span class="section-label problem-label">Problem</span>
+                            <div class="section-content">Ссылка с target=_blank + download. Ловить новую вкладку/контекст.</div>
+                        </div>
+                        <div class="problem-section">
+                            <span class="section-label why-label">Why it happens</span>
+                            <div class="section-content">target=_blank открывает новую вкладку. Нужно переключиться в новый контекст для работы с файлом.</div>
+                        </div>
+                        <div class="show-solution-wrapper">
+                            <input type="text" class="solution-key-input" placeholder="Введите ключ для просмотра решения">
+                            <button class="show-solution-btn" disabled>Показать решение</button>
+                        </div>
+                        <div class="solution-section solution-hidden">
+                            <span class="section-label solution-label">Solution: Selenium (Python)</span>
+                            <div class="code-wrapper">
+                                <div class="code-header">
+                                    <span class="code-label">Selenium (Python)</span>
+                                    <button class="copy-btn" onclick="copyToClipboard(`from selenium.webdriver.common.by import By\n\nlink = driver.find_element(By.ID, 'download-link')\noriginal_window = driver.current_window_handle\n\n# Кликаем ссылку\nlink.click()\n\n# Ждём появления новой вкладки\nWebDriverWait(driver, 10).until(lambda d: len(d.window_handles) > 1)\n\n# Переключаемся в новую вкладку\nfor handle in driver.window_handles:\n    if handle != original_window:\n        driver.switch_to.window(handle)\n        break\n\n# Работаем с новой вкладкой\n# ...\n\n# Возвращаемся обратно\ndriver.close()\ndriver.switch_to.window(original_window)`, this)">Copy</button>
+                                </div>
+                                <pre class="code-block">from selenium.webdriver.common.by import By
+
+link = driver.find_element(By.ID, 'download-link')
+original_window = driver.current_window_handle
+
+# Кликаем ссылку
+link.click()
+
+# Ждём появления новой вкладки
+WebDriverWait(driver, 10).until(lambda d: len(d.window_handles) > 1)
+
+# Переключаемся в новую вкладку
+for handle in driver.window_handles:
+    if handle != original_window:
+        driver.switch_to.window(handle)
+        break
+
+# Работаем с новой вкладкой
+# ...
+
+# Возвращаемся обратно
+driver.close()
+driver.switch_to.window(original_window)</pre>
+                            </div>
+                        </div>
+                        <div class="solution-section solution-hidden">
+                            <span class="section-label solution-label">Solution: Playwright (TypeScript)</span>
+                            <div class="code-wrapper">
+                                <div class="code-header">
+                                    <span class="code-label">Playwright (TypeScript)</span>
+                                    <button class="copy-btn" onclick="copyToClipboard(`// Ждём открытия новой страницы\nconst [newPage] = await Promise.all([\n    context.waitForEvent('page'),\n    page.locator('#download-link').click()\n]);\n\n// Работаем с новой страницей\nawait newPage.waitForLoadState();\n\n// Принимаем download\nconst downloadPromise = newPage.waitForEvent('download');\nconst download = await downloadPromise;\nawait download.saveAs('./downloaded-file.txt');`, this)">Copy</button>
+                                </div>
+                                <pre class="code-block">// Ждём открытия новой страницы
+const [newPage] = await Promise.all([
+    context.waitForEvent('page'),
+    page.locator('#download-link').click()
+]);
+
+// Работаем с новой страницей
+await newPage.waitForLoadState();
+
+// Принимаем download
+const downloadPromise = newPage.waitForEvent('download');
+const download = await downloadPromise;
+await download.saveAs('./downloaded-file.txt');</pre>
+                            </div>
+                        </div>
+                        <button class="trigger-btn" onclick="triggerCase3()">Trigger</button>
+                        <div class="assert-section solution-hidden">
+                            <div class="assert-title">How to assert it's fixed:</div>
+                            <p>Проверить, что файл скачан или новая вкладка открыта</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="info-section">
+                    <h3 class="section-title">Checklist: что здесь тренируем</h3>
+                    <ul class="checklist">
+                        <li>Работа с Clipboard API и user gestures</li>
+                        <li>Выдача permissions для clipboard</li>
+                        <li>Работа с execCommand fallback</li>
+                        <li>Обработка новых вкладок при скачивании</li>
+                        <li>Ожидание событий download в Playwright</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+        <footer class="footer">
+            <p>Web Automation Torture Lab © <span id="currentYear">2024</span> | Для автоматизаторов тестирования</p>
+        </footer>
+    </div>
+        </div>
+    </div>
+    <script src="../assets/highlight.js"></script>
+    <script src="../assets/app.js"></script>
+    <script>
+        function triggerCase1() {
+            const btn = document.getElementById('copy-token-btn');
+            const result = document.getElementById('copy-result');
+            btn.addEventListener('click', async () => {
+                try {
+                    await navigator.clipboard.writeText('ABC123XYZ');
+                    result.textContent = '✅ Token copied to clipboard!';
+                    result.style.background = '#10B981';
+                } catch (err) {
+                    result.textContent = '❌ Failed: ' + err.message;
+                    result.style.background = '#EF4444';
+                }
+            }, { once: true });
+            btn.click();
+        }
+        function triggerCase2() {
+            const btn = document.getElementById('copy-exec-btn');
+            const textarea = document.getElementById('text-to-copy');
+            const result = document.getElementById('exec-result');
+            btn.addEventListener('click', () => {
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    result.textContent = '✅ Text copied via execCommand!';
+                    result.style.background = '#10B981';
+                } catch (err) {
+                    result.textContent = '❌ Failed: ' + err.message;
+                    result.style.background = '#EF4444';
+                }
+            }, { once: true });
+            btn.click();
+        }
+        function triggerCase3() {
+            const link = document.getElementById('download-link');
+            link.addEventListener('click', () => {
+            });
+        }
+        document.getElementById('stressToggle')?.addEventListener('click', function() {
+            window.stressMode.toggle();
+            this.classList.toggle('active');
+            this.textContent = window.stressMode.enabled ? 'Stress Mode: ON' : 'Stress Mode: OFF';
+        });
+    </script>
+
+
+
+</body>
+</html>
+

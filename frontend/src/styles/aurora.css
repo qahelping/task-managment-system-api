@@ -1,0 +1,190 @@
+/* =========================================================
+   AURORA BACKGROUND PACK (Indigo)
+   Depends on: body[data-style="s2"]
+   Requires in HTML right after <body>:
+     <div class="sky" aria-hidden="true"></div>
+   ========================================================= */
+
+:root{
+  --page-bg: #050612;
+
+  /* aurora default */
+  --a1: rgba(124, 92, 255, 0.34); /* indigo */
+  --a2: rgba(99, 166, 255, 0.24); /* blue */
+  --a3: rgba(255, 90, 170, 0.12); /* pink */
+  --a4: rgba(25, 195, 125, 0.08); /* mint */
+
+  --aurora-blur-1: 22px;
+  --aurora-blur-2: 34px;
+  --aurora-opacity-1: .90;
+  --aurora-opacity-2: .82;
+
+  /* wave shine */
+  --shine-1: rgba(255,255,255,0.10);
+  --shine-2: rgba(255,255,255,0.05);
+
+  /* stars */
+  --stars-opacity: .18;
+  --stars-blend: screen;
+  --stars-size-1: 90px 90px;
+  --stars-size-2: 140px 140px;
+  --stars-size-3: 220px 220px;
+}
+
+/* ---------- Base page layer setup ---------- */
+/* Note: box-sizing and html/body styles are already in indigo-styles.css */
+body{
+  background: var(--page-bg) !important;
+  position: relative;
+  overflow-x: hidden;
+  isolation: isolate;
+}
+
+/* Make app sit above sky layers */
+.layout, .layout-with-sidebar, header, aside, main, footer, #root{
+  position: relative;
+  z-index: 1;
+}
+
+/* ---------- Aurora base (big glows) ---------- */
+body::before{
+  content:"";
+  position: fixed;
+  inset: -35%;
+  z-index: -4;
+  background:
+    radial-gradient(closest-side at 18% 10%, var(--a1), transparent 62%),
+    radial-gradient(closest-side at 85% 18%, var(--a2), transparent 60%),
+    radial-gradient(closest-side at 55% 90%, var(--a3), transparent 65%),
+    radial-gradient(closest-side at 15% 85%, var(--a4), transparent 60%),
+    linear-gradient(180deg, #07081a, #03030a);
+  filter: blur(var(--aurora-blur-1));
+  opacity: var(--aurora-opacity-1);
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* ---------- Aurora wave + glossy shine ---------- */
+body::after{
+  content:"";
+  position: fixed;
+  inset: -45%;
+  z-index: -3;
+  background:
+    conic-gradient(
+      from 220deg at 55% 30%,
+      rgba(124,92,255,0.00) 0deg,
+      rgba(124,92,255,0.12) 45deg,
+      rgba(99,166,255,0.14) 95deg,
+      rgba(255,255,255,0.06) 140deg,
+      rgba(124,92,255,0.00) 260deg,
+      rgba(124,92,255,0.00) 360deg
+    ),
+    linear-gradient(
+      115deg,
+      transparent 0%,
+      var(--shine-2) 35%,
+      var(--shine-1) 45%,
+      var(--shine-2) 55%,
+      transparent 78%
+    );
+  filter: blur(var(--aurora-blur-2));
+  opacity: var(--aurora-opacity-2);
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* ---------- Sky layer (stars + grain) ---------- */
+.sky{
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.sky::before{
+  content:"";
+  position:absolute;
+  inset:-10%;
+  background-image:
+    radial-gradient(rgba(255,255,255,0.95) 1px, transparent 1.2px),
+    radial-gradient(rgba(255,255,255,0.55) 1px, transparent 1.8px),
+    radial-gradient(rgba(255,255,255,0.35) 1px, transparent 2.2px);
+  background-size: var(--stars-size-1), var(--stars-size-2), var(--stars-size-3);
+  background-position: 0 0, 30px 60px, 80px 20px;
+  opacity: var(--stars-opacity);
+  mix-blend-mode: var(--stars-blend);
+  filter: blur(.15px);
+  transform: translateZ(0);
+}
+
+.sky::after{
+  content:"";
+  position:absolute;
+  inset:-20%;
+  opacity: .08;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255,255,255,0.05) 0px,
+      rgba(255,255,255,0.05) 1px,
+      transparent 2px,
+      transparent 3px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      rgba(255,255,255,0.03) 0px,
+      rgba(255,255,255,0.03) 1px,
+      transparent 2px,
+      transparent 4px
+    );
+  mix-blend-mode: overlay;
+  filter: blur(.6px);
+  transform: translateZ(0);
+}
+
+/* ---------- Animations ---------- */
+/* Apply animations for aurora effects */
+body::before{ animation: auroraMove 10s ease-in-out infinite; }
+body::after{ animation: auroraWave 14s ease-in-out infinite; }
+.sky::before{ animation: starsDrift 22s linear infinite; }
+
+@keyframes auroraMove{
+  0%   { transform: translate(-1.2%, -1.0%) scale(1.02); opacity: calc(var(--aurora-opacity-1) - .08); }
+  50%  { transform: translate( 1.0%,  1.2%) scale(1.05); opacity: var(--aurora-opacity-1); }
+  100% { transform: translate(-1.2%, -1.0%) scale(1.02); opacity: calc(var(--aurora-opacity-1) - .08); }
+}
+
+@keyframes auroraWave{
+  0%   { transform: translate(0%, 0%) rotate(0deg); opacity: calc(var(--aurora-opacity-2) - .10); }
+  50%  { transform: translate(1.4%, -1.0%) rotate(6deg); opacity: var(--aurora-opacity-2); }
+  100% { transform: translate(0%, 0%) rotate(0deg); opacity: calc(var(--aurora-opacity-2) - .10); }
+}
+
+@keyframes starsDrift{
+  0%   { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-120px, 60px, 0); }
+}
+
+/* =========================================================
+   STYLE VARIANT (s2: Aurora Bright)
+   ========================================================= */
+
+/* s2: Aurora Bright (ярче, "северное сияние") */
+body[data-style="s2"]{
+  --page-bg: #040514;
+  --a1: rgba(124, 92, 255, 0.46);
+  --a2: rgba(99, 166, 255, 0.34);
+  --a3: rgba(255, 90, 170, 0.18);
+  --a4: rgba(25, 195, 125, 0.10);
+  --aurora-blur-1: 18px;
+  --aurora-blur-2: 28px;
+  --aurora-opacity-1: 1;
+  --aurora-opacity-2: .92;
+
+  --stars-opacity: .24; /* больше звёзд для лучшей видимости */
+  --stars-size-1: 110px 110px;
+  --stars-size-2: 170px 170px;
+  --stars-size-3: 260px 260px;
+}

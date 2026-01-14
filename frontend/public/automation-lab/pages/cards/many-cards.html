@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../../assets/favicon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Много одинаковых карточек, нужен таргет по cardId - Web Automation Torture Lab</title>
+  
+  
+        <!-- Базовые стили страницы/компонентов -->
+    <link rel="stylesheet" href="../../assets/indigo-styles.css"/>
+
+    <!-- Фон страницы: переливы/волны/аура/звёзды (подключать ПОСЛЕ базовых) -->
+    <link rel="stylesheet" href="../../assets/aurora.css"/>
+</head>
+<body data-style="s2">
+<!-- Обязательные слои для звёзд -->
+<div class="sky" aria-hidden="true"></div>
+<div class="layout">
+        <header class="header">
+            <div class="header-content">
+                <div class="brand"><img src="../../assets/logo.svg" alt="Web Automation Torture Lab" class="brand-logo"><div class="brand-text"><div class="brand-title">Web Automation Torture Lab</div></div></div>
+                <h1 class="header-title" style="display:none">>Web Automation Torture Lab</h1>
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        
+
+        <main class="main">
+            <div class="container">
+                <a href="../cards.html" class="back-link">Назад</a>
+                <div class="page-header">
+                    <a href="../cards.html" class="nav-link" style="display: inline-block; margin-bottom: 1rem; text-decoration: none;">← Назад к Data Cards & Targeted Assertions</a>
+                    <h2 class="page-title">Много одинаковых карточек, нужен таргет по cardId</h2>
+                    <p class="page-description">Категория: Data Cards & Targeted Assertions</p>
+                </div>
+
+                <div class="stress-controls">
+                    <button class="stress-btn" id="stressToggle">Toggle Stress Mode</button>
+                </div>
+
+                <div class="case-card" style="max-width: 1000px; margin: 0 auto;">
+                    <h3 class="case-title">Много одинаковых карточек, нужен таргет по cardId</h3>
+                    
+                    <div class="case-element" id="case-element">
+                        <div id="cards-container-1" class="cards-grid">
+                    </div>
+
+                    <div class="problem-section">
+                        <span class="section-label problem-label">Problem</span>
+                        <div class="section-content">
+                            На странице много одинаковых элементов с одинаковыми классами. Проверки по тексту или индексу ненадёжны. Локаторы типа .card-status возвращают несколько элементов.
+                        </div>
+                    </div>
+
+                    <div class="problem-section">
+                        <span class="section-label why-label">Why it happens</span>
+                        <div class="section-content">
+                            UI построен как список однотипных компонентов. Нет уникальных id на вложенных элементах. DOM динамический и нестабильный.
+                        </div>
+                    </div>
+
+                    <div class="show-solution-wrapper">
+                        <input type="text" class="solution-key-input" placeholder="Введите ключ для просмотра решения">
+                        <button class="show-solution-btn" disabled>Показать решение</button>
+                    </div>
+
+                    <div class="solution-section solution-hidden">
+                        <span class="section-label solution-label">Solution: Selenium (Python)</span>
+                        <div class="code-wrapper">
+                            <div class="code-header">
+                                <span class="code-label">Selenium (Python)</span>
+                                <button class="copy-btn" onclick="copyToClipboard(`from selenium.webdriver.common.by import By
+
+# 1. Находим карточку по data-card-id
+card = driver.find_element(By.CSS_SELECTOR, '[data-card-id="card-12345"]')
+
+# 2. Работаем ТОЛЬКО внутри неё (scoped search)
+status = card.find_element(By.CSS_SELECTOR, '.card-status')
+balance = card.find_element(By.CSS_SELECTOR, '.card-balance')
+currency = card.find_element(By.CSS_SELECTOR, '.card-currency')
+
+# 3. Проверяем данные
+assert status.text == 'Active'
+assert balance.text == '1000.00'
+assert currency.text == 'USD'
+
+# 4. Кликаем кнопку внутри карточки
+button = card.find_element(By.CSS_SELECTOR, '.btn-details')
+button.click()`, this)">Copy</button>
+                            </div>
+                            <pre class="code-block">from selenium.webdriver.common.by import By
+
+# 1. Находим карточку по data-card-id
+card = driver.find_element(By.CSS_SELECTOR, &#x27;[data-card-id=&quot;card-12345&quot;]&#x27;)
+
+# 2. Работаем ТОЛЬКО внутри неё (scoped search)
+status = card.find_element(By.CSS_SELECTOR, &#x27;.card-status&#x27;)
+balance = card.find_element(By.CSS_SELECTOR, &#x27;.card-balance&#x27;)
+currency = card.find_element(By.CSS_SELECTOR, &#x27;.card-currency&#x27;)
+
+# 3. Проверяем данные
+assert status.text == &#x27;Active&#x27;
+assert balance.text == &#x27;1000.00&#x27;
+assert currency.text == &#x27;USD&#x27;
+
+# 4. Кликаем кнопку внутри карточки
+button = card.find_element(By.CSS_SELECTOR, &#x27;.btn-details&#x27;)
+button.click()</pre>
+                        </div>
+                    </div>
+
+                    <div class="solution-section solution-hidden">
+                        <span class="section-label solution-label">Solution: Playwright (TypeScript)</span>
+                        <div class="code-wrapper">
+                            <div class="code-header">
+                                <span class="code-label">Playwright (TypeScript)</span>
+                                <button class="copy-btn" onclick="copyToClipboard(`// 1. Используем locator с фильтрацией по data-card-id
+const card = page.locator('[data-card-id="card-12345"]');
+
+// 2. Ждём видимости карточки
+await expect(card).toBeVisible();
+
+// 3. Работаем через вложенные locators (scoped)
+await expect(card.locator('.card-status')).toHaveText('Active');
+await expect(card.locator('.card-balance')).toHaveText('1000.00');
+await expect(card.locator('.card-currency')).toHaveText('USD');
+
+// 4. Кликаем кнопку внутри карточки
+await card.locator('.btn-details').click();`, this)">Copy</button>
+                            </div>
+                            <pre class="code-block">// 1. Используем locator с фильтрацией по data-card-id
+const card = page.locator(&#x27;[data-card-id=&quot;card-12345&quot;]&#x27;);
+
+// 2. Ждём видимости карточки
+await expect(card).toBeVisible();
+
+// 3. Работаем через вложенные locators (scoped)
+await expect(card.locator(&#x27;.card-status&#x27;)).toHaveText(&#x27;Active&#x27;);
+await expect(card.locator(&#x27;.card-balance&#x27;)).toHaveText(&#x27;1000.00&#x27;);
+await expect(card.locator(&#x27;.card-currency&#x27;)).toHaveText(&#x27;USD&#x27;);
+
+// 4. Кликаем кнопку внутри карточки
+await card.locator(&#x27;.btn-details&#x27;).click();</pre>
+                        </div>
+                    </div>
+
+                    <button class="trigger-btn" onclick="triggerCase()">Trigger</button>
+
+                    <div class="assert-section solution-hidden">
+                        <div class="assert-title">How to assert it's fixed:</div>
+                        <p>Проверить статус, баланс и валюту ТОЛЬКО для cardId="card-12345"</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Web Automation Torture Lab © <span id="currentYear">2024</span> | Для автоматизаторов тестирования</p>
+        </footer>
+    </div>
+
+
+
+
+
+    <script src="../../assets/highlight.js"></script>
+    <script src="../../assets/app.js"></script>
+    <script>
+        // Case-specific handler
+        function triggerCase() {
+            
+        }
+
+        // Stress mode toggle
+        document.getElementById('stressToggle')?.addEventListener('click', function() {
+            window.stressMode.toggle();
+            this.classList.toggle('active');
+            this.textContent = window.stressMode.enabled ? 'Stress Mode: ON' : 'Stress Mode: OFF';
+        });
+    </script>
+</body>
+</html>

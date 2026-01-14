@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../../assets/favicon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Copy via execCommand fallback - Web Automation Torture Lab</title>
+  
+  
+        <!-- Базовые стили страницы/компонентов -->
+    <link rel="stylesheet" href="../../assets/indigo-styles.css"/>
+
+    <!-- Фон страницы: переливы/волны/аура/звёзды (подключать ПОСЛЕ базовых) -->
+    <link rel="stylesheet" href="../../assets/aurora.css"/>
+</head>
+<body data-style="s2">
+<!-- Обязательные слои для звёзд -->
+<div class="sky" aria-hidden="true"></div>
+<div class="layout">
+        <header class="header">
+            <div class="header-content">
+                <div class="brand"><img src="../../assets/logo.svg" alt="Web Automation Torture Lab" class="brand-logo"><div class="brand-text"><div class="brand-title">Web Automation Torture Lab</div></div></div>
+                <h1 class="header-title" style="display:none">>Web Automation Torture Lab</h1>
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        
+
+        <main class="main">
+            <div class="container">
+                <a href="../clipboard.html" class="back-link">Назад</a>
+                <div class="page-header">
+                    <a href="../clipboard.html" class="nav-link" style="display: inline-block; margin-bottom: 1rem; text-decoration: none;">← Назад к Clipboard & Downloads</a>
+                    <h2 class="page-title">Copy via execCommand fallback</h2>
+                    <p class="page-description">Категория: Clipboard & Downloads</p>
+                </div>
+
+                <div class="stress-controls">
+                    <button class="stress-btn" id="stressToggle">Toggle Stress Mode</button>
+                </div>
+
+                <div class="case-card" style="max-width: 1000px; margin: 0 auto;">
+                    <h3 class="case-title">Copy via execCommand fallback</h3>
+                    
+                    <div class="case-element" id="case-element">
+                        <textarea id="text-to-copy" style="width: 100%; padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; margin-bottom: 1rem;">Text to copy</textarea>
+                            <button id="copy-exec-btn" style="padding: 1rem 2rem; background: var(--accent-primary); color: white; border: none; border-radius: 8px;">Copy (execCommand)</button>
+                            <div id="exec-result" style="margin-top: 1rem; padding: 1rem; background: var(--bg-primary); border-radius: 8px; min-height: 30px;">
+                    </div>
+
+                    <div class="problem-section">
+                        <span class="section-label problem-label">Problem</span>
+                        <div class="section-content">
+                            Старый способ document.execCommand('copy') через hidden textarea. Проблемы в headless/permissions.
+                        </div>
+                    </div>
+
+                    <div class="problem-section">
+                        <span class="section-label why-label">Why it happens</span>
+                        <div class="section-content">
+                            execCommand deprecated, но всё ещё используется. Может не работать в headless режиме или без user gesture.
+                        </div>
+                    </div>
+
+                    <div class="show-solution-wrapper">
+                        <input type="text" class="solution-key-input" placeholder="Введите ключ для просмотра решения">
+                        <button class="show-solution-btn" disabled>Показать решение</button>
+                    </div>
+
+                    <div class="solution-section solution-hidden">
+                        <span class="section-label solution-label">Solution: Selenium (Python)</span>
+                        <div class="code-wrapper">
+                            <div class="code-header">
+                                <span class="code-label">Selenium (Python)</span>
+                                <button class="copy-btn" onclick="copyToClipboard(`from selenium.webdriver.common.by import By
+
+# execCommand требует реального click
+copy_btn = driver.find_element(By.ID, 'copy-exec-btn')
+copy_btn.click()
+
+# Проверяем результат через DOM (если есть индикатор)
+result = driver.find_element(By.ID, 'exec-result')
+assert 'copied' in result.text.lower()`, this)">Copy</button>
+                            </div>
+                            <pre class="code-block">from selenium.webdriver.common.by import By
+
+# execCommand требует реального click
+copy_btn = driver.find_element(By.ID, &#x27;copy-exec-btn&#x27;)
+copy_btn.click()
+
+# Проверяем результат через DOM (если есть индикатор)
+result = driver.find_element(By.ID, &#x27;exec-result&#x27;)
+assert &#x27;copied&#x27; in result.text.lower()</pre>
+                        </div>
+                    </div>
+
+                    <div class="solution-section solution-hidden">
+                        <span class="section-label solution-label">Solution: Playwright (TypeScript)</span>
+                        <div class="code-wrapper">
+                            <div class="code-header">
+                                <span class="code-label">Playwright (TypeScript)</span>
+                                <button class="copy-btn" onclick="copyToClipboard(`await page.locator('#copy-exec-btn').click();
+
+// Проверяем результат
+await expect(page.locator('#exec-result')).toContainText('copied');`, this)">Copy</button>
+                            </div>
+                            <pre class="code-block">await page.locator(&#x27;#copy-exec-btn&#x27;).click();
+
+// Проверяем результат
+await expect(page.locator(&#x27;#exec-result&#x27;)).toContainText(&#x27;copied&#x27;);</pre>
+                        </div>
+                    </div>
+
+                    <button class="trigger-btn" onclick="triggerCase()">Trigger</button>
+
+                    <div class="assert-section solution-hidden">
+                        <div class="assert-title">How to assert it's fixed:</div>
+                        <p>Проверить, что текст скопирован через execCommand</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Web Automation Torture Lab © <span id="currentYear">2024</span> | Для автоматизаторов тестирования</p>
+        </footer>
+    </div>
+
+
+
+
+
+    <script src="../../assets/highlight.js"></script>
+    <script src="../../assets/app.js"></script>
+    <script>
+        // Case-specific handler
+        function triggerCase() {
+            
+        }
+
+        // Stress mode toggle
+        document.getElementById('stressToggle')?.addEventListener('click', function() {
+            window.stressMode.toggle();
+            this.classList.toggle('active');
+            this.textContent = window.stressMode.enabled ? 'Stress Mode: ON' : 'Stress Mode: OFF';
+        });
+    </script>
+</body>
+</html>

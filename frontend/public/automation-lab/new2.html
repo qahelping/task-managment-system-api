@@ -1,0 +1,793 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Web Automation Torture Lab — Login</title>
+  <meta name="theme-color" content="#0b1020" />
+
+  <style>
+    :root{
+      --bg: #070b16;
+      --bg2:#0b1020;
+      --card:#0f1730;
+      --card2:#0c1329;
+      --text:#e8ecff;
+      --muted:#a9b3d6;
+      --line: rgba(255,255,255,.10);
+      --shadow: 0 20px 60px rgba(0,0,0,.45);
+
+      --blue:#4aa3ff;
+      --cyan:#35e6ff;
+      --indigo:#6f7cff;
+      --green:#25e5a1;
+      --red:#ff4d6d;
+      --yellow:#ffd166;
+
+      --radius: 18px;
+      --radius2: 14px;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+    }
+
+    *{ box-sizing:border-box; }
+    html,body{ height:100%; }
+    body{
+      margin:0;
+      font-family: var(--sans);
+      background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(74,163,255,.18), transparent 60%),
+        radial-gradient(900px 500px at 90% 10%, rgba(111,124,255,.16), transparent 55%),
+        radial-gradient(800px 500px at 50% 110%, rgba(53,230,255,.10), transparent 60%),
+        linear-gradient(180deg, var(--bg), var(--bg2));
+      color: var(--text);
+      overflow-x:hidden;
+    }
+
+    /* subtle grid */
+    body::before{
+      content:"";
+      position:fixed; inset:0;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size: 56px 56px;
+      mask-image: radial-gradient(circle at 50% 20%, rgba(0,0,0,.9), transparent 70%);
+      pointer-events:none;
+      opacity:.55;
+    }
+
+    a{ color:inherit; text-decoration:none; }
+    .wrap{
+      min-height:100%;
+      display:grid;
+      grid-template-columns: 360px 1fr;
+      gap: 22px;
+      padding: 22px;
+    }
+
+    /* Left auth card */
+    .auth-card{
+      position:sticky;
+      top:22px;
+      height: calc(100vh - 44px);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(15,23,48,.92), rgba(10,16,34,.92));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+    }
+
+    .auth-card header{
+      padding: 18px 18px 12px 18px;
+      border-bottom: 1px solid var(--line);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+    }
+
+    .brand{
+      display:flex; align-items:center; gap:10px;
+      min-width:0;
+    }
+
+    .logo{
+      width:40px; height:40px;
+      border-radius: 12px;
+      background:
+        radial-gradient(12px 12px at 30% 30%, rgba(53,230,255,.85), transparent 60%),
+        radial-gradient(12px 12px at 70% 70%, rgba(111,124,255,.75), transparent 60%),
+        linear-gradient(135deg, rgba(74,163,255,.35), rgba(111,124,255,.15));
+      border: 1px solid rgba(255,255,255,.12);
+      display:grid; place-items:center;
+      position:relative;
+    }
+
+    .logo svg{ filter: drop-shadow(0 0 10px rgba(53,230,255,.25)); }
+
+    .brand h1{
+      margin:0;
+      font-size: 14px;
+      letter-spacing:.2px;
+      line-height:1.1;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .brand p{
+      margin:3px 0 0 0;
+      font-size: 12px;
+      color: var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+
+    .pill{
+      font-family: var(--mono);
+      font-size: 11px;
+      color: rgba(232,236,255,.88);
+      border: 1px solid rgba(255,255,255,.14);
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.06);
+      display:flex; align-items:center; gap:8px;
+    }
+    .dot{
+      width:8px; height:8px; border-radius:50%;
+      background: var(--green);
+      box-shadow: 0 0 14px rgba(37,229,161,.6);
+    }
+
+    .auth-card main{
+      padding: 18px;
+      display:flex;
+      flex-direction:column;
+      gap: 14px;
+      flex:1;
+    }
+
+    .tabs{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 14px;
+      padding: 4px;
+      gap: 4px;
+    }
+    .tab{
+      border:0;
+      cursor:pointer;
+      background: transparent;
+      color: rgba(232,236,255,.78);
+      padding: 10px 12px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 13px;
+      transition: .18s ease;
+    }
+    .tab[aria-selected="true"]{
+      background: linear-gradient(135deg, rgba(74,163,255,.22), rgba(111,124,255,.14));
+      color: var(--text);
+      border: 1px solid rgba(74,163,255,.22);
+      box-shadow: 0 10px 24px rgba(74,163,255,.08);
+    }
+
+    .field{
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+    }
+    label{
+      font-size: 12px;
+      color: rgba(232,236,255,.80);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .hint{
+      font-size: 11px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    .control{
+      position:relative;
+    }
+    input{
+      width:100%;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.12);
+      color: var(--text);
+      padding: 12px 12px 12px 40px;
+      border-radius: 14px;
+      outline:none;
+      transition:.18s ease;
+      font-size: 14px;
+    }
+    input:focus{
+      border-color: rgba(53,230,255,.45);
+      box-shadow: 0 0 0 4px rgba(53,230,255,.10);
+    }
+    input::placeholder{ color: rgba(169,179,214,.6); }
+
+    .icon{
+      position:absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity:.85;
+    }
+
+    .row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      margin-top: 2px;
+    }
+    .check{
+      display:flex; align-items:center; gap: 10px;
+      color: rgba(232,236,255,.80);
+      font-size: 13px;
+      user-select:none;
+    }
+    .check input{
+      width: 16px; height: 16px;
+      padding:0;
+      background: transparent;
+      border-radius: 4px;
+      border: 1px solid rgba(255,255,255,.18);
+      box-shadow:none;
+    }
+
+    .link{
+      font-size: 13px;
+      color: rgba(74,163,255,.92);
+    }
+    .link:hover{ text-decoration:underline; }
+
+    .btn{
+      border:0;
+      cursor:pointer;
+      border-radius: 14px;
+      padding: 12px 14px;
+      font-weight: 700;
+      font-size: 14px;
+      color: #06101f;
+      background: linear-gradient(135deg, var(--cyan), var(--blue));
+      box-shadow: 0 16px 40px rgba(53,230,255,.14);
+      transition: transform .12s ease, filter .12s ease;
+    }
+    .btn:hover{ filter: brightness(1.05); }
+    .btn:active{ transform: translateY(1px); }
+
+    .btn-secondary{
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow:none;
+      font-weight: 650;
+    }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .divider{
+      display:flex; align-items:center; gap:10px;
+      margin: 6px 0;
+      color: rgba(169,179,214,.7);
+      font-size: 12px;
+    }
+    .divider::before,.divider::after{
+      content:"";
+      height:1px;
+      background: rgba(255,255,255,.10);
+      flex:1;
+    }
+
+    .flash{
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      padding: 10px 12px;
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      font-size: 13px;
+      color: rgba(232,236,255,.84);
+    }
+    .flash[data-type="error"]{
+      border-color: rgba(255,77,109,.25);
+      background: rgba(255,77,109,.08);
+    }
+    .flash[data-type="success"]{
+      border-color: rgba(37,229,161,.22);
+      background: rgba(37,229,161,.08);
+    }
+    .flash strong{ display:block; margin-bottom: 2px; }
+    .flash small{ color: rgba(232,236,255,.70); }
+
+    .auth-footer{
+      padding: 14px 18px;
+      border-top: 1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 10px;
+      color: rgba(169,179,214,.78);
+      font-size: 12px;
+    }
+    .kbd{
+      font-family: var(--mono);
+      padding: 3px 7px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(232,236,255,.9);
+      font-size: 11px;
+    }
+
+    /* Right panel */
+    .right{
+      border-radius: var(--radius);
+      border: 1px solid var(--line);
+      background: rgba(15,23,48,.52);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height: calc(100vh - 44px);
+    }
+
+    .right header{
+      padding: 16px 18px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(15,23,48,.68), rgba(12,18,38,.40));
+    }
+
+    .right header h2{
+      margin:0;
+      font-size: 14px;
+      letter-spacing:.2px;
+    }
+
+    .mini-actions{
+      display:flex; gap: 10px; align-items:center;
+    }
+
+    .chip{
+      font-family: var(--mono);
+      font-size: 11px;
+      border-radius: 999px;
+      padding: 7px 10px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: rgba(232,236,255,.86);
+      cursor:pointer;
+    }
+    .chip:hover{ border-color: rgba(74,163,255,.25); }
+
+    .content{
+      padding: 18px;
+      display:grid;
+      grid-template-columns: 1.4fr .9fr;
+      gap: 18px;
+      flex:1;
+    }
+
+    .panel{
+      border-radius: var(--radius2);
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(11,17,36,.55 이해); /* harmless typo? remove - must be valid CSS */
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- LEFT: AUTH -->
+    <section class="auth-card" aria-label="Авторизация">
+      <header>
+        <div class="brand">
+          <div class="logo" aria-hidden="true">
+            <!-- tiny flask mark -->
+            <svg width="22" height="22" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <path d="M26 12h12" stroke="#BFD2FF" stroke-width="5" stroke-linecap="round"/>
+              <path d="M29 12v10" stroke="#BFD2FF" stroke-width="5" stroke-linecap="round"/>
+              <path d="M35 12v10" stroke="#BFD2FF" stroke-width="5" stroke-linecap="round"/>
+              <path d="M29 22 18 49c-1 2 1 4 3 4h22c2 0 4-2 3-4L35 22" stroke="#BFD2FF" stroke-width="5" stroke-linejoin="round"/>
+              <path d="M22 44c4-3 8-1 11 0 4 2 7 2 11 0l2 5c1 2-1 4-3 4H21c-2 0-4-2-3-4l2-5z" fill="#35E6FF" opacity=".9"/>
+              <circle cx="24" cy="8" r="3" fill="#9BE9FF"/>
+            </svg>
+          </div>
+          <div>
+            <h1>Web Automation Torture Lab</h1>
+            <p>Login • Auth playground</p>
+          </div>
+        </div>
+
+        <div class="pill" title="Состояние стенда">
+          <span class="dot" aria-hidden="true"></span>
+          lab: online
+        </div>
+      </header>
+
+      <main>
+        <div class="tabs" role="tablist" aria-label="Режимы">
+          <button class="tab" role="tab" aria-selected="true" aria-controls="panel-login" id="tab-login">Вход</button>
+          <button class="tab" role="tab" aria-selected="false" aria-controls="panel-signup" id="tab-signup">Регистрация</button>
+        </div>
+
+        <!-- Flash message placeholder -->
+        <div class="flash" data-type="error" id="flash" style="display:none;">
+          <div aria-hidden="true">⚠️</div>
+          <div>
+            <strong>Ошибка</strong>
+            <small>Неверный email или пароль.</small>
+          </div>
+        </div>
+
+        <!-- LOGIN -->
+        <section id="panel-login" role="tabpanel" aria-labelledby="tab-login">
+          <div class="field">
+            <label for="email">
+              Email
+              <span class="hint">required</span>
+            </label>
+            <div class="control">
+              <span class="icon" aria-hidden="true">📧</span>
+              <input id="email" name="email" type="email" autocomplete="username" placeholder="name@company.com" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="password">
+              Пароль
+              <span class="hint">min 8</span>
+            </label>
+            <div class="control">
+              <span class="icon" aria-hidden="true">🔒</span>
+              <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" />
+            </div>
+          </div>
+
+          <div class="row">
+            <label class="check">
+              <input type="checkbox" id="remember" />
+              Запомнить меня
+            </label>
+            <a class="link" href="#" id="forgot">Забыли пароль?</a>
+          </div>
+
+          <div class="split">
+            <button class="btn" id="loginBtn">Войти</button>
+            <button class="btn btn-secondary" id="demoBtn">Демо</button>
+          </div>
+
+          <div class="divider">или</div>
+
+          <button class="btn btn-secondary" id="ssoBtn">Войти через SSO</button>
+        </section>
+
+        <!-- SIGNUP -->
+        <section id="panel-signup" role="tabpanel" aria-labelledby="tab-signup" hidden>
+          <div class="field">
+            <label for="name">
+              Имя
+              <span class="hint">optional</span>
+            </label>
+            <div class="control">
+              <span class="icon" aria-hidden="true">👤</span>
+              <input id="name" name="name" type="text" autocomplete="name" placeholder="Alena" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="email2">
+              Email
+              <span class="hint">required</span>
+            </label>
+            <div class="control">
+              <span class="icon" aria-hidden="true">📧</span>
+              <input id="email2" name="email2" type="email" autocomplete="email" placeholder="name@company.com" />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="password2">
+              Пароль
+              <span class="hint">min 8</span>
+            </label>
+            <div class="control">
+              <span class="icon" aria-hidden="true">🔒</span>
+              <input id="password2" name="password2" type="password" autocomplete="new-password" placeholder="••••••••" />
+            </div>
+          </div>
+
+          <button class="btn" id="signupBtn">Создать аккаунт</button>
+
+          <p style="margin:10px 2px 0; font-size:12px; color:rgba(169,179,214,.85);">
+            Нажимая «Создать аккаунт», ты соглашаешься с правилами лаборатории.
+          </p>
+        </section>
+      </main>
+
+      <div class="auth-footer">
+        <span>Tip: быстрый логин — <span class="kbd">Alt</span>+<span class="kbd">Enter</span></span>
+        <span style="font-family:var(--mono); opacity:.85;">v0.1</span>
+      </div>
+    </section>
+
+    <!-- RIGHT: DESCRIPTION + LOG -->
+    <section class="right" aria-label="Описание и лог">
+      <header>
+        <h2>Auth page playground</h2>
+        <div class="mini-actions">
+          <button class="chip" id="toggleStress">Stress: OFF</button>
+          <button class="chip" id="clearLog">Clear log</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <!-- Left content -->
+        <div class="panel" style="border-radius: var(--radius2); border: 1px solid rgba(255,255,255,.10); background: rgba(11,17,36,.55); padding:16px;">
+          <h3 style="margin:0 0 10px; font-size:18px;">Что здесь тренируем</h3>
+
+          <div style="display:grid; gap:10px;">
+            <div style="border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:12px; background:rgba(255,255,255,.03);">
+              <div style="font-weight:700; margin-bottom:4px;">✅ Ввод в поля</div>
+              <div style="color:rgba(169,179,214,.9); font-size:13px;">Фокус, blur, автозаполнение, быстрый ввод.</div>
+            </div>
+
+            <div style="border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:12px; background:rgba(255,255,255,.03);">
+              <div style="font-weight:700; margin-bottom:4px;">✅ Flash messages</div>
+              <div style="color:rgba(169,179,214,.9); font-size:13px;">Ошибки/успех, проверка текста, исчезновение.</div>
+            </div>
+
+            <div style="border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:12px; background:rgba(255,255,255,.03);">
+              <div style="font-weight:700; margin-bottom:4px;">✅ Смена табов</div>
+              <div style="color:rgba(169,179,214,.9); font-size:13px;">Login/Signup, hidden/visible, aria.</div>
+            </div>
+
+            <div style="border:1px solid rgba(255,255,255,.10); border-radius:14px; padding:12px; background:rgba(255,255,255,.03);">
+              <div style="font-weight:700; margin-bottom:4px;">✅ Stress режим</div>
+              <div style="color:rgba(169,179,214,.9); font-size:13px;">Задержки, перерендер, флейки.</div>
+            </div>
+          </div>
+
+          <div style="margin-top:14px; border-top:1px dashed rgba(255,255,255,.14); padding-top:12px;">
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+              <span class="pill" style="background:rgba(255,255,255,.04);"><span class="dot" style="background:var(--cyan)"></span> focus</span>
+              <span class="pill" style="background:rgba(255,255,255,.04);"><span class="dot" style="background:var(--yellow)"></span> blur</span>
+              <span class="pill" style="background:rgba(255,255,255,.04);"><span class="dot" style="background:var(--blue)"></span> click</span>
+              <span class="pill" style="background:rgba(255,255,255,.04);"><span class="dot" style="background:var(--red)"></span> error</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Log panel -->
+        <aside class="panel" style="border-radius: var(--radius2); border: 1px solid rgba(255,255,255,.10); background: rgba(11,17,36,.55); padding:14px; display:flex; flex-direction:column; gap:10px;">
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+            <div style="font-weight:800;">Event log</div>
+            <div style="font-family:var(--mono); font-size:11px; color:rgba(169,179,214,.9);" id="clock">00:00:00</div>
+          </div>
+
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <button class="chip" data-filter="all">All</button>
+            <button class="chip" data-filter="click">click</button>
+            <button class="chip" data-filter="input">input</button>
+            <button class="chip" data-filter="focus">focus</button>
+            <button class="chip" data-filter="error">error</button>
+          </div>
+
+          <div id="log"
+               style="flex:1; overflow:auto; border:1px solid rgba(255,255,255,.10); border-radius:14px; background:rgba(0,0,0,.25); padding:10px; font-family:var(--mono); font-size:12px; line-height:1.45;">
+            <!-- logs -->
+          </div>
+
+          <div style="color:rgba(169,179,214,.85); font-size:12px;">
+            Нажимай <span class="kbd">Демо</span> или попробуй неверный пароль — увидишь flash message.
+          </div>
+        </aside>
+      </div>
+
+      <footer style="padding:12px 18px; border-top:1px solid var(--line); color:rgba(169,179,214,.8); font-size:12px;">
+        © Torture Lab • Auth sandbox • UI for automation training
+      </footer>
+    </section>
+  </div>
+
+  <script>
+    const $ = (s, root=document) => root.querySelector(s);
+
+    const logEl = $("#log");
+    let currentFilter = "all";
+    let stress = false;
+
+    function now(){
+      const d = new Date();
+      return d.toTimeString().slice(0,8);
+    }
+
+    function log(type, msg){
+      const line = document.createElement("div");
+      line.dataset.type = type;
+      line.innerHTML = `<span style="opacity:.7;">[${now()}]</span> <span style="color:${color(type)}; font-weight:700;">${type}</span> ${escapeHtml(msg)}`;
+      if(currentFilter !== "all" && currentFilter !== type) line.style.display = "none";
+      logEl.appendChild(line);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function color(type){
+      return ({
+        click: "rgba(74,163,255,.95)",
+        input: "rgba(53,230,255,.95)",
+        focus: "rgba(255,209,102,.95)",
+        error: "rgba(255,77,109,.95)",
+        ok: "rgba(37,229,161,.95)"
+      })[type] || "rgba(232,236,255,.9)";
+    }
+
+    function escapeHtml(s){
+      return String(s).replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      })[m]);
+    }
+
+    // Tabs
+    const tabLogin = $("#tab-login");
+    const tabSignup = $("#tab-signup");
+    const panelLogin = $("#panel-login");
+    const panelSignup = $("#panel-signup");
+
+    function setTab(which){
+      const login = which === "login";
+      tabLogin.setAttribute("aria-selected", String(login));
+      tabSignup.setAttribute("aria-selected", String(!login));
+      panelLogin.hidden = !login;
+      panelSignup.hidden = login;
+      log("click", login ? "Switch tab: login" : "Switch tab: signup");
+    }
+    tabLogin.addEventListener("click", () => setTab("login"));
+    tabSignup.addEventListener("click", () => setTab("signup"));
+
+    // Log filters
+    document.querySelectorAll("[data-filter]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        currentFilter = btn.dataset.filter;
+        document.querySelectorAll("#log > div").forEach(line=>{
+          const t = line.dataset.type;
+          line.style.display = (currentFilter==="all" || currentFilter===t) ? "" : "none";
+        });
+        log("click", `Filter: ${currentFilter}`);
+      });
+    });
+
+    // Stress
+    const stressBtn = $("#toggleStress");
+    stressBtn.addEventListener("click", ()=>{
+      stress = !stress;
+      stressBtn.textContent = `Stress: ${stress ? "ON" : "OFF"}`;
+      log("click", `Stress mode: ${stress ? "enabled" : "disabled"}`);
+    });
+
+    // Clock
+    setInterval(()=> { $("#clock").textContent = now(); }, 250);
+
+    // Inputs events
+    ["email","password","email2","password2","name"].forEach(id=>{
+      const el = $("#"+id);
+      if(!el) return;
+      el.addEventListener("focus", ()=>log("focus", `focus #${id}`));
+      el.addEventListener("blur",  ()=>log("focus", `blur  #${id}`));
+      el.addEventListener("input", ()=>log("input", `input #${id} = "${el.value.slice(0,24)}${el.value.length>24?"…":""}"`));
+    });
+
+    function showFlash(type, title, text){
+      const flash = $("#flash");
+      flash.dataset.type = type;
+      flash.style.display = "flex";
+      flash.querySelector("strong").textContent = title;
+      flash.querySelector("small").textContent = text;
+      log(type === "error" ? "error" : "ok", `${title}: ${text}`);
+
+      // in stress mode flash can re-render (simulate flaky)
+      if(stress){
+        const jitter = 250 + Math.random()*900;
+        setTimeout(()=>{
+          flash.style.display = "none";
+          setTimeout(()=> flash.style.display = "flex", 40);
+          log("error", "Stress: flash re-rendered (detached/attached)");
+        }, jitter);
+      }
+    }
+
+    function hideFlash(){
+      const flash = $("#flash");
+      flash.style.display = "none";
+    }
+
+    // Buttons
+    $("#loginBtn").addEventListener("click", async ()=>{
+      log("click", "Click: Login");
+
+      const email = $("#email").value.trim();
+      const pass  = $("#password").value;
+
+      hideFlash();
+
+      const delay = stress ? (150 + Math.random()*900) : 0;
+      if(delay){
+        log("input", `Stress: auth delay ${Math.round(delay)}ms`);
+        await new Promise(r=>setTimeout(r, delay));
+      }
+
+      if(email === "demo@lab.local" && pass === "demo12345"){
+        showFlash("success", "Успех", "Добро пожаловать в лабораторию.");
+      } else {
+        showFlash("error", "Ошибка", "Неверный email или пароль.");
+      }
+    });
+
+    $("#demoBtn").addEventListener("click", ()=>{
+      log("click", "Click: Demo fill");
+      $("#email").value = "demo@lab.local";
+      $("#password").value = "demo12345";
+      $("#email").dispatchEvent(new Event("input", { bubbles:true }));
+      $("#password").dispatchEvent(new Event("input", { bubbles:true }));
+    });
+
+    $("#ssoBtn").addEventListener("click", async ()=>{
+      log("click", "Click: SSO");
+      hideFlash();
+      const delay = stress ? (300 + Math.random()*900) : 300;
+      await new Promise(r=>setTimeout(r, delay));
+      showFlash("success", "SSO", "Симуляция успешного SSO входа.");
+    });
+
+    $("#signupBtn").addEventListener("click", async ()=>{
+      log("click", "Click: Signup");
+      hideFlash();
+      const delay = stress ? (200 + Math.random()*900) : 200;
+      await new Promise(r=>setTimeout(r, delay));
+      showFlash("success", "Аккаунт создан", "Теперь можно войти.");
+      setTab("login");
+    });
+
+    $("#forgot").addEventListener("click", (e)=>{
+      e.preventDefault();
+      log("click", "Click: Forgot password");
+      showFlash("success", "Ссылка отправлена", "Проверь почту (симуляция).");
+    });
+
+    $("#clearLog").addEventListener("click", ()=>{
+      logEl.innerHTML = "";
+      log("click", "Log cleared");
+    });
+
+    // Shortcut: Alt+Enter triggers login
+    document.addEventListener("keydown", (e)=>{
+      if(e.altKey && e.key === "Enter"){
+        log("click", "Hotkey: Alt+Enter");
+        $("#loginBtn").click();
+      }
+    });
+
+    // Initial
+    log("ok", "Page ready");
+  </script>
+</body>
+</html>

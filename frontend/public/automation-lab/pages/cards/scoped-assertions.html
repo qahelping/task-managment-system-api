@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../../assets/favicon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Нужно проверить данные только одной карточки - Web Automation Torture Lab</title>
+        <!-- Базовые стили страницы/компонентов -->
+    <link rel="stylesheet" href="../../assets/indigo-styles.css"/>
+
+    <!-- Фон страницы: переливы/волны/аура/звёзды (подключать ПОСЛЕ базовых) -->
+    <link rel="stylesheet" href="../../assets/aurora.css"/>
+    <style>
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+        .card-item { background: var(--bg-card); border: 2px solid var(--border-color); border-radius: 12px; padding: 1.5rem; transition: all 0.3s; }
+        .card-item:hover { box-shadow: var(--shadow-glow); border-color: var(--accent-primary); }
+        .card-title { font-weight: 600; margin-bottom: 0.5rem; }
+        .card-status { display: inline-block; padding: 0.25rem 0.75rem; border-radius: 6px; font-size: 0.85rem; margin: 0.5rem 0; }
+        .card-status.active { background: #10B981; color: white; }
+        .card-status.blocked { background: #EF4444; color: white; }
+        .card-balance { font-size: 1.2rem; font-weight: 600; margin: 0.5rem 0; }
+        .card-currency { color: var(--text-secondary); font-size: 0.9rem; }
+        .card-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .card-actions button { padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+        .btn-details { background: var(--accent-primary); color: white; }
+        .btn-block { background: #EF4444; color: white; }
+    </style>
+</head>
+<body data-style="s2">
+<!-- Обязательные слои для звёзд -->
+<div class="sky" aria-hidden="true"></div>
+<div class="layout">
+        <header class="header">
+            <div class="header-content">
+                <div class="brand">
+                <div class="brand-mark"><img src="../../assets/logo.png" alt="Logo" class="brand-logo-img"></div>
+                <div class="brand-text">
+                    <div class="brand-title">Web Automation Torture Lab</div>
+                </div>
+            </div>
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        
+
+        <main class="main">
+            <div class="container">
+                <a href="../cards.html" class="back-link">Назад</a>
+                <div class="page-header">
+                    <a href="../cards.html" class="nav-link" style="display: inline-block; margin-bottom: 1rem; text-decoration: none;">← Назад к Data Cards & Targeted Assertions</a>
+                    <h2 class="page-title">Нужно проверить данные только одной карточки</h2>
+                    <p class="page-description">Категория: Data Cards & Targeted Assertions</p>
+                </div>
+
+                <div class="stress-controls">
+                    <button class="stress-btn" id="stressToggle">Toggle Stress Mode</button>
+                    <button class="stress-btn" id="shuffleBtn">Shuffle Cards</button>
+                </div>
+
+                <div class="case-card" style="max-width: 1000px; margin: 0 auto;">
+                    <h3 class="case-title">Нужно проверить данные только одной карточки</h3>
+                    
+                    <div class="case-element" id="case-element">
+                        <div id="cards-container" class="cards-grid"></div>
+                    </div>
+
+                    <div class="problem-section">
+                        <span class="section-label problem-label">Problem</span>
+                        <div class="section-content">
+                            Все карточки содержат одинаковые тексты ("Active", "USD"). Проверка по page.getByText('Active') всегда true, даже если нужная карточка неправильная.
+                        </div>
+                    </div>
+
+                    <div class="problem-section">
+                        <span class="section-label why-label">Why it happens</span>
+                        <div class="section-content">
+                            Глобальные селекторы находят первый подходящий элемент. Нужно ограничить область поиска конкретной карточкой.
+                        </div>
+                    </div>
+
+                    <div class="show-solution-wrapper">
+                        <input type="text" class="solution-key-input" placeholder="Введите ключ для просмотра решения">
+                        <button class="show-solution-btn" disabled>Показать решение</button>
+                    </div>
+
+                    <div class="solution-section solution-hidden">
+                        <span class="section-label solution-label">Solution: Selenium (Python)</span>
+                        <div class="code-wrapper">
+                            <div class="code-header">
+                                <span class="code-label">Selenium (Python)</span>
+                                <button class="copy-btn" onclick="copyToClipboard(`from selenium.webdriver.common.by import By
+
+# Все asserts делаем ТОЛЬКО внутри контейнера карточки
+card = driver.find_element(By.CSS_SELECTOR, '[data-card-id=\"card-12345\"]')
+
+# НЕ делаем так:
+# status = driver.find_element(By.CSS_SELECTOR, '.card-status')  # Найдёт первую!
+
+# Делаем так:
+status = card.find_element(By.CSS_SELECTOR, '.card-status')  # Только внутри card
+assert status.text == 'Active'
+
+balance = card.find_element(By.CSS_SELECTOR, '.card-balance')
+assert balance.text == '1000.00'`, this)">Copy</button>
+                            </div>
+                            <pre class="code-block">from selenium.webdriver.common.by import By
+
+# Все asserts делаем ТОЛЬКО внутри контейнера карточки
+card = driver.find_element(By.CSS_SELECTOR, '[data-card-id="card-12345"]')
+
+# НЕ делаем так:
+# status = driver.find_element(By.CSS_SELECTOR, '.card-status')  # Найдёт первую!
+
+# Делаем так:
+status = card.find_element(By.CSS_SELECTOR, '.card-status')  # Только внутри card
+assert status.text == 'Active'
+
+balance = card.find_element(By.CSS_SELECTOR, '.card-balance')
+assert balance.text == '1000.00'</pre>
+                        </div>
+                    </div>
+
+                    <div class="solution-section solution-hidden">
+                        <span class="section-label solution-label">Solution: Playwright (TypeScript)</span>
+                        <div class="code-wrapper">
+                            <div class="code-header">
+                                <span class="code-label">Playwright (TypeScript)</span>
+                                <button class="copy-btn" onclick="copyToClipboard(`const card = page.locator('[data-card-id=\"card-12345\"]');
+
+// Используем scoped getByText внутри карточки
+await expect(card.getByText('Active')).toBeVisible();
+
+// Или используем locator с фильтрацией
+await expect(card.locator('.card-status')).toHaveText('Active');
+await expect(card.locator('.card-balance')).toHaveText('1000.00');`, this)">Copy</button>
+                            </div>
+                            <pre class="code-block">const card = page.locator('[data-card-id="card-12345"]');
+
+// Используем scoped getByText внутри карточки
+await expect(card.getByText('Active')).toBeVisible();
+
+// Или используем locator с фильтрацией
+await expect(card.locator('.card-status')).toHaveText('Active');
+await expect(card.locator('.card-balance')).toHaveText('1000.00');</pre>
+                        </div>
+                    </div>
+
+                    <button class="trigger-btn" onclick="triggerCase()">Trigger</button>
+
+                    <div class="assert-section solution-hidden">
+                        <div class="assert-title">How to assert it's fixed:</div>
+                        <p>Проверить, что ассерты относятся только к нужной карточке</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Web Automation Torture Lab © <span id="currentYear">2024</span> | Для автоматизаторов тестирования</p>
+        </footer>
+    </div>
+
+
+
+
+
+    <script src="../../assets/highlight.js"></script>
+    <script src="../../assets/app.js"></script>
+    <script>
+        // Generate random card data
+        function generateCard(cardId) {
+            const statuses = ['Active', 'Blocked'];
+            const currencies = ['USD', 'EUR', 'RUB'];
+            const status = statuses[Math.floor(Math.random() * statuses.length)];
+            const balance = (Math.random() * 10000).toFixed(2);
+            const currency = currencies[Math.floor(Math.random() * currencies.length)];
+            const pan = '**** ' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            
+            return {
+                id: cardId,
+                pan,
+                status,
+                balance,
+                currency
+            };
+        }
+
+        function renderCard(container, cardData) {
+            const card = document.createElement('div');
+            card.className = 'card-item';
+            card.setAttribute('data-card-id', cardData.id);
+            card.innerHTML = `
+                <div class="card-title">Card ${cardData.pan}</div>
+                <div class="card-status ${cardData.status.toLowerCase()}">${cardData.status}</div>
+                <div class="card-balance">${cardData.balance}</div>
+                <div class="card-currency">${cardData.currency}</div>
+                <div class="card-actions">
+                    <button class="btn-details">Details</button>
+                    <button class="btn-block">Block</button>
+                </div>
+            `;
+            container.appendChild(card);
+            return card;
+        }
+
+        function loadCards(containerId, count = 9, targetCardId = 'card-12345') {
+            const container = document.getElementById(containerId);
+            container.innerHTML = '';
+            const cards = [];
+            
+            // Always include target card with specific data
+            cards.push({
+                id: targetCardId,
+                pan: '**** 4242',
+                status: 'Active',
+                balance: '1000.00',
+                currency: 'USD'
+            });
+            
+            // Generate other cards (some with same status/currency to test scoped assertions)
+            for (let i = 0; i < count - 1; i++) {
+                cards.push(generateCard('card-' + Math.floor(Math.random() * 100000)));
+            }
+            
+            // Shuffle
+            cards.sort(() => Math.random() - 0.5);
+            
+            cards.forEach(cardData => {
+                renderCard(container, cardData);
+            });
+        }
+
+        // Case-specific handler
+        function triggerCase() {
+            loadCards('cards-container', 9, 'card-12345');
+        }
+
+        // Shuffle button
+        document.getElementById('shuffleBtn')?.addEventListener('click', () => {
+            const container = document.getElementById('cards-container');
+            if (container && container.children.length > 0) {
+                const cards = Array.from(container.children);
+                cards.sort(() => Math.random() - 0.5);
+                cards.forEach(card => container.appendChild(card));
+            }
+        });
+
+        // Stress mode toggle
+        document.getElementById('stressToggle')?.addEventListener('click', function() {
+            window.stressMode.toggle();
+            this.classList.toggle('active');
+            this.textContent = window.stressMode.enabled ? 'Stress Mode: ON' : 'Stress Mode: OFF';
+        });
+
+        // Load cards on page load
+        triggerCase();
+    </script>
+</body>
+</html>
+

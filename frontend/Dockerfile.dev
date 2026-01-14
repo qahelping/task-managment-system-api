@@ -1,0 +1,26 @@
+# Dockerfile для разработки фронтенда (с hot-reload)
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Копирование файлов зависимостей
+COPY package*.json ./
+
+# Установка зависимостей
+RUN npm ci
+
+EXPOSE 3000
+
+# Команда запуска dev сервера
+CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+
+
+
+
+
+
+
+
+
+
+

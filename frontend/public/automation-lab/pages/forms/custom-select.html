@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../../assets/favicon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom select (не &lt;select&gt;) - Web Automation Torture Lab</title>
+  
+  
+        <!-- Базовые стили страницы/компонентов -->
+    <link rel="stylesheet" href="../../assets/indigo-styles.css"/>
+
+    <!-- Фон страницы: переливы/волны/аура/звёзды (подключать ПОСЛЕ базовых) -->
+    <link rel="stylesheet" href="../../assets/aurora.css"/>
+</head>
+<body data-style="s2">
+<!-- Обязательные слои для звёзд -->
+<div class="sky" aria-hidden="true"></div>
+<div class="layout">
+        <header class="header">
+            <div class="header-content">
+                <div class="brand"><img src="../../assets/logo.svg" alt="Web Automation Torture Lab" class="brand-logo"><div class="brand-text"><div class="brand-title">Web Automation Torture Lab</div></div></div>
+                <h1 class="header-title" style="display:none">>Web Automation Torture Lab</h1>
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        
+
+        <main class="main">
+            <div class="container">
+                <a href="../forms.html" class="back-link">Назад</a>
+                <div class="page-header">
+                    <a href="../forms.html" class="nav-link" style="display: inline-block; margin-bottom: 1rem; text-decoration: none;">← Назад к Forms & Inputs</a>
+                    <h2 class="page-title">Custom select (не &lt;select&gt;)</h2>
+                    <p class="page-description">Категория: Forms & Inputs</p>
+                </div>
+
+                <div class="stress-controls">
+                    <button class="stress-btn" id="stressToggle">Toggle Stress Mode</button>
+                </div>
+
+                <div class="case-card" style="max-width: 1000px; margin: 0 auto;">
+                    <h3 class="case-title">Custom select (не &lt;select&gt;)</h3>
+                    
+                    <div class="case-element" id="case-element">
+                        <label>Выберите опцию:</label>
+                            <div id="custom-select" style="position: relative; margin-top: 0.5rem;">
+                                <div id="select-trigger" style="padding: 0.75rem; border: 2px solid var(--border-color); border-radius: 8px; cursor: pointer; background: var(--bg-secondary);">
+                                    Выберите...
+                    </div>
+
+                    <div class="problem-section">
+                        <span class="section-label problem-label">Problem</span>
+                        <div class="section-content">
+                            Dropdown div+ul, options появляются в портале (в конце body). Обычный Select не работает, options не внутри компонента.
+                        </div>
+                    </div>
+
+                    <div class="problem-section">
+                        <span class="section-label why-label">Why it happens</span>
+                        <div class="section-content">
+                            Кастомные селекты рендерятся через порталы вне DOM-дерева компонента. Selenium Select не может работать с div элементами.
+                        </div>
+                    </div>
+
+                    <div class="show-solution-wrapper">
+                        <input type="text" class="solution-key-input" placeholder="Введите ключ для просмотра решения">
+                        <button class="show-solution-btn" disabled>Показать решение</button>
+                    </div>
+
+                    <div class="solution-section solution-hidden">
+                        <span class="section-label solution-label">Solution: Selenium (Python)</span>
+                        <div class="code-wrapper">
+                            <div class="code-header">
+                                <span class="code-label">Selenium (Python)</span>
+                                <button class="copy-btn" onclick="copyToClipboard(`from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# 1. Кликаем триггер для открытия dropdown
+trigger = driver.find_element(By.ID, 'select-trigger')
+trigger.click()
+
+# 2. Ждём появления списка options
+WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.ID, 'select-options'))
+)
+
+# 3. Кликаем нужную опцию (ищем в body, если options в портале)
+option = driver.find_element(By.XPATH, '//ul[@id="select-options"]//li[@data-value="option2"]')
+option.click()
+
+# Альтернатива: если options в конце body
+# option = driver.find_element(By.XPATH, '//body//li[@data-value="option2"]')
+# option.click()`, this)">Copy</button>
+                            </div>
+                            <pre class="code-block">from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# 1. Кликаем триггер для открытия dropdown
+trigger = driver.find_element(By.ID, &#x27;select-trigger&#x27;)
+trigger.click()
+
+# 2. Ждём появления списка options
+WebDriverWait(driver, 10).until(
+    EC.presence_of_element_located((By.ID, &#x27;select-options&#x27;))
+)
+
+# 3. Кликаем нужную опцию (ищем в body, если options в портале)
+option = driver.find_element(By.XPATH, &#x27;//ul[@id=&quot;select-options&quot;]//li[@data-value=&quot;option2&quot;]&#x27;)
+option.click()
+
+# Альтернатива: если options в конце body
+# option = driver.find_element(By.XPATH, &#x27;//body//li[@data-value=&quot;option2&quot;]&#x27;)
+# option.click()</pre>
+                        </div>
+                    </div>
+
+                    <div class="solution-section solution-hidden">
+                        <span class="section-label solution-label">Solution: Playwright (TypeScript)</span>
+                        <div class="code-wrapper">
+                            <div class="code-header">
+                                <span class="code-label">Playwright (TypeScript)</span>
+                                <button class="copy-btn" onclick="copyToClipboard(`// Используем getByRole для поиска listbox (если есть role)
+await page.getByRole('combobox').click();
+await page.getByRole('option', { name: 'Опция 2' }).click();
+
+// Или используем locator с фильтрацией
+const trigger = page.locator('#select-trigger');
+await trigger.click();
+
+const option = page.locator('[data-value="option2"]');
+await expect(option).toBeVisible();
+await option.click();`, this)">Copy</button>
+                            </div>
+                            <pre class="code-block">// Используем getByRole для поиска listbox (если есть role)
+await page.getByRole(&#x27;combobox&#x27;).click();
+await page.getByRole(&#x27;option&#x27;, { name: &#x27;Опция 2&#x27; }).click();
+
+// Или используем locator с фильтрацией
+const trigger = page.locator(&#x27;#select-trigger&#x27;);
+await trigger.click();
+
+const option = page.locator(&#x27;[data-value=&quot;option2&quot;]&#x27;);
+await expect(option).toBeVisible();
+await option.click();</pre>
+                        </div>
+                    </div>
+
+                    <button class="trigger-btn" onclick="triggerCase()">Trigger</button>
+
+                    <div class="assert-section solution-hidden">
+                        <div class="assert-title">How to assert it's fixed:</div>
+                        <p>Проверить, что выбранная опция отображается в триггере</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Web Automation Torture Lab © <span id="currentYear">2024</span> | Для автоматизаторов тестирования</p>
+        </footer>
+    </div>
+
+
+
+
+
+    <script src="../../assets/highlight.js"></script>
+    <script src="../../assets/app.js"></script>
+    <script>
+        // Case-specific handler
+        function triggerCase() {
+            
+        }
+
+        // Stress mode toggle
+        document.getElementById('stressToggle')?.addEventListener('click', function() {
+            window.stressMode.toggle();
+            this.classList.toggle('active');
+            this.textContent = window.stressMode.enabled ? 'Stress Mode: ON' : 'Stress Mode: OFF';
+        });
+    </script>
+</body>
+</html>

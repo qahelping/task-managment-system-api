@@ -1,0 +1,434 @@
+#!/usr/bin/env python3
+"""
+Скрипт для заполнения базы данных валидными тестовыми данными по всем моделям.
+
+Использование:
+    python fill_database.py
+    или
+    docker compose exec backend python fill_database.py
+"""
+import sys
+import os
+from datetime import datetime, timedelta
+from random import choice, randint, sample
+
+# Добавляем корневую директорию в путь
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from app.database import SessionLocal, init_db
+from app.models.user import User
+from app.models.board import Board
+from app.models.task import Task
+from app.models.board_member import BoardMember
+from app.models.comment import TaskComment
+from app.models.audit_log import AuditLog
+from app.core.security import get_password_hash
+
+
+def create_users(db):
+    """Создание пользователей разных ролей"""
+    print("\n📝 Создание пользователей...")
+    
+    users_data = [
+        # Администраторы
+        {"username": "admin", "email": "admin@example.com", "password": "admin123", "role": "admin"},
+        {"username": "alice_admin", "email": "alice@example.com", "password": "password123", "role": "admin"},
+        
+        # Обычные пользователи
+        {"username": "bob_user", "email": "bob@example.com", "password": "password123", "role": "user"},
+        {"username": "charlie", "email": "charlie@example.com", "password": "password123", "role": "user"},
+        {"username": "diana", "email": "diana@example.com", "password": "password123", "role": "user"},
+        {"username": "eve", "email": "eve@example.com", "password": "password123", "role": "user"},
+        
+        # Гости
+        {"username": "guest1", "email": "guest1@example.com", "password": "password123", "role": "guest"},
+        {"username": "guest2", "email": "guest2@example.com", "password": "password123", "role": "guest"},
+    ]
+    
+    created_users = []
+    for user_data in users_data:
+        existing_user = db.query(User).filter(User.email == user_data["email"]).first()
+        if existing_user:
+            print(f"   ⚠ Пользователь {user_data['email']} уже существует, пропускаем")
+            created_users.append(existing_user)
+        else:
+            user = User(
+                username=user_data["username"],
+                email=user_data["email"],
+                password_hash=get_password_hash(user_data["password"]),
+                role=user_data["role"],
+                created_at=datetime.utcnow() - timedelta(days=randint(1, 30))
+            )
+            db.add(user)
+            db.commit()
+            db.refresh(user)
+            created_users.append(user)
+            print(f"   ✓ Создан пользователь: {user.username} ({user.role})")
+    
+    return created_users
+
+
+def create_boards(db, users):
+    """Создание досок с разными настройками"""
+    print("\n📋 Создание досок...")
+    
+    admin_users = [u for u in users if u.role == "admin"]
+    regular_users = [u for u in users if u.role == "user"]
+    all_creators = admin_users + regular_users
+    
+    boards_data = [
+        {
+            "title": "Проект Разработка",
+            "description": "Основная доска для разработки нового функционала",
+            "public": False,
+            "archived": False,
+        },
+        {
+            "title": "Маркетинг и Продвижение",
+            "description": "Задачи по маркетингу и продвижению продукта",
+            "public": False,
+            "archived": False,
+        },
+        {
+            "title": "Публичная Доска",
+            "description": "Доска для публичного просмотра проектов",
+            "public": True,
+            "archived": False,
+        },
+        {
+            "title": "Техническая Поддержка",
+            "description": "Обработка запросов пользователей и баг-репортов",
+            "public": False,
+            "archived": False,
+        },
+        {
+            "title": "Архивные Проекты",
+            "description": "Завершенные проекты",
+            "public": False,
+            "archived": True,
+        },
+        {
+            "title": "Публичный Roadmap",
+            "description": "Публичный план развития продукта",
+            "public": True,
+            "archived": False,
+        },
+        {
+            "title": "Дизайн Системы",
+            "description": "Работа над дизайном интерфейса",
+            "public": False,
+            "archived": False,
+        },
+        {
+            "title": "Тестирование",
+            "description": "QA и тестирование функционала",
+            "public": False,
+            "archived": False,
+        },
+    ]
+    
+    created_boards = []
+    for i, board_data in enumerate(boards_data):
+        creator = choice(all_creators)
+        board = Board(
+            title=board_data["title"],
+            description=board_data["description"],
+            public=board_data["public"],
+            archived=board_data["archived"],
+            created_by=creator.id,
+            created_at=datetime.utcnow() - timedelta(days=randint(1, 60))
+        )
+        db.add(board)
+        db.commit()
+        db.refresh(board)
+        created_boards.append(board)
+        print(f"   ✓ Создана доска: {board.title} (публичная: {board.public}, архив: {board.archived})")
+    
+    return created_boards
+
+
+def create_tasks(db, boards, users):
+    """Создание задач на досках"""
+    print("\n✅ Создание задач...")
+    
+    statuses = ["todo", "in_progress", "done"]
+    priorities = ["low", "medium", "high"]
+    
+    task_templates = [
+        {
+            "title": "Настроить CI/CD pipeline",
+            "description": "Настроить автоматическую сборку и деплой",
+            "status": "in_progress",
+            "priority": "high",
+        },
+        {
+            "title": "Добавить аутентификацию",
+            "description": "Реализовать систему входа и регистрации",
+            "status": "done",
+            "priority": "high",
+        },
+        {
+            "title": "Создать API документацию",
+            "description": "Написать документацию для всех эндпоинтов",
+            "status": "todo",
+            "priority": "medium",
+        },
+        {
+            "title": "Оптимизировать запросы к БД",
+            "description": "Улучшить производительность запросов",
+            "status": "in_progress",
+            "priority": "medium",
+        },
+        {
+            "title": "Добавить unit тесты",
+            "description": "Покрыть код unit тестами",
+            "status": "todo",
+            "priority": "high",
+        },
+        {
+            "title": "Обновить дизайн",
+            "description": "Улучшить UI/UX интерфейса",
+            "status": "todo",
+            "priority": "low",
+        },
+        {
+            "title": "Исправить баги",
+            "description": "Исправить найденные ошибки",
+            "status": "in_progress",
+            "priority": "high",
+        },
+        {
+            "title": "Добавить логирование",
+            "description": "Настроить систему логирования",
+            "status": "done",
+            "priority": "medium",
+        },
+        {
+            "title": "Настроить мониторинг",
+            "description": "Улучшить производительность приложения",
+            "status": "done",
+            "priority": "high",
+        },
+        {
+            "title": "Провести code review",
+            "description": "Проверить код на соответствие стандартам",
+            "status": "todo",
+            "priority": "medium",
+        },
+    ]
+    
+    created_tasks = []
+    for board in boards:
+        if board.archived:
+            # Для архивных досок создаем меньше задач
+            num_tasks = randint(2, 4)
+        else:
+            num_tasks = randint(5, 10)
+        
+        board_users = [u for u in users if u.role != "guest"]  # Гости не создают задачи
+        
+        for i in range(num_tasks):
+            template = choice(task_templates)
+            creator = choice(board_users)
+            
+            task = Task(
+                title=template["title"],
+                description=template["description"],
+                status=template["status"],
+                priority=template["priority"],
+                order=i,
+                board_id=board.id,
+                created_by=creator.id,
+                created_at=datetime.utcnow() - timedelta(days=randint(0, 30)),
+                updated_at=datetime.utcnow() - timedelta(days=randint(0, 15))
+            )
+            db.add(task)
+            db.commit()
+            db.refresh(task)
+            created_tasks.append(task)
+        
+        print(f"   ✓ Создано {num_tasks} задач для доски: {board.title}")
+    
+    return created_tasks
+
+
+def create_board_members(db, boards, users):
+    """Добавление участников к доскам"""
+    print("\n👥 Добавление участников к доскам...")
+    
+    for board in boards:
+        if board.archived:
+            continue  # Не добавляем участников к архивным доскам
+        
+        # Создатель доски уже является участником через связь
+        # Добавляем еще несколько участников
+        potential_members = [u for u in users if u.id != board.created_by]
+        num_members = randint(1, min(3, len(potential_members)))
+        selected_members = sample(potential_members, num_members)
+        
+        for member in selected_members:
+            # Проверяем, не добавлен ли уже
+            existing = db.query(BoardMember).filter(
+                BoardMember.board_id == board.id,
+                BoardMember.user_id == member.id
+            ).first()
+            
+            if not existing:
+                board_member = BoardMember(
+                    board_id=board.id,
+                    user_id=member.id
+                )
+                db.add(board_member)
+        
+        db.commit()
+        print(f"   ✓ Добавлено {num_members} участников к доске: {board.title}")
+
+
+def create_comments(db, tasks, users):
+    """Создание комментариев к задачам"""
+    print("\n💬 Создание комментариев...")
+    
+    comment_templates = [
+        "Отличная работа!",
+        "Нужно доработать этот момент",
+        "Можно улучшить производительность",
+        "Готово к ревью",
+        "Требуется дополнительная информация",
+        "Исправлено в последней версии",
+        "Отличная идея!",
+        "Нужно обсудить детали",
+        "Работа выполнена",
+        "Требуется тестирование",
+    ]
+    
+    total_comments = 0
+    for task in tasks:
+        # Добавляем комментарии только к активным задачам
+        if task.status != "done":
+            num_comments = randint(0, 3)
+            task_users = [u for u in users if u.role != "guest"]
+            
+            for _ in range(num_comments):
+                comment = TaskComment(
+                    task_id=task.id,
+                    user_id=choice(task_users).id,
+                    content=choice(comment_templates),
+                    created_at=datetime.utcnow() - timedelta(days=randint(0, 10))
+                )
+                db.add(comment)
+                total_comments += 1
+    
+    db.commit()
+    print(f"   ✓ Создано {total_comments} комментариев")
+
+
+def create_audit_logs(db, users, boards, tasks):
+    """Создание логов аудита"""
+    print("\n📊 Создание логов аудита...")
+    
+    actions = ["create", "update", "delete", "login", "logout", "view"]
+    entity_types = ["board", "task", "user", "comment"]
+    
+    total_logs = 0
+    
+    # Логи для досок
+    for board in boards:
+        log = AuditLog(
+            user_id=board.created_by,
+            action="create",
+            entity_type="board",
+            entity_id=board.id,
+            details=f'{{"title": "{board.title}", "public": {str(board.public).lower()}}}',
+            created_at=board.created_at
+        )
+        db.add(log)
+        total_logs += 1
+    
+    # Логи для задач
+    for task in tasks[:20]:  # Логируем первые 20 задач
+        log = AuditLog(
+            user_id=task.created_by,
+            action=choice(["create", "update"]),
+            entity_type="task",
+            entity_id=task.id,
+            details=f'{{"title": "{task.title}", "status": "{task.status}"}}',
+            created_at=task.created_at
+        )
+        db.add(log)
+        total_logs += 1
+    
+    # Логи входа пользователей
+    for user in users[:5]:  # Логируем входы для первых 5 пользователей
+        for _ in range(randint(1, 5)):
+            log = AuditLog(
+                user_id=user.id,
+                action="login",
+                entity_type="user",
+                entity_id=user.id,
+                details=f'{{"username": "{user.username}"}}',
+                created_at=datetime.utcnow() - timedelta(days=randint(0, 30))
+            )
+            db.add(log)
+            total_logs += 1
+    
+    db.commit()
+    print(f"   ✓ Создано {total_logs} логов аудита")
+
+
+def main():
+    """Основная функция"""
+    print("=" * 70)
+    print("🚀 Заполнение базы данных тестовыми данными")
+    print("=" * 70)
+    
+    # Инициализация БД
+    print("\n📦 Инициализация базы данных...")
+    init_db()
+    print("✓ База данных готова")
+    
+    db = SessionLocal()
+    
+    try:
+        # Создание данных
+        users = create_users(db)
+        boards = create_boards(db, users)
+        tasks = create_tasks(db, boards, users)
+        create_board_members(db, boards, users)
+        create_comments(db, tasks, users)
+        create_audit_logs(db, users, boards, tasks)
+        
+        # Статистика
+        print("\n" + "=" * 70)
+        print("📊 Статистика созданных данных:")
+        print("=" * 70)
+        print(f"   👤 Пользователей: {db.query(User).count()}")
+        print(f"   📋 Досок: {db.query(Board).count()}")
+        print(f"   ✅ Задач: {db.query(Task).count()}")
+        print(f"   👥 Участников досок: {db.query(BoardMember).count()}")
+        print(f"   💬 Комментариев: {db.query(TaskComment).count()}")
+        print(f"   📊 Логов аудита: {db.query(AuditLog).count()}")
+        print("=" * 70)
+        print("\n✅ База данных успешно заполнена!")
+        print("\n💡 Данные для входа:")
+        print("   Администратор: admin@example.com / admin123")
+        print("   Пользователь: bob@example.com / password123")
+        print("   Гость: guest1@example.com / password123")
+        
+    except Exception as e:
+        db.rollback()
+        print(f"\n❌ Ошибка при заполнении базы данных: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
+    finally:
+        db.close()
+
+
+if __name__ == "__main__":
+    main()
+
+
+
+
+
+

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../../assets/favicon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Карточка перерендеривается (stale card) - Web Automation Torture Lab</title>
+  
+  
+        <!-- Базовые стили страницы/компонентов -->
+    <link rel="stylesheet" href="../../assets/indigo-styles.css"/>
+
+    <!-- Фон страницы: переливы/волны/аура/звёзды (подключать ПОСЛЕ базовых) -->
+    <link rel="stylesheet" href="../../assets/aurora.css"/>
+</head>
+<body data-style="s2">
+<!-- Обязательные слои для звёзд -->
+<div class="sky" aria-hidden="true"></div>
+<div class="layout">
+        <header class="header">
+            <div class="header-content">
+                <div class="brand"><img src="../../assets/logo.svg" alt="Web Automation Torture Lab" class="brand-logo"><div class="brand-text"><div class="brand-title">Web Automation Torture Lab</div></div></div>
+                <h1 class="header-title" style="display:none">>Web Automation Torture Lab</h1>
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        
+
+        <main class="main">
+            <div class="container">
+                <a href="../cards.html" class="back-link">Назад</a>
+                <div class="page-header">
+                    <a href="../cards.html" class="nav-link" style="display: inline-block; margin-bottom: 1rem; text-decoration: none;">← Назад к Data Cards & Targeted Assertions</a>
+                    <h2 class="page-title">Карточка перерендеривается (stale card)</h2>
+                    <p class="page-description">Категория: Data Cards & Targeted Assertions</p>
+                </div>
+
+                <div class="stress-controls">
+                    <button class="stress-btn" id="stressToggle">Toggle Stress Mode</button>
+                </div>
+
+                <div class="case-card" style="max-width: 1000px; margin: 0 auto;">
+                    <h3 class="case-title">Карточка перерендеривается (stale card)</h3>
+                    
+                    <div class="case-element" id="case-element">
+                        <div id="cards-container-3" class="cards-grid">
+                    </div>
+
+                    <div class="problem-section">
+                        <span class="section-label problem-label">Problem</span>
+                        <div class="section-content">
+                            Каждые 800–1500ms карточка пересоздаётся. DOM-узел меняется, но data-card-id остаётся тем же. StaleElementReferenceException.
+                        </div>
+                    </div>
+
+                    <div class="problem-section">
+                        <span class="section-label why-label">Why it happens</span>
+                        <div class="section-content">
+                            React/Vue пересоздают DOM-узлы при обновлении state. Старая ссылка становится невалидной.
+                        </div>
+                    </div>
+
+                    <div class="show-solution-wrapper">
+                        <input type="text" class="solution-key-input" placeholder="Введите ключ для просмотра решения">
+                        <button class="show-solution-btn" disabled>Показать решение</button>
+                    </div>
+
+                    <div class="solution-section solution-hidden">
+                        <span class="section-label solution-label">Solution: Selenium (Python)</span>
+                        <div class="code-wrapper">
+                            <div class="code-header">
+                                <span class="code-label">Selenium (Python)</span>
+                                <button class="copy-btn" onclick="copyToClipboard(`from selenium.webdriver.common.by import By
+from selenium.common.exceptions import StaleElementReferenceException
+
+# НЕ храним WebElement долго, всегда находим заново
+for attempt in range(5):
+    try:
+        card = driver.find_element(By.CSS_SELECTOR, '[data-card-id="card-12345"]')
+        status = card.find_element(By.CSS_SELECTOR, '.card-status')
+        assert status.text == 'Active'
+        break
+    except StaleElementReferenceException:
+        if attempt == 4:
+            raise
+        time.sleep(0.2)`, this)">Copy</button>
+                            </div>
+                            <pre class="code-block">from selenium.webdriver.common.by import By
+from selenium.common.exceptions import StaleElementReferenceException
+
+# НЕ храним WebElement долго, всегда находим заново
+for attempt in range(5):
+    try:
+        card = driver.find_element(By.CSS_SELECTOR, &#x27;[data-card-id=&quot;card-12345&quot;]&#x27;)
+        status = card.find_element(By.CSS_SELECTOR, &#x27;.card-status&#x27;)
+        assert status.text == &#x27;Active&#x27;
+        break
+    except StaleElementReferenceException:
+        if attempt == 4:
+            raise
+        time.sleep(0.2)</pre>
+                        </div>
+                    </div>
+
+                    <div class="solution-section solution-hidden">
+                        <span class="section-label solution-label">Solution: Playwright (TypeScript)</span>
+                        <div class="code-wrapper">
+                            <div class="code-header">
+                                <span class="code-label">Playwright (TypeScript)</span>
+                                <button class="copy-btn" onclick="copyToClipboard(`// Используем locator, а не elementHandle
+const card = page.locator('[data-card-id="card-12345"]');
+
+// Playwright автоматически переищет элемент
+await expect(card.locator('.card-status')).toHaveText('Active');
+
+// Locator автоматически retry при stale`, this)">Copy</button>
+                            </div>
+                            <pre class="code-block">// Используем locator, а не elementHandle
+const card = page.locator(&#x27;[data-card-id=&quot;card-12345&quot;]&#x27;);
+
+// Playwright автоматически переищет элемент
+await expect(card.locator(&#x27;.card-status&#x27;)).toHaveText(&#x27;Active&#x27;);
+
+// Locator автоматически retry при stale</pre>
+                        </div>
+                    </div>
+
+                    <button class="trigger-btn" onclick="triggerCase()">Trigger</button>
+
+                    <div class="assert-section solution-hidden">
+                        <div class="assert-title">How to assert it's fixed:</div>
+                        <p>Проверить, что проверка не падает при перерендере</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Web Automation Torture Lab © <span id="currentYear">2024</span> | Для автоматизаторов тестирования</p>
+        </footer>
+    </div>
+
+
+
+
+
+    <script src="../../assets/highlight.js"></script>
+    <script src="../../assets/app.js"></script>
+    <script>
+        // Case-specific handler
+        function triggerCase() {
+            
+        }
+
+        // Stress mode toggle
+        document.getElementById('stressToggle')?.addEventListener('click', function() {
+            window.stressMode.toggle();
+            this.classList.toggle('active');
+            this.textContent = window.stressMode.enabled ? 'Stress Mode: ON' : 'Stress Mode: OFF';
+        });
+    </script>
+</body>
+</html>

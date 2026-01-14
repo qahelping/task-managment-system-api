@@ -1,0 +1,547 @@
+/* ===== Design tokens ===== */
+:root {
+    --bg: #0b0f17;
+    --surface: rgba(255, 255, 255, .06);
+    --text: rgba(255, 255, 255, .92);
+    --muted: rgba(255, 255, 255, .65);
+    --stroke: rgba(255, 255, 255, .14);
+
+    --radius-xl: 22px;
+    --shadow: 0 18px 50px rgba(0, 0, 0, .35);
+
+    --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+
+    /* sizes */
+    --card-w: 420px;
+    --card-h: 250px;
+
+    /* tier gradients */
+    --g-classic: radial-gradient(1200px 400px at 15% 0%, rgba(255, 255, 255, .18), transparent 40%),
+                 linear-gradient(135deg, #f2f4f7, #d9dee7);
+    --g-gold: radial-gradient(900px 420px at 20% 0%, rgba(255, 255, 255, .22), transparent 55%),
+              linear-gradient(135deg, #f3d98b, #b9862f);
+    --g-premium: radial-gradient(900px 420px at 20% 0%, rgba(255, 255, 255, .18), transparent 55%),
+                 linear-gradient(135deg, #7bb3ff, #2a55c6);
+    --g-platinum: radial-gradient(900px 420px at 20% 0%, rgba(255, 255, 255, .14), transparent 60%),
+                  linear-gradient(135deg, #3a3f4a, #0f1217);
+    --g-infinite: radial-gradient(900px 420px at 20% 0%, rgba(255, 255, 255, .35), transparent 60%),
+                  linear-gradient(135deg, #3a3f4a, #1a1d26);
+    --g-business: radial-gradient(900px 420px at 20% 0%, rgba(255, 255, 255, .14), transparent 60%),
+                  linear-gradient(135deg, #233a6c, #0b1638);
+}
+
+[data-theme="dark"] {
+    --bg: #0b0f17;
+}
+
+[data-theme="light"] {
+    --bg: #f5f7fa;
+    --text: rgba(16, 23, 36, .92);
+    --muted: rgba(16, 23, 36, .65);
+    --stroke: rgba(16, 23, 36, .14);
+}
+
+[data-theme="light"] .page {
+    background: radial-gradient(1200px 800px at 20% 0%, rgba(124, 92, 255, .08), transparent 55%),
+                radial-gradient(1000px 700px at 100% 30%, rgba(42, 180, 255, .06), transparent 50%),
+                var(--bg);
+}
+
+/* demo page bg */
+.page {
+    font-family: var(--sans);
+    background: radial-gradient(1200px 800px at 20% 0%, rgba(124, 92, 255, .22), transparent 55%),
+                radial-gradient(1000px 700px at 100% 30%, rgba(42, 180, 255, .20), transparent 50%),
+                var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 28px;
+}
+
+/* cards grid */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+    gap: 22px;
+    align-items: start;
+}
+
+/* ===== Card base ===== */
+.card {
+    position: relative;
+    width: 100%;
+    max-width: var(--card-w);
+    height: var(--card-h);
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--shadow);
+    border: 1px solid rgba(255, 255, 255, .10);
+    isolation: isolate;
+    transform: translateZ(0);
+    color: rgb(173 187 212 / 92%);
+}
+
+/* background layer for tier gradients */
+.card__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    filter: saturate(1.05);
+}
+
+/* glossy overlay */
+.card::before {
+    content: "";
+    position: absolute;
+    inset: -40% -30%;
+    background: radial-gradient(closest-side at 25% 30%, rgba(255, 255, 255, .28), transparent 55%);
+    transform: rotate(-12deg);
+    opacity: .65;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* subtle noise */
+.card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image:
+        linear-gradient(to bottom, rgba(255, 255, 255, .08), transparent 40%),
+        radial-gradient(600px 200px at 70% 90%, rgba(255, 255, 255, .10), transparent 60%);
+    mix-blend-mode: soft-light;
+    opacity: .8;
+    z-index: 1;
+    pointer-events: none;
+}
+
+.card__top, .card__bottom, .card__pan {
+    position: relative;
+    z-index: 2;
+}
+
+.card__top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 18px 18px 0 18px;
+    gap: 12px;
+}
+
+.bank__name {
+    font-size: 22px;
+    font-weight: 720;
+    letter-spacing: .2px;
+    line-height: 1.1;
+    text-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+    color: #FFFFFF;
+}
+
+.bank__tier {
+    margin-top: 8px;
+    font-size: 12px;
+    letter-spacing: .22em;
+    font-weight: 650;
+    color: #D1D5DB;
+}
+
+.badges {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.badge {
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 650;
+    letter-spacing: .10em;
+    border: 1px solid rgba(255, 255, 255, .18);
+    background: rgba(0, 0, 0, .18);
+    backdrop-filter: blur(10px);
+}
+
+.badge--tier {
+    text-transform: uppercase;
+}
+
+.badge--virtual {
+    opacity: .95;
+}
+
+/* PAN */
+.card__pan {
+    margin-top: 34px;
+    padding: 0 clamp(12px, 2vw, 18px);
+    font-family: var(--mono);
+    font-size: clamp(12px, 2.2vw, 20px);
+    letter-spacing: clamp(0.06em, 0.1vw, 0.2em);
+    text-shadow: 0 18px 40px rgba(0, 0, 0, .35);
+    white-space: nowrap;
+    color: #FFFFFF;
+    overflow: visible;
+    word-break: keep-all;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+    text-overflow: clip;
+    width: 100%;
+    word-break: keep-all;
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+/* Holder name под номером карты */
+.card__holder-name {
+    position: relative;
+    z-index: 2;
+    margin-top: 12px;
+    padding: 0 18px;
+}
+
+/* bottom section */
+.card__bottom {
+    position: absolute;
+    left: 18px;
+    right: 18px;
+    bottom: 16px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    align-items: flex-end;
+}
+
+/* Убираем holder из card__bottom, так как он теперь под номером карты */
+.card__bottom .holder {
+    display: none;
+}
+
+.balance__label {
+    font-size: 10px;
+    letter-spacing: .22em;
+    margin-bottom: 6px;
+    color: #D1D5DB;
+}
+
+.holder__name {
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: #FFFFFF;
+    text-shadow: 0 10px 30px rgba(0, 0, 0, .25);
+}
+
+.meta {
+    display: flex;
+    align-items: flex-end;
+    gap: 16px;
+}
+
+.balance__value {
+    font-size: 18px;
+    font-weight: 780;
+    letter-spacing: .02em;
+    text-align: right;
+    white-space: nowrap;
+    color: #FFFFFF;
+}
+
+/* Network label (VISA / Mastercard / UnionPay) */
+.network {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 45px;
+    overflow: hidden;
+}
+
+.network__icon {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+}
+
+/* Исправление для SVG с разными viewBox */
+.network__icon[src$="visa.svg"] {
+    padding: 4px;
+}
+
+.network__icon[src$="mastercard.svg"] {
+    padding: 0;
+    width: 126%;
+    height: 126%;
+    transform: scale(1.17);
+    margin: -8%;
+}
+
+.network__icon[src$="unionpay.svg"] {
+    padding: 0;
+    width: 126%;
+    height: 126%;
+    transform: scale(1.17);
+    margin: -8%;
+}
+
+/* Стили для разных платежных систем */
+.network--visa {
+    background: linear-gradient(135deg, #1434cb, #1a1f71);
+    border-color: rgba(255, 255, 255, .3);
+}
+
+.network--mastercard {
+    background: linear-gradient(135deg, #EB001B, #F79E1B);
+    border-color: rgba(255, 255, 255, .3);
+}
+
+.network--unionpay {
+    background: linear-gradient(135deg, #233A6C, #0B1638);
+    border-color: rgba(255, 255, 255, .3);
+}
+
+/* Network на classic картах - используем стандартные стили */
+.card--classic .network--visa {
+    background: linear-gradient(135deg, #1434cb, #1a1f71);
+    border-color: rgba(255, 255, 255, .3);
+}
+
+.card--classic .network--mastercard {
+    background: linear-gradient(135deg, #EB001B, #F79E1B);
+    border-color: rgba(255, 255, 255, .3);
+}
+
+.card--classic .network--unionpay {
+    background: linear-gradient(135deg, #233A6C, #0B1638);
+    border-color: rgba(255, 255, 255, .3);
+}
+
+/* ===== Tier modifiers ===== */
+/* Classic - светлая карта */
+.card--classic {
+    color: #1F2937;
+    border-color: rgba(20, 30, 40, .18);
+}
+
+.card--classic .bank__name,
+.card--classic .card__pan,
+.card--classic .holder__name {
+    color: #111827;
+    text-shadow: none;
+}
+
+.card--classic .holder__label,
+.card--classic .balance__label,
+.card--classic .bank__tier {
+    color: #4B5563;
+}
+
+.card--classic .balance__value {
+    color: #111827;
+    text-shadow: none;
+}
+
+.card--classic .badge {
+    background: rgba(255, 255, 255, .55);
+    border-color: rgba(20, 30, 40, .16);
+}
+
+.card--classic::before {
+    opacity: .35;
+}
+
+.card--classic::after {
+    opacity: .45;
+}
+
+/* Gold - светлая карта */
+.card--gold {
+    color: #1F2937;
+}
+
+.card--gold .bank__name,
+.card--gold .card__pan {
+    color: #111827;
+    text-shadow: none;
+}
+
+.card--gold .card__holder-name .holder__name {
+    color: #111827;
+    text-shadow: none;
+}
+
+.card--gold .holder__label,
+.card--gold .balance__label,
+.card--gold .bank__tier {
+    color: #4B5563;
+}
+
+.card--gold .balance__value {
+    color: #F5D27A;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, .2);
+}
+
+.card--gold .card__bg {
+    background: var(--g-gold);
+}
+
+/* Premium - темная карта */
+.card--premium .bank__name,
+.card--premium .card__pan,
+.card--premium .holder__name {
+    color: #FFFFFF;
+}
+
+.card--premium .holder__label,
+.card--premium .balance__label,
+.card--premium .bank__tier {
+    color: #D1D5DB;
+}
+
+.card--premium .balance__value {
+    color: #F2F2F2;
+}
+
+.card--premium .card__bg {
+    background: var(--g-premium);
+}
+
+/* Platinum - темная карта */
+.card--platinum .bank__name,
+.card--platinum .card__pan,
+.card--platinum .holder__name {
+    color: #FFFFFF;
+}
+
+.card--platinum .holder__label,
+.card--platinum .balance__label,
+.card--platinum .bank__tier {
+    color: #D1D5DB;
+}
+
+.card--platinum .balance__value {
+    color: #F2F2F2;
+}
+
+.card--platinum .card__bg {
+    background: var(--g-platinum);
+}
+
+/* Infinite - темная карта */
+.card--infinite .bank__name,
+.card--infinite .card__pan,
+.card--infinite .holder__name {
+    color: #FFFFFF;
+}
+
+.card--infinite .holder__label,
+.card--infinite .balance__label,
+.card--infinite .bank__tier {
+    color: #D1D5DB;
+}
+
+.card--infinite .balance__value {
+    color: #F2F2F2;
+}
+
+.card--infinite .card__bg {
+    background: var(--g-infinite);
+}
+
+/* Business - темная карта */
+.card--business .bank__name,
+.card--business .card__pan,
+.card--business .holder__name {
+    color: #FFFFFF;
+}
+
+.card--business .holder__label,
+.card--business .balance__label,
+.card--business .bank__tier {
+    color: #D1D5DB;
+}
+
+.card--business .balance__value {
+    color: #F2F2F2;
+}
+
+.card--business .card__bg {
+    background: var(--g-business);
+}
+
+.card--classic .card__bg {
+    background: var(--g-classic);
+}
+
+/* ===== Virtual styling ===== */
+.card[data-virtual="true"] {
+    border-style: dashed;
+    border-color: rgba(255, 255, 255, .22);
+}
+
+.card[data-virtual="true"] .badge--virtual {
+    background: rgba(123, 110, 243, .16);
+    border-color: rgba(123, 110, 243, 0.35);
+    color: #1f0982;
+}
+
+.card[data-virtual="true"] .badge--virtual::before {
+    content: "VIRTUAL";
+}
+
+/* Physical default label */
+.card[data-virtual="false"] .badge--virtual::before {
+    content: "PHYSICAL";
+}
+
+/* ===== Status helpers (optional) ===== */
+.card[data-status="blocked"] {
+    filter: grayscale(.12) saturate(.9);
+}
+
+.card[data-status="blocked"] .badge--tier {
+    background: rgba(255, 75, 75, .14);
+    border-color: rgba(255, 75, 75, .35);
+}
+
+/* ===== Hover / focus ===== */
+.card {
+    transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 26px 70px rgba(0, 0, 0, .45);
+}
+
+/* responsive tweaks */
+@media (max-width: 520px) {
+    .card {
+        height: 230px;
+    }
+
+    .card__pan {
+        font-size: clamp(11px, 2vw, 16px);
+        letter-spacing: clamp(0.06em, 0.08vw, 0.15em);
+        padding: 0 clamp(10px, 1.5vw, 16px);
+    }
+
+    .bank__name {
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 360px) {
+    .card__pan {
+        font-size: 11px;
+        letter-spacing: 0.06em;
+        padding: 0 10px;
+    }
+}
+

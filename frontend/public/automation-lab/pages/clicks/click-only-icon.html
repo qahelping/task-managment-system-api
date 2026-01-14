@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+  <link rel="icon" type="image/png" href="../../assets/favicon.png">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click only on icon sub-area - Web Automation Torture Lab</title>
+  
+  
+        <!-- Базовые стили страницы/компонентов -->
+    <link rel="stylesheet" href="../../assets/indigo-styles.css"/>
+
+    <!-- Фон страницы: переливы/волны/аура/звёзды (подключать ПОСЛЕ базовых) -->
+    <link rel="stylesheet" href="../../assets/aurora.css"/>
+</head>
+<body data-style="s2">
+<!-- Обязательные слои для звёзд -->
+<div class="sky" aria-hidden="true"></div>
+<div class="layout">
+        <header class="header">
+            <div class="header-content">
+                <div class="brand"><img src="../../assets/logo.svg" alt="Web Automation Torture Lab" class="brand-logo"><div class="brand-text"><div class="brand-title">Web Automation Torture Lab</div></div></div>
+                <h1 class="header-title" style="display:none">>Web Automation Torture Lab</h1>
+                <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+                    <span class="theme-icon">🌙</span>
+                </button>
+            </div>
+        </header>
+
+        
+
+        <main class="main">
+            <div class="container">
+                <a href="../clicks.html" class="back-link">Назад</a>
+                <div class="page-header">
+                    <a href="../clicks.html" class="nav-link" style="display: inline-block; margin-bottom: 1rem; text-decoration: none;">← Назад к Clicks & Interactions</a>
+                    <h2 class="page-title">Click only on icon sub-area</h2>
+                    <p class="page-description">Категория: Clicks & Interactions</p>
+                </div>
+
+                <div class="stress-controls">
+                    <button class="stress-btn" id="stressToggle">Toggle Stress Mode</button>
+                </div>
+
+                <div class="case-card" style="max-width: 1000px; margin: 0 auto;">
+                    <h3 class="case-title">Click only on icon sub-area</h3>
+                    
+                    <div class="case-element" id="case-element">
+                        <div style="display: flex; align-items: center; gap: 1rem;">
+                                <div id="big-button" style="padding: 2rem 4rem; background: var(--bg-primary); border-radius: 12px; pointer-events: none; position: relative;">
+                                    <span style="pointer-events: auto; cursor: pointer; background: var(--accent-primary); color: white; padding: 0.5rem 1rem; border-radius: 8px;">🔍 Icon</span>
+                                    <span style="margin-left: 1rem;">Large Button Area</span>
+                    </div>
+
+                    <div class="problem-section">
+                        <span class="section-label problem-label">Problem</span>
+                        <div class="section-content">
+                            "Кнопка" большая, но кликабельна только маленькая иконка внутри. На родителе pointer-events: none, поэтому клик по контейнеру не срабатывает.
+                        </div>
+                    </div>
+
+                    <div class="problem-section">
+                        <span class="section-label why-label">Why it happens</span>
+                        <div class="section-content">
+                            CSS pointer-events: none на родителе блокирует клики. Только дочерний элемент с pointer-events: auto кликабелен.
+                        </div>
+                    </div>
+
+                    <div class="show-solution-wrapper">
+                        <input type="text" class="solution-key-input" placeholder="Введите ключ для просмотра решения">
+                        <button class="show-solution-btn" disabled>Показать решение</button>
+                    </div>
+
+                    <div class="solution-section solution-hidden">
+                        <span class="section-label solution-label">Solution: Selenium (Python)</span>
+                        <div class="code-wrapper">
+                            <div class="code-header">
+                                <span class="code-label">Selenium (Python)</span>
+                                <button class="copy-btn" onclick="copyToClipboard(`from selenium.webdriver.common.by import By
+
+# Кликаем по дочернему элементу (иконке), а не по родителю
+# Вариант 1: Найти иконку напрямую
+icon = driver.find_element(By.CSS_SELECTOR, '#big-button span[style*="pointer-events: auto"]')
+icon.click()
+
+# Вариант 2: Использовать XPath для поиска кликабельного элемента
+icon = driver.find_element(By.XPATH, '//div[@id="big-button"]//span[@style[contains(., "pointer-events: auto")]]')
+icon.click()`, this)">Copy</button>
+                            </div>
+                            <pre class="code-block">from selenium.webdriver.common.by import By
+
+# Кликаем по дочернему элементу (иконке), а не по родителю
+# Вариант 1: Найти иконку напрямую
+icon = driver.find_element(By.CSS_SELECTOR, &#x27;#big-button span[style*=&quot;pointer-events: auto&quot;]&#x27;)
+icon.click()
+
+# Вариант 2: Использовать XPath для поиска кликабельного элемента
+icon = driver.find_element(By.XPATH, &#x27;//div[@id=&quot;big-button&quot;]//span[@style[contains(., &quot;pointer-events: auto&quot;)]]&#x27;)
+icon.click()</pre>
+                        </div>
+                    </div>
+
+                    <div class="solution-section solution-hidden">
+                        <span class="section-label solution-label">Solution: Playwright (TypeScript)</span>
+                        <div class="code-wrapper">
+                            <div class="code-header">
+                                <span class="code-label">Playwright (TypeScript)</span>
+                                <button class="copy-btn" onclick="copyToClipboard(`// Используем вложенный locator для поиска кликабельного элемента
+const icon = page.locator('#big-button').locator('span').filter({ hasText: 'Icon' });
+await icon.click();
+
+// Или используем getByRole/getByText если есть семантика
+// const icon = page.getByRole('button', { name: /Icon/i });
+// await icon.click();`, this)">Copy</button>
+                            </div>
+                            <pre class="code-block">// Используем вложенный locator для поиска кликабельного элемента
+const icon = page.locator(&#x27;#big-button&#x27;).locator(&#x27;span&#x27;).filter({ hasText: &#x27;Icon&#x27; });
+await icon.click();
+
+// Или используем getByRole/getByText если есть семантика
+// const icon = page.getByRole(&#x27;button&#x27;, { name: /Icon/i });
+// await icon.click();</pre>
+                        </div>
+                    </div>
+
+                    <button class="trigger-btn" onclick="triggerCase()">Trigger</button>
+
+                    <div class="assert-section solution-hidden">
+                        <div class="assert-title">How to assert it's fixed:</div>
+                        <p>Проверить, что клик по иконке сработал (например, появилось сообщение или изменилось состояние)</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>Web Automation Torture Lab © <span id="currentYear">2024</span> | Для автоматизаторов тестирования</p>
+        </footer>
+    </div>
+
+
+
+
+
+    <script src="../../assets/highlight.js"></script>
+    <script src="../../assets/app.js"></script>
+    <script>
+        // Case-specific handler
+        function triggerCase() {
+            
+        }
+
+        // Stress mode toggle
+        document.getElementById('stressToggle')?.addEventListener('click', function() {
+            window.stressMode.toggle();
+            this.classList.toggle('active');
+            this.textContent = window.stressMode.enabled ? 'Stress Mode: ON' : 'Stress Mode: OFF';
+        });
+    </script>
+</body>
+</html>
