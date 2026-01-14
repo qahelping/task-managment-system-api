@@ -22,6 +22,15 @@ def get_all_boards(db: Session, skip: int = 0, limit: int = 100, archived: bool 
     return query.offset(skip).limit(limit).all()
 
 
+def get_public_boards(db: Session, skip: int = 0, limit: int = 100) -> List[Board]:
+    """Получить список всех публичных досок"""
+    query = db.query(Board).filter(
+        Board.public == True,
+        Board.archived == False
+    )
+    return query.offset(skip).limit(limit).all()
+
+
 def create_board(db: Session, board_data: BoardCreate, user_id: int) -> Board:
     """Создать новую доску"""
     db_board = Board(

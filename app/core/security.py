@@ -14,7 +14,8 @@ from app.core.config import settings
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # HTTP Bearer схема для извлечения токена из заголовка
-security = HTTPBearer()
+# auto_error=False позволяет обрабатывать ошибки вручную
+security = HTTPBearer(auto_error=False)
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -59,8 +60,15 @@ def decode_access_token(token: str) -> dict:
         )
 
 
-def get_current_user_id(credentials: HTTPAuthorizationCredentials = Depends(security)) -> int:
+def get_current_user_id(credentials: Optional[HTTPAuthorizationCredentials] = Depends(security)) -> int:
     """Получение ID текущего пользователя из токена"""
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    
     token = credentials.credentials
     payload = decode_access_token(token)
     user_id: int = payload.get("sub")

@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="ru">
+<head>
+    <meta charset="utf-8"/>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
+
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <title>Карточки подгружаются асинхронно — Indigo + Aurora</title>
+
+    <!-- Базовые стили страницы/компонентов -->
+    <link rel="stylesheet" href="assets/indigo-styles.css"/>
+
+    <!-- Фон страницы: переливы/волны/аура/луна/звёзды (подключать ПОСЛЕ базовых) -->
+    <link rel="stylesheet" href="assets/aurora.css"/>
+
+    <!-- Стили для банковских карточек -->
+    <link rel="stylesheet" href="assets/cards-styles.css"/>
+    
+    <style>
+        /* Лоадер для карточек */
+        .cards-loader {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            gap: 1.5rem;
+        }
+        
+        .loader-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(124, 92, 255, 0.2);
+            border-top-color: rgba(124, 92, 255, 0.9);
+            border-right-color: rgba(99, 166, 255, 0.7);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loader-text {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1rem;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+        }
+        
+        .loader-dots {
+            display: inline-flex;
+            gap: 6px;
+            margin-top: 0.5rem;
+        }
+        
+        .loader-dots span {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(124, 92, 255, 0.6);
+            animation: pulse 1.4s ease-in-out infinite;
+        }
+        
+        .loader-dots span:nth-child(1) { animation-delay: 0s; }
+        .loader-dots span:nth-child(2) { animation-delay: 0.2s; }
+        .loader-dots span:nth-child(3) { animation-delay: 0.4s; }
+        
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 0.4;
+                transform: scale(0.8);
+            }
+            50% { 
+                opacity: 1;
+                transform: scale(1.2);
+                background: rgba(99, 166, 255, 0.9);
+            }
+        }
+    </style>
+</head>
+
+<body data-style="s2">
+<!-- Обязательные слои для звёзд и луны -->
+<div class="sky" aria-hidden="true"></div>
+<div class="moon" aria-hidden="true"></div>
+
+<div class="layout">
+    <header class="header">
+        <div class="header-content">
+            <div class="brand">
+                <div class="brand-mark"><img src="assets/logo.png" alt="Logo" class="brand-logo-img"></div>
+                <div class="brand-text">
+                    <div class="brand-title">Web Automation Torture Lab</div>
+                    <div class="brand-subtitle">Async & Dynamic • Data Cards</div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    
+
+    <main class="main">
+        <div class="container">
+            <div class="page-header">
+                <a href="#" class="back-link">← Назад к Data Cards</a>
+                <h2 class="page-title">Карточки подгружаются асинхронно</h2>
+                <p class="page-description">
+                    Карточки догружаются через fake network delay. Тест ищет карточку сразу → NoSuchElement/timeout.
+                </p>
+            </div>
+
+            <section class="case-card">
+                <div class="case-head">
+                    <div class="case-head__left">
+                        <div class="case-icon">🧩</div>
+                        <div>
+                            <h3 class="case-title">Карточки подгружаются асинхронно</h3>
+
+                        </div>
+                    </div>
+
+                    <div class="case-head__right">
+                        <button class="trigger-btn" id="reloadCardsBtn">Загрузить карточки</button>
+                    </div>
+                </div>
+
+                <div class="case-element" style="background: transparent; padding: 18px;">
+                    <div class="cards-grid" id="bankCardsGrid" style="grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; width: 100%;">
+                        <!-- Карточки будут загружены через API -->
+                    </div>
+                </div>
+
+                <div class="sections">
+                    <div class="info-card info-card--problem">
+                        <div class="info-title">
+                            <span class="tag tag--problem">Problem</span>
+                        </div>
+                        <div class="info-text">
+                            Карточки догружаются через <code>setTimeout</code> / fake delay. Тест ищет карточку сразу →
+                            ошибка.
+                        </div>
+                    </div>
+
+                    <div class="info-card info-card--why">
+                        <div class="info-title">
+                            <span class="tag tag--why">Why it happens</span>
+                        </div>
+                        <div class="info-text">
+                            Асинхронная загрузка данных: нужная <code>cardId</code> появляется позже. Фиксированные
+                            <code>sleep</code> нестабильны.
+                        </div>
+                    </div>
+
+                    <div class="solution-gate">
+                        <input class="solution-key-input" type="text" placeholder="Введите ключ для просмотра решения"/>
+                        <button class="show-solution-btn" disabled>Показать решение</button>
+                    </div>
+
+                    <div class="solution-grid">
+                        <article class="solution-card">
+                            <div class="solution-card__head">
+                                <span class="tag tag--solution">Solution: Selenium (Python)</span>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                            <pre class="code-block"><code>from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+
+card = WebDriverWait(driver, 10).until(
+    lambda d: d.find_element(By.CSS_SELECTOR, '[data-card-id="card-12345"]')
+)</code></pre>
+                        </article>
+                        <div class="code-card">
+                            <div class="code-card__header">
+                                <div class="code-lang">
+                                    <span class="code-dot"></span>
+                                    Python
+                                </div>
+
+                                <button class="copy-btn" data-copy-target="#python-code-1">Copy</button>
+                            </div>
+
+                            <pre class="code-block"><code id="python-code-1" class="hljs language-python">
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+
+def test_card_is_loaded(driver):
+    card = WebDriverWait(driver, 10).until(
+        lambda d: d.find_element(By.CSS_SELECTOR, '[data-card-id="card-12345"]')
+    )
+    assert card.is_displayed()
+  </code></pre>
+                        </div>
+
+
+                        <article class="solution-card">
+
+                            <div class="solution-card__head">
+                                <span class="tag tag--solution">Solution: Playwright (TypeScript)</span>
+                                <button class="copy-btn">Copy</button>
+                            </div>
+                            <pre class="code-block"><code>const card = page.locator('[data-card-id="card-12345"]');
+await expect(card).toBeVisible({ timeout: 10000 });
+await card.scrollIntoViewIfNeeded();</code></pre>
+                        </article>
+                    </div>
+
+                    <div class="assert-card">
+                        <div class="assert-title">How to assert it’s fixed</div>
+                        <div class="assert-text">
+                            Проверить, что карточка появляется после асинхронной загрузки и становится видимой.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <footer class="footer">
+                Web Automation Torture Lab © <span id="y">2026</span>
+            </footer>
+        </div>
+    </main>
+</div>
+
+<script>
+    // Переключение стилей (s2)
+    document.querySelectorAll('[data-set-style]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.body.setAttribute('data-style', btn.dataset.setStyle);
+      });
+    });
+
+    // Обработчик кнопки загрузки карточек с задержкой для демонстрации асинхронной загрузки
+    document.getElementById('reloadCardsBtn')?.addEventListener('click', async () => {
+        const btn = document.getElementById('reloadCardsBtn');
+        const grid = document.getElementById('bankCardsGrid');
+        
+        if (!grid) return;
+        
+        // Показываем лоадер
+        btn.disabled = true;
+        btn.textContent = 'Загрузка...';
+        grid.innerHTML = `
+            <div class="cards-loader">
+                <div class="loader-spinner"></div>
+                <div class="loader-text">
+                    Загрузка карточек
+                    <div class="loader-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Имитация задержки сети (1-3 секунды)
+        const delay = Math.random() * 2000 + 1000;
+        
+        setTimeout(async () => {
+            try {
+                // Вызываем функцию рендеринга из bank-cards.js
+                if (window.bankCards && window.bankCards.renderCards) {
+                    await window.bankCards.renderCards();
+                } else {
+                    throw new Error('Модуль bankCards не загружен');
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки карточек:', error);
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: rgba(255,90,95,.1); border-radius: 16px; border: 2px solid rgba(255,90,95,.3);">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                        <h3 style="color: rgba(255,90,95,.9); margin-bottom: 0.5rem;">Ошибка загрузки</h3>
+                        <p style="color: rgba(255,255,255,.7);">${error.message || 'Не удалось загрузить карточки'}</p>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Загрузить карточки';
+            }
+        }, delay);
+    });
+</script>
+
+<!-- Скрипт для загрузки банковских карточек -->
+<script>
+    // Переопределяем автоматическую загрузку, чтобы она не выполнялась сразу
+    // (мы будем вызывать её вручную с задержкой)
+    window.__bankCardsAutoLoadDisabled = true;
+</script>
+<script src="assets/bank-cards.js"></script>
+
+<script>
+    // Автоматическая загрузка карточек с задержкой при загрузке страницы
+    // (для демонстрации асинхронной загрузки)
+    (function() {
+        const grid = document.getElementById('bankCardsGrid');
+        if (!grid) {
+            console.error('Контейнер bankCardsGrid не найден');
+            return;
+        }
+        
+        // Показываем лоадер
+        grid.innerHTML = `
+            <div class="cards-loader">
+                <div class="loader-spinner"></div>
+                <div class="loader-text">
+                    Загрузка карточек
+                    <div class="loader-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        // Имитация задержки сети (1-3 секунды) для демонстрации асинхронной загрузки
+        const delay = Math.random() * 2000 + 1000;
+        
+        setTimeout(async () => {
+            try {
+                // Ждем загрузки модуля bankCards
+                let attempts = 0;
+                const maxAttempts = 20; // Увеличиваем количество попыток
+                
+                while (!window.bankCards && attempts < maxAttempts) {
+                    await new Promise(resolve => setTimeout(resolve, 100));
+                    attempts++;
+                }
+                
+                console.log('Проверка модуля bankCards:', {
+                    exists: !!window.bankCards,
+                    hasRenderCards: !!(window.bankCards && window.bankCards.renderCards),
+                    attempts: attempts
+                });
+                
+                if (window.bankCards && window.bankCards.renderCards) {
+                    console.log('Загрузка карточек через bankCards.renderCards()...');
+                    await window.bankCards.renderCards();
+                    console.log('Карточки загружены');
+                    
+                    // Проверяем, что карточки действительно отрендерены
+                    setTimeout(() => {
+                        const renderedCards = grid.querySelectorAll('.card');
+                        console.log('Проверка отрендеренных карточек:', renderedCards.length);
+                        if (renderedCards.length === 0) {
+                            console.warn('Карточки не отрендерены в DOM');
+                        }
+                    }, 500);
+                } else {
+                    console.error('window.bankCards:', window.bankCards);
+                    throw new Error('Модуль bankCards не загружен. Проверьте консоль браузера на наличие ошибок.');
+                }
+            } catch (error) {
+                console.error('Ошибка загрузки карточек:', error);
+                const errorMessage = error.message || 'Не удалось загрузить карточки';
+                grid.innerHTML = `
+                    <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; background: rgba(255,90,95,.1); border-radius: 16px; border: 2px solid rgba(255,90,95,.3);">
+                        <div style="font-size: 3rem; margin-bottom: 1rem;">⚠️</div>
+                        <h3 style="color: rgba(255,90,95,.9); margin-bottom: 0.5rem;">Ошибка загрузки</h3>
+                        <p style="color: rgba(255,255,255,.7); margin-bottom: 1rem;">${errorMessage}</p>
+                        <button onclick="location.reload()" style="padding: 0.75rem 1.5rem; background: rgba(99,166,255,.3); color: rgba(255,255,255,.9); border: 1px solid rgba(99,166,255,.5); border-radius: 12px; cursor: pointer; font-weight: 600;">
+                            Обновить страницу
+                        </button>
+                    </div>
+                `;
+            }
+        }, delay);
+    })();
+</script>
+</body>
+</html>
+
+<script>
+    document.addEventListener('click', async (e) => {
+      const btn = e.target.closest('.copy-btn');
+      if (!btn) return;
+
+      const targetSelector = btn.dataset.copyTarget;
+      const codeEl = document.querySelector(targetSelector);
+      if (!codeEl) return;
+
+      const text = codeEl.innerText;
+
+      try {
+        await navigator.clipboard.writeText(text);
+        const original = btn.textContent;
+        btn.textContent = 'Copied!';
+        btn.classList.add('copied');
+
+        setTimeout(() => {
+          btn.textContent = original;
+          btn.classList.remove('copied');
+        }, 1200);
+      } catch (err) {
+        console.error('Copy failed', err);
+      }
+    });
+</script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+<script>hljs.highlightAll();</script>

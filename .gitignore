@@ -1,8 +1,8 @@
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-*.md
 .Python
 env/
 venv/
@@ -12,15 +12,45 @@ ENV/
 *.sqlite
 *.sqlite3
 app.db
-.env
-.env.local
+data/
 .pytest_cache/
 .coverage
 htmlcov/
+*.egg-info/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
 dist/
 build/
-*.egg-info/
-.DS_Store
+.cache/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
 .idea/
 .vscode/
+*.swp
+*.swo
+*.sublime-project
+*.sublime-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
 *.log
+logs/
+request.log
+
+# Documentation (опционально - раскомментируйте если не нужны в репозитории)
+# *.md
+# !README.md

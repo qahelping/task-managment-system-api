@@ -14,6 +14,41 @@ from app.core.security import get_current_user_id
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
+@router.get("/public", response_model=List[UserResponse])
+def get_public_users(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
+    """
+    Получить список всех пользователей (публичный эндпоинт).
+    Не требует аутентификации.
+    Используется для отображения тестовых пользователей на страницах логина/регистрации.
+    """
+    users = user_service.get_all_users(db, skip=skip, limit=limit)
+    return users
+
+
+@router.get("/me", response_model=UserResponse)
+def get_current_user(
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id)
+):
+    """
+    Получить информацию о текущем пользователе.
+    Требуется аутентификация.
+    """
+    user = user_service.get_user_by_id(db, current_user_id)
+    
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    return user
+
+
 @router.get("/", response_model=List[UserResponse])
 def get_users(
     skip: int = 0,

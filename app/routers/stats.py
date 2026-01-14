@@ -15,6 +15,37 @@ from app.core.security import get_current_user_id
 router = APIRouter(prefix="/stats", tags=["Statistics"])
 
 
+@router.get("/dashboard")
+def get_dashboard_stats(
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id)
+):
+    """
+    Получить статистику для дашборда.
+    Возвращает общее количество досок и задач, а также распределение задач по статусам.
+    """
+    # Подсчет досок (только неархивированных)
+    total_boards = db.query(Board).filter(Board.archived == False).count()
+    
+    # Подсчет всех задач
+    total_tasks = db.query(Task).count()
+    
+    # Подсчет задач по статусам
+    tasks_todo = db.query(Task).filter(Task.status == "todo").count()
+    tasks_in_progress = db.query(Task).filter(Task.status == "in_progress").count()
+    tasks_done = db.query(Task).filter(Task.status == "done").count()
+    
+    return {
+        "total_boards": total_boards,
+        "total_tasks": total_tasks,
+        "tasks_by_status": {
+            "todo": tasks_todo,
+            "in_progress": tasks_in_progress,
+            "done": tasks_done
+        }
+    }
+
+
 @router.get("/tasks")
 def get_global_task_stats(
     db: Session = Depends(get_db),

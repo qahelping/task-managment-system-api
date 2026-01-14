@@ -1,16 +1,58 @@
 """
 Роутер для работы с досками.
 """
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List, Optional
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
 
 from app.database import get_db
 from app.schemas.board import BoardCreate, BoardUpdate, BoardResponse, BoardWithTasks
+from app.schemas.task import TaskResponse
 from app.services import board_service, user_service
 from app.core.security import get_current_user_id, check_board_access
 
 router = APIRouter(prefix="/boards", tags=["Boards"])
+
+
+@router.get("/public", response_model=List[BoardResponse])
+def get_public_boards(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db)
+):
+    """
+    Получить список всех публичных досок.
+    Не требует аутентификации.
+    """
+    boards = board_service.get_public_boards(db, skip=skip, limit=limit)
+    return boards
+
+
+@router.get("/public/{board_id}", response_model=BoardWithTasks)
+def get_public_board(
+    board_id: int,
+    db: Session = Depends(get_db)
+):
+    """
+    Получить публичную доску по ID с задачами.
+    Не требует аутентификации.
+    Доступно только для публичных досок.
+    """
+    board = board_service.get_board_by_id(db, board_id)
+    
+    if not board:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Board not found"
+        )
+    
+    if not board.public:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This board is private. Only public boards can be accessed without authentication."
+        )
+    
+    return board
 
 
 @router.get("/", response_model=List[BoardResponse])
