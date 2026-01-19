@@ -19,24 +19,40 @@ interface BankCard {
 export const CardsPage: React.FC = () => {
   const [cards, setCards] = useState<BankCard[]>([]);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const loadCards = async () => {
     setLoading(true);
+    setError(null);
     try {
       // Имитация задержки сети
       await new Promise(resolve => setTimeout(resolve, 1500));
       
+      // В dev режиме используем прямой URL к бэкенду, в production - через /api прокси
       const apiUrl = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
-        ? 'http://localhost:8000/api/bank_cards/'
+        ? 'http://localhost:8000/bank_cards/'
         : '/api/bank_cards/';
       
+      console.log('Загрузка карточек с URL:', apiUrl);
+      
       const response = await fetch(apiUrl);
-      if (response.ok) {
-        const data = await response.json();
-        setCards(data);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
-    } catch (error) {
+      
+      const data = await response.json();
+      console.log('Получено карточек:', data.length);
+      
+      if (Array.isArray(data) && data.length > 0) {
+        setCards(data);
+      } else {
+        throw new Error('API вернул пустой массив карточек');
+      }
+    } catch (error: any) {
       console.error('Failed to load cards:', error);
+      setError(error.message || 'Не удалось загрузить карточки. Убедитесь, что бэкенд запущен на порту 8000.');
+      setCards([]);
     } finally {
       setLoading(false);
     }
@@ -78,11 +94,16 @@ export const CardsPage: React.FC = () => {
                 <div className="cards-loader">
                   <div className="loader-spinner"></div>
                   <div className="loader-text">Загрузка карточек</div>
-                  <div className="loader-dots">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
+
+                </div>
+              ) : error ? (
+                <div style={{ gridColumn: '1 / -1', textAlign: 'center', padding: '3rem', background: 'rgba(255,90,95,.1)', borderRadius: '16px', border: '2px solid rgba(255,90,95,.3)' }}>
+                  <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>⚠️</div>
+                  <h3 style={{ color: 'rgba(255,90,95,.9)', marginBottom: '0.5rem' }}>Ошибка загрузки</h3>
+                  <p style={{ color: 'rgba(255,255,255,.7)', marginBottom: '1rem' }}>{error}</p>
+                  <button className="trigger-btn" onClick={loadCards} style={{ marginTop: '1rem' }}>
+                    Попробовать снова
+                  </button>
                 </div>
               ) : cards.length > 0 ? (
                 <div className="cards-grid" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '18px', width: '100%' }}>

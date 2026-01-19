@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuthStore } from '@/stores/authStore';
 import { useUIStore } from '@/stores/uiStore';
 import { FiLogOut, FiUser, FiSearch, FiChevronDown } from 'react-icons/fi';
@@ -9,7 +9,6 @@ export const Header: React.FC = () => {
   const { user, logout } = useAuthStore();
   const { searchQuery, setSearchQuery } = useUIStore();
   const location = useLocation();
-  const navigate = useNavigate();
   const isBoardPage = location.pathname.startsWith('/boards/') && location.pathname !== '/boards';
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -19,9 +18,6 @@ export const Header: React.FC = () => {
     setDropdownOpen(false);
   };
 
-  const handleLogoClick = () => {
-    navigate('/');
-  };
 
   // Закрытие выпадающего списка при клике вне его
   useEffect(() => {
@@ -50,10 +46,9 @@ export const Header: React.FC = () => {
         >
           <div className="brand-mark">
             <img 
-              src="/automation-lab/assets/logo.png" 
+              src="/logo.png" 
               alt="Logo" 
               className="brand-logo-img" 
-              onClick={handleLogoClick}
               style={{ cursor: 'pointer' }}
               onError={(e) => {
                 // Если логотип не найден, скрываем его

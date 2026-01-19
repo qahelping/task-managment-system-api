@@ -59,14 +59,60 @@ api.interceptors.request.use(
 );
 
 // Response interceptor - handle 401 errors
+let isRedirecting = false;
+
 api.interceptors.response.use(
   (response) => response,
   (error: AxiosError) => {
     if (error.response?.status === 401) {
-      // Clear token and redirect to login
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Проверяем, что это не публичный эндпоинт
+      const publicEndpoints = [
+        '/auth/login',
+        '/auth/register',
+        '/auth/register-admin',
+        '/auth/register-guest',
+        '/boards/public',
+        '/users/public',
+        '/bank_cards',
+      ];
+      
+      const isPublicEndpoint = publicEndpoints.some(endpoint => 
+        error.config?.url?.includes(endpoint)
+      );
+      
+      // Если это публичный эндпоинт, просто возвращаем ошибку без редиректа
+      if (isPublicEndpoint) {
+        return Promise.reject(error);
+      }
+      
+      // Проверяем, что мы не на странице логина и не происходит уже редирект
+      const currentPath = window.location.pathname;
+      const isOnLoginPage = currentPath === '/login' || currentPath === '/register';
+      
+      if (!isRedirecting && !isOnLoginPage) {
+        isRedirecting = true;
+        
+        // Очищаем токен и данные пользователя
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        
+        // Используем sessionStorage для предотвращения множественных редиректов
+        const redirectKey = 'auth_redirect_in_progress';
+        if (!sessionStorage.getItem(redirectKey)) {
+          sessionStorage.setItem(redirectKey, 'true');
+          
+          // Редирект на страницу логина
+          window.location.href = '/login';
+          
+          // Очищаем флаг через небольшую задержку
+          setTimeout(() => {
+            sessionStorage.removeItem(redirectKey);
+            isRedirecting = false;
+          }, 1000);
+        } else {
+          isRedirecting = false;
+        }
+      }
     }
     return Promise.reject(error);
   }

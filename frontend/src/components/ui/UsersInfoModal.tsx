@@ -50,7 +50,12 @@ export const UsersInfoModal: React.FC<UsersInfoModalProps> = ({ isOpen, onClose 
       const data = await usersService.getPublicUsers();
       setUsers(data);
     } catch (err: any) {
-      setError('Не удалось загрузить информацию о пользователях.');
+      const errorMessage = err.response?.status === 404 
+        ? 'Эндпоинт не найден. Убедитесь, что бэкенд запущен.'
+        : err.code === 'ERR_NETWORK' || err.message?.includes('Network Error')
+        ? 'Не удалось подключиться к серверу. Убедитесь, что бэкенд запущен на порту 8000.'
+        : 'Не удалось загрузить информацию о пользователях.';
+      setError(errorMessage);
       console.error('Failed to load users:', err);
     } finally {
       setLoading(false);

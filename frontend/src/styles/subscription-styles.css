@@ -1,0 +1,1608 @@
+/* =========================================================
+   SUBSCRIPTION FORM STYLES
+   StreamVibe Subscription Page
+   ========================================================= */
+
+/* ---------- Layout ---------- */
+.subscription-hero {
+    padding: 24px 0 32px;
+    position: relative;
+}
+
+.hero-header {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 20px;
+    max-width: 100%;
+    position: relative;
+}
+
+.hero-header > div {
+    flex: 1;
+    text-align: center;
+}
+
+.hero-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+}
+
+.subscription-title {
+    margin: 0 0 8px;
+    font-size: 32px;
+    font-weight: 900;
+    letter-spacing: 0.2px;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.subscription-subtitle {
+    margin: 0;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.65);
+    font-weight: 500;
+}
+
+.subscription-layout {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 24px;
+    align-items: start;
+}
+
+.subscription-main {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.subscription-sidebar {
+    position: sticky;
+    top: 100px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+/* ---------- Section Labels ---------- */
+.section-label {
+    font-size: 20px;
+    font-weight: 850;
+    color: rgba(255, 255, 255, 0.95);
+    margin: 0 0 12px;
+}
+
+.section-hint {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: -8px 0 16px;
+}
+
+/* ---------- Period Switcher ---------- */
+.period-section {
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+}
+
+.period-switcher {
+    display: flex;
+    gap: 10px;
+}
+
+.period-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.2);
+    color: rgba(255, 255, 255, 0.75);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.period-btn:hover {
+    border-color: rgba(99, 166, 255, 0.3);
+    background: rgba(99, 166, 255, 0.08);
+}
+
+.period-btn.active {
+    border-color: rgba(99, 166, 255, 0.6);
+    background: linear-gradient(135deg, rgba(99, 166, 255, 0.18), rgba(124, 92, 255, 0.12));
+    color: rgba(255, 255, 255, 0.98);
+    box-shadow: 0 0 20px rgba(99, 166, 255, 0.2);
+}
+
+.period-name {
+    font-weight: 700;
+    font-size: 15px;
+}
+
+.period-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.period-badge.accent {
+    background: linear-gradient(135deg, rgba(220, 38, 127, 0.8), rgba(251, 86, 7, 0.8));
+    color: white;
+}
+
+/* ---------- Tariff Cards ---------- */
+.tariffs-section {
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+}
+
+.tariffs-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+}
+
+.tariff-card {
+    position: relative;
+    padding: 20px;
+    border-radius: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.25);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    overflow: hidden;
+}
+
+.tariff-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(99, 166, 255, 0.12), rgba(124, 92, 255, 0.08));
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.tariff-card:hover::before {
+    opacity: 1;
+}
+
+.tariff-card:hover {
+    border-color: rgba(99, 166, 255, 0.35);
+    transform: translateY(-2px);
+}
+
+.tariff-card.selected {
+    border-color: rgba(99, 166, 255, 0.7);
+    background: linear-gradient(145deg, rgba(99, 166, 255, 0.12), rgba(124, 92, 255, 0.08));
+    box-shadow: 
+        0 0 30px rgba(99, 166, 255, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.tariff-card.selected::before {
+    opacity: 1;
+}
+
+.tariff-period-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 64px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.06);
+    line-height: 1;
+    pointer-events: none;
+}
+
+.popular-badge,
+.promo-badge {
+    position: absolute;
+    top: -8px;
+    left: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    z-index: 3;
+}
+
+.popular-badge {
+    background: linear-gradient(135deg, rgba(220, 38, 127, 0.85), rgba(251, 86, 7, 0.85));
+    color: white;
+}
+
+.promo-badge {
+    background: linear-gradient(135deg, rgba(220, 38, 127, 0.85), rgba(251, 86, 7, 0.85));
+    color: white;
+}
+
+.promo-text {
+    font-weight: 500;
+    font-size: 11px;
+}
+
+.tariff-header {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 12px;
+}
+
+.tariff-header:has(.popular-badge),
+.tariff-header:has(.promo-badge) {
+    padding-top: 20px;
+}
+
+.tariff-name {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.95);
+    position: relative;
+    z-index: 1;
+}
+
+.tariff-price-block {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.tariff-price {
+    font-size: 36px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.98);
+    line-height: 1.1;
+}
+
+.tariff-currency {
+    font-size: 20px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.tariff-period-text {
+    position: relative;
+    z-index: 1;
+    display: block;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.55);
+    margin-bottom: 8px;
+}
+
+.tariff-total {
+    position: relative;
+    z-index: 1;
+    padding: 10px 0;
+    margin-bottom: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.total-label {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.total-label strong {
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.tariff-features {
+    position: relative;
+    z-index: 1;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.tariff-features li {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.feature-icon {
+    color: rgba(25, 195, 125, 0.9);
+    font-weight: 700;
+}
+
+.tariff-note {
+    margin: 16px 0 0;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.45);
+}
+
+/* ---------- Promo Code Section ---------- */
+.promo-section {
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+}
+
+.promo-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.promo-header .section-label {
+    margin: 0;
+}
+
+.promo-hint-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(99, 166, 255, 0.3);
+    background: linear-gradient(135deg, rgba(99, 166, 255, 0.1), rgba(124, 92, 255, 0.08));
+    color: rgba(99, 166, 255, 0.95);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.promo-hint-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.promo-hint-btn:hover {
+    background: linear-gradient(135deg, rgba(99, 166, 255, 0.2), rgba(124, 92, 255, 0.15));
+    border-color: rgba(99, 166, 255, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 166, 255, 0.2);
+}
+
+.task-goals-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;
+    border: 1px solid rgba(25, 195, 125, 0.3);
+    background: linear-gradient(135deg, rgba(25, 195, 125, 0.1), rgba(16, 185, 129, 0.08));
+    color: rgba(25, 195, 125, 0.95);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.task-goals-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.task-goals-btn:hover {
+    background: linear-gradient(135deg, rgba(25, 195, 125, 0.2), rgba(16, 185, 129, 0.15));
+    border-color: rgba(25, 195, 125, 0.5);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(25, 195, 125, 0.2);
+}
+
+.promo-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.promo-input-wrapper {
+    display: flex;
+    gap: 10px;
+}
+
+.promo-input {
+    flex: 1;
+    padding: 14px 16px;
+    border-radius: 14px;
+    border: 2px solid rgba(255, 255, 255, 0.12);
+    background: rgba(0, 0, 0, 0.25);
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 15px;
+    font-weight: 500;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.promo-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.promo-input:focus {
+    border-color: rgba(99, 166, 255, 0.5);
+    background: rgba(99, 166, 255, 0.05);
+}
+
+.promo-input.valid {
+    border-color: rgba(25, 195, 125, 0.6);
+    background: rgba(25, 195, 125, 0.08);
+}
+
+.promo-input.invalid {
+    border-color: rgba(255, 90, 95, 0.6);
+    background: rgba(255, 90, 95, 0.08);
+}
+
+.promo-apply-btn {
+    padding: 14px 24px;
+    border-radius: 14px;
+    border: 1px solid rgba(99, 166, 255, 0.4);
+    background: linear-gradient(135deg, rgba(99, 166, 255, 0.2), rgba(124, 92, 255, 0.15));
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.promo-apply-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.promo-apply-btn:not(:disabled):hover {
+    background: linear-gradient(135deg, rgba(99, 166, 255, 0.3), rgba(124, 92, 255, 0.25));
+    box-shadow: 0 0 20px rgba(99, 166, 255, 0.2);
+    transform: translateY(-1px);
+}
+
+.promo-message {
+    font-size: 14px;
+    font-weight: 600;
+    padding: 0;
+    min-height: 20px;
+}
+
+.promo-message.success {
+    color: rgba(25, 195, 125, 0.95);
+}
+
+.promo-message.error {
+    color: rgba(255, 90, 95, 0.95);
+}
+
+.promo-hints {
+    padding: 14px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+.hint-title {
+    margin: 0 0 8px;
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.hint-list {
+    margin: 0;
+    padding-left: 16px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.hint-list li {
+    margin-bottom: 4px;
+}
+
+.hint-list code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: rgba(99, 166, 255, 0.15);
+    border: 1px solid rgba(99, 166, 255, 0.25);
+    color: rgba(99, 166, 255, 0.95);
+    font-size: 11px;
+}
+
+/* ---------- Payment Card Section ---------- */
+.payment-section {
+    padding: 20px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+}
+
+.payment-card-visual {
+    position: relative;
+    padding: 24px;
+    border-radius: 18px;
+    background: linear-gradient(145deg, 
+        rgba(30, 35, 55, 0.95) 0%, 
+        rgba(20, 25, 40, 0.98) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 
+        0 20px 50px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+}
+
+.payment-card-visual::before {
+    content: "";
+    position: absolute;
+    top: -50%;
+    left: -20%;
+    width: 140%;
+    height: 140%;
+    background: radial-gradient(ellipse at 30% 20%, 
+        rgba(220, 38, 127, 0.25) 0%, 
+        transparent 50%);
+    pointer-events: none;
+}
+
+.card-design {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    position: relative;
+    z-index: 1;
+}
+
+.card-chip {
+    width: 40px;
+    height: 30px;
+    border-radius: 6px;
+    background: linear-gradient(135deg, 
+        rgba(255, 215, 0, 0.7) 0%, 
+        rgba(218, 165, 32, 0.8) 50%,
+        rgba(184, 134, 11, 0.7) 100%);
+    box-shadow: 
+        inset 0 -2px 4px rgba(0, 0, 0, 0.2),
+        0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.card-brand {
+    width: 44px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.card-brand-icon {
+    width: 100%;
+    height: 100%;
+}
+
+.card-fields {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.card-number-field,
+.card-expiry-field,
+.card-cvv-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.card-row {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px;
+    align-items: end;
+}
+
+.card-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card-input {
+    padding: 14px 16px;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 18px;
+    font-weight: 600;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    letter-spacing: 2px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.card-input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+    letter-spacing: 1px;
+}
+
+.card-input:focus {
+    border-color: rgba(99, 166, 255, 0.5);
+    background: rgba(99, 166, 255, 0.08);
+}
+
+.card-input.invalid {
+    border-color: rgba(255, 90, 95, 0.5);
+    background: rgba(255, 90, 95, 0.08);
+}
+
+.card-input.valid {
+    border-color: rgba(25, 195, 125, 0.5);
+}
+
+.card-expiry-field {
+    min-width: 0;
+}
+
+.card-expiry {
+    max-width: 140px;
+    text-align: center;
+}
+
+.card-cvv-field {
+    position: relative;
+    min-width: 0;
+}
+
+.card-cvv {
+    max-width: 100px;
+    text-align: center;
+    padding-right: 40px;
+}
+
+.cvv-toggle {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.cvv-toggle:hover {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.eye-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.card-errors {
+    margin-top: 12px;
+    font-size: 13px;
+    color: rgba(255, 90, 95, 0.95);
+    min-height: 20px;
+}
+
+.field-error {
+    margin-top: 6px;
+    font-size: 12px;
+    color: rgba(255, 90, 95, 0.95);
+    min-height: 18px;
+    font-weight: 500;
+}
+
+.field-error:empty {
+    display: none;
+}
+
+/* ---------- Summary Section ---------- */
+.summary-section {
+    padding: 24px;
+    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(12px);
+}
+
+.summary-header {
+    margin-bottom: 16px;
+}
+
+.summary-title {
+    margin: 0 0 8px;
+    font-size: 22px;
+    font-weight: 900;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.summary-description {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.summary-details {
+    padding: 16px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.summary-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.summary-value {
+    font-size: 14px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.summary-value.discount {
+    color: rgba(25, 195, 125, 0.95);
+}
+
+.summary-row.savings {
+    padding-top: 10px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.summary-row.savings .summary-value {
+    color: rgba(25, 195, 125, 0.95);
+    font-size: 16px;
+}
+
+.security-badges {
+    margin-bottom: 16px;
+    text-align: center;
+}
+
+.security-badge {
+    display: block;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+    margin-bottom: 10px;
+}
+
+.payment-logos {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+}
+
+.payment-logo {
+    font-size: 11px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.4);
+    letter-spacing: 0.5px;
+}
+
+/* ---------- Pay Button ---------- */
+.pay-button {
+    width: 100%;
+    padding: 18px 24px;
+    border-radius: 16px;
+    border: none;
+    background: linear-gradient(135deg, 
+        rgba(139, 0, 50, 0.95) 0%, 
+        rgba(100, 0, 40, 0.95) 100%);
+    color: white;
+    font-size: 18px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    box-shadow: 
+        0 8px 24px rgba(139, 0, 50, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.pay-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+.pay-button:not(:disabled):hover {
+    background: linear-gradient(135deg, 
+        rgba(159, 0, 60, 0.95) 0%, 
+        rgba(120, 0, 50, 0.95) 100%);
+    transform: translateY(-2px);
+    box-shadow: 
+        0 12px 32px rgba(139, 0, 50, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.pay-button:not(:disabled):active {
+    transform: translateY(0);
+}
+
+.pay-btn-old-price {
+    text-decoration: line-through;
+    color: rgba(255, 255, 255, 0.5);
+    font-weight: 500;
+    font-size: 16px;
+    margin-right: 4px;
+}
+
+.pay-btn-price {
+    font-size: 20px;
+}
+
+/* ---------- Success Modal ---------- */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-content {
+    background: linear-gradient(145deg, 
+        rgba(30, 35, 55, 0.98) 0%, 
+        rgba(15, 18, 30, 0.99) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+    padding: 40px;
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+    transform: scale(0.9) translateY(20px);
+    transition: transform 0.3s ease;
+    position: relative;
+    z-index: 10000;
+}
+
+.modal-overlay.active .modal-content {
+    transform: scale(1) translateY(0);
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 24px;
+}
+
+.success-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.success-title {
+    margin: 0 0 12px;
+    font-size: 28px;
+    font-weight: 900;
+    color: rgba(25, 195, 125, 0.95);
+}
+
+.success-text {
+    margin: 0 0 24px;
+    font-size: 16px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.success-details {
+    padding: 20px;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.success-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 14px;
+}
+
+.success-row span {
+    color: rgba(255, 255, 255, 0.55);
+}
+
+.success-row strong {
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.modal-close-btn {
+    width: 100%;
+    padding: 16px 24px;
+    border-radius: 14px;
+    border: none;
+    background: linear-gradient(135deg, rgba(25, 195, 125, 0.9), rgba(16, 185, 129, 0.9));
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-close-btn:hover {
+    background: linear-gradient(135deg, rgba(25, 195, 125, 1), rgba(16, 185, 129, 1));
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(25, 195, 125, 0.3);
+}
+
+/* ---------- Back Button ---------- */
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.75);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.back-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.95);
+    transform: translateX(-4px);
+}
+
+.back-btn svg {
+    transition: transform 0.2s ease;
+}
+
+.back-btn:hover svg {
+    transform: translateX(-2px);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 1100px) {
+    .subscription-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .subscription-sidebar {
+        position: static;
+    }
+}
+
+@media (max-width: 860px) {
+    .tariffs-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .tariff-card {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        grid-template-rows: auto auto;
+        gap: 12px;
+    }
+    
+    .tariff-header {
+        grid-column: 1;
+        grid-row: 1;
+    }
+    
+    .tariff-price-block {
+        grid-column: 2;
+        grid-row: 1;
+        justify-self: end;
+    }
+    
+    .tariff-features {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .tariff-total {
+        display: none;
+    }
+    
+    .tariff-period-text {
+        display: none;
+    }
+    
+    .tariff-period-badge {
+        display: none;
+    }
+    
+    .card-expiry {
+        max-width: 120px;
+    }
+    
+    .card-input.card-cvv {
+        font-size: 15px;
+        padding: 13px 38px 13px 14px;
+        letter-spacing: 1.5px;
+        max-width: 90px;
+    }
+    
+    .cvv-toggle {
+        width: 30px;
+        height: 30px;
+        right: 10px;
+        bottom: 10px;
+    }
+}
+
+@media (max-width: 600px) {
+    .subscription-title {
+        font-size: 24px;
+    }
+    
+    .hero-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .hero-header > div {
+        text-align: center;
+        margin-bottom: 16px;
+    }
+    
+    .hero-actions {
+        position: static;
+        flex-direction: column;
+        width: 100%;
+        margin-top: 16px;
+    }
+    
+    .promo-hint-btn,
+    .task-goals-btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .period-switcher {
+        flex-direction: column;
+    }
+    
+    .promo-input-wrapper {
+        flex-direction: column;
+    }
+    
+    .card-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .payment-card-visual {
+        padding: 18px;
+    }
+    
+    .card-input {
+        font-size: 16px;
+        padding: 12px 14px;
+    }
+    
+    .card-expiry {
+        max-width: 110px;
+    }
+    
+    .card-input.card-cvv {
+        font-size: 14px;
+        padding: 12px 40px 12px 14px;
+        letter-spacing: 1px;
+        max-width: 85px;
+    }
+    
+    .card-cvv-field {
+        position: relative;
+    }
+    
+    .cvv-toggle {
+        width: 28px;
+        height: 28px;
+        right: 8px;
+        bottom: 8px;
+    }
+    
+    .cvv-toggle .eye-icon {
+        width: 8px;
+        height: 8px;
+    }
+}
+
+@media (max-width: 400px) {
+    .card-expiry {
+        max-width: 100px;
+    }
+    
+    .card-input.card-cvv {
+        font-size: 13px;
+        padding: 10px 36px 10px 12px;
+        letter-spacing: 1px;
+        max-width: 80px;
+    }
+    
+    .cvv-toggle {
+        width: 26px;
+        height: 26px;
+        right: 6px;
+        bottom: 6px;
+    }
+    
+    .cvv-toggle .eye-icon {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .card-label {
+        font-size: 10px;
+    }
+}
+
+/* Touch-friendly styles for mobile devices */
+@media (hover: none) and (pointer: coarse) {
+    .card-expiry {
+        max-width: 130px;
+    }
+    
+    .card-input.card-cvv {
+        font-size: 16px;
+        padding: 14px 48px 14px 16px;
+        max-width: 95px;
+    }
+    
+    .cvv-toggle {
+        width: 44px;
+        height: 44px;
+        right: 8px;
+        bottom: 8px;
+    }
+    
+    .cvv-toggle .eye-icon {
+        width: 20px;
+        height: 20px;
+    }
+}
+
+/* ---------- Promo Hint Modal ---------- */
+.promo-hint-modal {
+    max-width: 700px;
+    max-height: 85vh;
+    overflow-y: auto;
+    text-align: left;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+.modal-title svg {
+    color: rgba(99, 166, 255, 0.9);
+    flex-shrink: 0;
+}
+
+.modal-close-x {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    flex-shrink: 0;
+}
+
+.modal-close-x svg {
+    width: 18px;
+    height: 18px;
+}
+
+.modal-close-x:hover {
+    background: rgba(255, 90, 95, 0.15);
+    border-color: rgba(255, 90, 95, 0.3);
+    color: rgba(255, 90, 95, 0.9);
+}
+
+.promo-codes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.promo-code-card {
+    padding: 16px;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.promo-code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.promo-code-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 16px;
+    font-weight: 700;
+    padding: 6px 12px;
+    border-radius: 8px;
+    background: linear-gradient(135deg, rgba(99, 166, 255, 0.15), rgba(124, 92, 255, 0.1));
+    border: 1px solid rgba(99, 166, 255, 0.3);
+    color: rgba(99, 166, 255, 0.95);
+}
+
+.promo-type-badge {
+    font-size: 12px;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.promo-type-badge.percent {
+    background: linear-gradient(135deg, rgba(25, 195, 125, 0.2), rgba(16, 185, 129, 0.15));
+    color: rgba(25, 195, 125, 0.95);
+    border: 1px solid rgba(25, 195, 125, 0.3);
+}
+
+.promo-type-badge.fixed {
+    background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(245, 158, 11, 0.15));
+    color: rgba(251, 191, 36, 0.95);
+    border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.promo-type-badge.set-price {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(124, 58, 237, 0.15));
+    color: rgba(167, 139, 250, 0.95);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+}
+
+.promo-code-desc {
+    margin: 0 0 12px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.promo-code-details {
+    display: grid;
+    gap: 8px;
+}
+
+.detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    font-size: 13px;
+    gap: 12px;
+}
+
+.detail-label {
+    color: rgba(255, 255, 255, 0.45);
+    flex-shrink: 0;
+}
+
+.detail-value {
+    color: rgba(255, 255, 255, 0.8);
+    text-align: right;
+}
+
+.detail-value.success {
+    color: rgba(25, 195, 125, 0.95);
+}
+
+.detail-value.warning {
+    color: rgba(251, 191, 36, 0.95);
+}
+
+.detail-value.danger {
+    color: rgba(255, 90, 95, 0.95);
+}
+
+.detail-value .excluded {
+    color: rgba(255, 90, 95, 0.8);
+    font-size: 12px;
+}
+
+/* ---------- Promo Hint Footer ---------- */
+.promo-hint-footer {
+    padding: 20px;
+    border-radius: 14px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 20px;
+}
+
+.promo-hint-footer h4 {
+    margin: 0 0 14px;
+    font-size: 15px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.test-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.test-card {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.test-card code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.9);
+    letter-spacing: 0.5px;
+}
+
+.test-card-result {
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.test-card-result.success {
+    color: rgba(25, 195, 125, 0.9);
+}
+
+.test-card-result.danger {
+    color: rgba(255, 90, 95, 0.9);
+}
+
+.test-cards-note {
+    margin: 0;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.45);
+    font-style: italic;
+}
+
+/* ---------- Task Goals Modal ---------- */
+.task-goals-modal {
+    max-width: 800px;
+    max-height: 90vh;
+    overflow-y: auto;
+    text-align: left;
+    /* Custom scrollbar for Firefox */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(99, 166, 255, 0.5) rgba(255, 255, 255, 0.05);
+}
+
+/* Custom scrollbar for WebKit browsers (Chrome, Safari, Edge) */
+.task-goals-modal::-webkit-scrollbar {
+    width: 10px;
+}
+
+.task-goals-modal::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    margin: 8px 0;
+}
+
+.task-goals-modal::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, 
+        rgba(99, 166, 255, 0.6) 0%, 
+        rgba(124, 92, 255, 0.6) 100%);
+    border-radius: 10px;
+    border: 2px solid rgba(255, 255, 255, 0.05);
+    transition: background 0.2s ease;
+}
+
+.task-goals-modal::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, 
+        rgba(99, 166, 255, 0.8) 0%, 
+        rgba(124, 92, 255, 0.8) 100%);
+}
+
+.task-goals-content {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.goals-section {
+    padding: 16px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.goals-section-title {
+    margin: 0 0 12px;
+    font-size: 16px;
+    font-weight: 700;
+    color: rgba(25, 195, 125, 0.95);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.goals-task {
+    margin: 0 0 12px;
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+}
+
+.goals-description {
+    margin: 0 0 16px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+}
+
+.goals-techniques {
+    margin: 0 0 12px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.6;
+}
+
+.goals-list {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.75);
+    line-height: 1.8;
+}
+
+.goals-list li {
+    margin-bottom: 8px;
+}
+
+.goals-list li strong {
+    color: rgba(255, 255, 255, 0.95);
+    font-weight: 600;
+}
+
+.goals-sublist {
+    margin: 8px 0 0 20px;
+    padding-left: 16px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.65);
+    list-style-type: disc;
+}
+
+.goals-sublist li {
+    margin-bottom: 4px;
+}
+
+@media (max-width: 600px) {
+    .task-goals-modal {
+        padding: 20px;
+    }
+    
+    .goals-section {
+        padding: 12px;
+    }
+    
+    .goals-section-title {
+        font-size: 14px;
+    }
+    
+    .goals-list {
+        font-size: 13px;
+    }
+    
+    .goals-sublist {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 600px) {
+    .promo-hint-modal {
+        padding: 24px;
+    }
+    
+    .modal-title {
+        font-size: 16px;
+    }
+    
+    .promo-code-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .detail-row {
+        flex-direction: column;
+        gap: 2px;
+    }
+    
+    .detail-value {
+        text-align: left;
+    }
+    
+    .test-cards-grid {
+        grid-template-columns: 1fr;
+    }
+}
+

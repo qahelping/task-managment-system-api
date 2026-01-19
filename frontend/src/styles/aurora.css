@@ -37,14 +37,29 @@ body{
   background: var(--page-bg) !important;
   position: relative;
   overflow-x: hidden;
-  isolation: isolate;
+  /* isolation: isolate убран, чтобы не создавать новый контекст стекирования для fixed элементов */
 }
 
 /* Make app sit above sky layers */
-.layout, .layout-with-sidebar, header, aside, main, footer, #root{
+/* Header исключен, так как он должен быть fixed и позиционироваться относительно viewport */
+.layout, .layout-with-sidebar, aside, main, footer, #root{
   position: relative;
   z-index: 1;
 }
+
+/* Убеждаемся, что layout не создает новый контекст позиционирования для fixed элементов */
+.layout,
+.layout-with-sidebar {
+  /* Не используем transform, filter, perspective, will-change, contain - они создают новый контекст */
+  transform: none;
+  filter: none;
+  perspective: none;
+  will-change: auto;
+  contain: none;
+}
+
+/* Header исключен из общего правила, так как он должен быть fixed */
+/* Стили для header определены в indigo-styles.css */
 
 /* ---------- Aurora base (big glows) ---------- */
 body::before{

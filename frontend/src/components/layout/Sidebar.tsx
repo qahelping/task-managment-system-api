@@ -3,14 +3,13 @@ import { useBoardsStore } from '@/stores/boardsStore';
 import { useUIStore } from '@/stores/uiStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useEffect, useState } from 'react';
-import { FiHome, FiGrid, FiPlus, FiMenu, FiX, FiMoreVertical, FiSettings } from 'react-icons/fi';
-import { Button } from '@/components/ui/Button';
+import { FiHome, FiGrid, FiMenu, FiX, FiSettings } from 'react-icons/fi';
 import { cn } from '@/utils/cn';
 
 export const Sidebar: React.FC = () => {
   const location = useLocation();
-  const { boards, fetchBoards } = useBoardsStore();
-  const { sidebarOpen, toggleSidebar, setSidebarOpen, openModal } = useUIStore();
+  const { fetchBoards } = useBoardsStore();
+  const { sidebarOpen, toggleSidebar, setSidebarOpen } = useUIStore();
   const { user } = useAuthStore();
   const [isMobile, setIsMobile] = useState(false);
 
@@ -75,10 +74,10 @@ export const Sidebar: React.FC = () => {
         <div className="sidebar-nav">
           <nav className="space-y-2" data-qa="sidebar-navigation">
             <Link
-              to="/"
+              to="/dashboard"
               className={cn(
                 'sidebar-link',
-                isActive('/') && 'active'
+                isActive('/dashboard') && 'active'
               )}
               onClick={() => setSidebarOpen(false)}
               data-qa="sidebar-home-link"
@@ -114,130 +113,7 @@ export const Sidebar: React.FC = () => {
             )}
           </nav>
 
-          <div style={{ marginTop: '32px' }}>
-            <div className="flex items-center justify-between" style={{ marginBottom: '16px', padding: '0 16px' }}>
-              <h3 style={{ fontSize: '11px', fontWeight: '700', color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                Доски
-              </h3>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => {
-                  openModal('createBoard');
-                  setSidebarOpen(false);
-                }}
-                data-qa="sidebar-create-board-button"
-              >
-                <FiPlus style={{ width: '16px', height: '16px' }} />
-              </Button>
-            </div>
-            <div className="sidebar-boards-list" role="list" data-qa="sidebar-boards-list">
-              {boards.length === 0 ? (
-                <p className="sidebar-no-boards" data-qa="sidebar-no-boards">Нет досок</p>
-              ) : (
-                <>
-                  {boards.slice(0, 5).map((board) => {
-                    const isSelected = location.pathname === `/boards/${board.id}`;
-                    return (
-                      <div
-                        key={board.id}
-                        role="listitem"
-                        className={cn(
-                          'sidebar-board-item',
-                          isSelected && 'sidebar-board-item--selected'
-                        )}
-                        data-selected={isSelected}
-                        data-qa={`sidebar-board-item-${board.id}`}
-                      >
-                        <div className="sidebar-board-container">
-                          <Link
-                            to={`/boards/${board.id}`}
-                            className="sidebar-board-link"
-                            onClick={() => setSidebarOpen(false)}
-                            data-qa={`sidebar-board-link-${board.id}`}
-                          >
-                            <div className="sidebar-board-link-content">
-                              <div className="sidebar-board-indent"></div>
-                              <div className="sidebar-board-content">
-                                <svg
-                                  className="sidebar-board-icon"
-                                  fill="none"
-                                  viewBox="0 0 16 16"
-                                  role="presentation"
-                                  aria-hidden="true"
-                                >
-                                  <path
-                                    fill="currentColor"
-                                    fillRule="evenodd"
-                                    d="M2 3.5a.5.5 0 0 0-.5.5v8a.5.5 0 0 0 .5.5h2.833v-9zm4.333 0v9h3.334v-9zm4.834 0v9H14a.5.5 0 0 0 .5-.5V4a.5.5 0 0 0-.5-.5zM0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2z"
-                                    clipRule="evenodd"
-                                  />
-                                </svg>
-                                <span className="sidebar-board-title">{board.title}</span>
-                              </div>
-                            </div>
-                          </Link>
-                          <div className="sidebar-board-actions">
-                            <button
-                              className="sidebar-board-action-btn"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                // TODO: Add board actions menu
-                              }}
-                              aria-label="Board actions"
-                              data-qa={`sidebar-board-actions-${board.id}`}
-                            >
-                              <FiMoreVertical className="icon-sm" />
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {boards.length > 5 && (
-                    <div
-                      role="listitem"
-                      className="sidebar-board-item sidebar-board-item--view-all"
-                      data-selected={location.pathname === '/boards'}
-                      data-qa="sidebar-board-view-all"
-                    >
-                      <div className="sidebar-board-container">
-                        <Link
-                          to="/boards"
-                          className="sidebar-board-link"
-                          onClick={() => setSidebarOpen(false)}
-                          data-qa="sidebar-board-view-all-link"
-                        >
-                          <div className="sidebar-board-link-content">
-                            <div className="sidebar-board-indent"></div>
-                            <div className="sidebar-board-content">
-                              <svg
-                                className="sidebar-board-icon"
-                                fill="none"
-                                viewBox="0 0 16 16"
-                                role="presentation"
-                                aria-hidden="true"
-                              >
-                                <path
-                                  fill="currentColor"
-                                  fillRule="evenodd"
-                                  d="M15 3.5H1V2h14zm0 5.25H1v-1.5h14zM8 14H1v-1.5h7z"
-                                  clipRule="evenodd"
-                                />
-                              </svg>
-                              <span className="sidebar-board-title">Показать все доски</span>
-                            </div>
-                          </div>
-                        </Link>
-                      </div>
-                    </div>
-                  )}
-                </>
-              )}
-            </div>
           </div>
-        </div>
       </aside>
 
       {/* Overlay for mobile */}

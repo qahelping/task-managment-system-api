@@ -84,11 +84,19 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         authService.logout();
+        // Очищаем sessionStorage при явном выходе
+        sessionStorage.removeItem('auth_redirect_in_progress');
         set({
           user: null,
           token: null,
           isAuthenticated: false,
         });
+        // Редирект на страницу логина после выхода
+        const currentPath = window.location.pathname;
+        const isOnAuthPage = currentPath === '/login' || currentPath === '/register';
+        if (!isOnAuthPage) {
+          window.location.href = '/login';
+        }
       },
 
       setUser: (user: User) => {

@@ -10,7 +10,7 @@ import { useUIStore } from '@/stores/uiStore';
 import { CreateBoardModal } from '@/components/modals/CreateBoardModal';
 import { statsService } from '@/services/stats.service';
 import { DashboardStats } from '@/types';
-import { FiGrid, FiCheckCircle, FiClock, FiCircle } from 'react-icons/fi';
+import { FiGrid, FiCheckCircle, FiRefreshCw, FiCircle } from 'react-icons/fi';
 import { format } from 'date-fns';
 import ru from 'date-fns/locale/ru';
 
@@ -92,7 +92,7 @@ export const DashboardPage: React.FC = () => {
                   {stats?.tasks_by_status?.in_progress || 0}
                 </p>
               </div>
-              <FiClock style={{ width: '32px', height: '32px', color: 'var(--warn)' }} />
+              <FiRefreshCw style={{ width: '32px', height: '32px', color: 'var(--warn)' }} />
             </div>
           </Card>
           <Card className="stat-card" data-qa="dashboard-stat-done">

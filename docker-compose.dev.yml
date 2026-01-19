@@ -20,7 +20,7 @@ services:
       - ./data:/app/data
       - ./app.db:/app/app.db
     restart: unless-stopped
-    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/app --reload-exclude "frontend/*"
 
   frontend:
     build:
@@ -41,6 +41,8 @@ services:
 networks:
   default:
     name: task-management-network-dev
+
+
 
 
 

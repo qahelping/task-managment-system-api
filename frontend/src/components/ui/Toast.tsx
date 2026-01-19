@@ -1,6 +1,5 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { cn } from '@/utils/cn';
 import { Notification } from '@/types';
 import { FiX, FiCheckCircle, FiAlertCircle, FiInfo, FiAlertTriangle } from 'react-icons/fi';
 
@@ -17,31 +16,60 @@ export const Toast: React.FC<ToastProps> = ({ notification, onClose }) => {
     info: FiInfo,
   };
 
-  const colors = {
-    success: 'bg-success-50 border-success-200 text-success-800',
-    error: 'bg-danger-50 border-danger-200 text-danger-800',
-    warning: 'bg-warning-50 border-warning-200 text-warning-800',
-    info: 'bg-primary-50 border-primary-200 text-primary-800',
+  const getToastStyles = (type: string) => {
+    switch (type) {
+      case 'success':
+        return {
+          background: 'rgba(25, 195, 125, 0.16)',
+          borderColor: 'rgba(25, 195, 125, 0.4)',
+          color: 'rgba(25, 195, 125, 0.95)',
+          iconColor: 'rgba(25, 195, 125, 0.9)',
+        };
+      case 'error':
+        return {
+          background: 'rgba(255, 90, 95, 0.16)',
+          borderColor: 'rgba(255, 90, 95, 0.4)',
+          color: 'rgba(255, 90, 95, 0.95)',
+          iconColor: 'rgba(255, 90, 95, 0.9)',
+        };
+      case 'warning':
+        return {
+          background: 'rgba(255, 204, 102, 0.16)',
+          borderColor: 'rgba(255, 204, 102, 0.4)',
+          color: 'rgba(255, 204, 102, 0.95)',
+          iconColor: 'rgba(255, 204, 102, 0.9)',
+        };
+      case 'info':
+      default:
+        return {
+          background: 'rgba(99, 166, 255, 0.16)',
+          borderColor: 'rgba(99, 166, 255, 0.4)',
+          color: 'rgba(99, 166, 255, 0.95)',
+          iconColor: 'rgba(99, 166, 255, 0.9)',
+        };
+    }
   };
 
   const Icon = icons[notification.type];
+  const styles = getToastStyles(notification.type);
 
   return (
     <div
-      className={cn(
-        'flex items-center gap-3 p-4 rounded-lg border shadow-lg min-w-[300px] max-w-md',
-        colors[notification.type],
-        'animate-slide-in'
-      )}
+      className="toast-notification animate-slide-in"
+      style={{
+        background: styles.background,
+        borderColor: styles.borderColor,
+        color: styles.color,
+      }}
     >
-      <Icon className="w-5 h-5 flex-shrink-0" />
-      <p className="flex-1 text-sm font-medium">{notification.message}</p>
+      <Icon className="toast-icon" style={{ color: styles.iconColor }} />
+      <p className="toast-message">{notification.message}</p>
       <button
         onClick={onClose}
-        className="flex-shrink-0 text-gray-400 hover:text-gray-600 transition-colors"
+        className="toast-close-btn"
         aria-label="Close notification"
       >
-        <FiX className="w-4 h-4" />
+        <FiX />
       </button>
     </div>
   );
@@ -59,7 +87,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
   if (notifications.length === 0) return null;
 
   const container = (
-    <div className="fixed top-4 right-4 z-50 flex flex-col gap-2">
+    <div className="toast-container">
       {notifications.map((notification) => (
         <Toast
           key={notification.id}
@@ -72,6 +100,8 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
 
   return createPortal(container, document.body);
 };
+
+
 
 
 

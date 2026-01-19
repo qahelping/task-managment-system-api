@@ -67,9 +67,9 @@ def create_users(db):
             new_users.append(user)
             created_users.append(user)
     
-    # Массовая вставка всех новых пользователей одним коммитом
+    # Используем add_all вместо bulk_save_objects для сохранения связи с сессией
     if new_users:
-        db.bulk_save_objects(new_users)
+        db.add_all(new_users)
         db.commit()
         # Обновляем ID для новых пользователей
         for user in new_users:
@@ -138,25 +138,33 @@ def create_boards(db, users):
         },
     ]
     
+    # Оптимизация: проверяем существующие доски одним запросом
+    titles = [b["title"] for b in boards_data]
+    existing_boards = {b.title: b for b in db.query(Board).filter(Board.title.in_(titles)).all()}
+    
     created_boards = []
     new_boards = []
     
     for i, board_data in enumerate(boards_data):
-        creator = choice(all_creators)
-        board = Board(
-            title=board_data["title"],
-            description=board_data["description"],
-            public=board_data["public"],
-            archived=board_data["archived"],
-            created_by=creator.id,
-            created_at=datetime.utcnow() - timedelta(days=randint(1, 60))
-        )
-        new_boards.append(board)
-        created_boards.append(board)
+        if board_data["title"] in existing_boards:
+            print(f"   ⚠ Доска '{board_data['title']}' уже существует, пропускаем")
+            created_boards.append(existing_boards[board_data["title"]])
+        else:
+            creator = choice(all_creators)
+            board = Board(
+                title=board_data["title"],
+                description=board_data["description"],
+                public=board_data["public"],
+                archived=board_data["archived"],
+                created_by=creator.id,
+                created_at=datetime.utcnow() - timedelta(days=randint(1, 60))
+            )
+            new_boards.append(board)
+            created_boards.append(board)
     
-    # Массовая вставка всех досок одним коммитом
+    # Используем add_all вместо bulk_save_objects для сохранения связи с сессией
     if new_boards:
-        db.bulk_save_objects(new_boards)
+        db.add_all(new_boards)
         db.commit()
         # Обновляем ID для новых досок
         for board in new_boards:
@@ -265,9 +273,9 @@ def create_tasks(db, boards, users):
             new_tasks.append(task)
             created_tasks.append(task)
     
-    # Массовая вставка всех задач одним коммитом
+    # Используем add_all вместо bulk_save_objects для сохранения связи с сессией
     if new_tasks:
-        db.bulk_save_objects(new_tasks)
+        db.add_all(new_tasks)
         db.commit()
         # Обновляем ID для новых задач
         for task in new_tasks:

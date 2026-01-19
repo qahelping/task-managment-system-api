@@ -81,7 +81,7 @@ export const PublicBoardPage: React.FC = () => {
           <Link to="/" className="brand flex-shrink-0">
             <div className="brand-mark">
               <img 
-                src="/automation-lab/assets/logo.png" 
+                src="/logo.png" 
                 alt="Logo" 
                 className="brand-logo-img" 
                 onClick={handleLogoClick}

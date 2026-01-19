@@ -25,8 +25,12 @@ export const authService = {
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
+    // Очищаем флаг редиректа при явном выходе
+    sessionStorage.removeItem('auth_redirect_in_progress');
   },
 };
+
+
 
 
 
