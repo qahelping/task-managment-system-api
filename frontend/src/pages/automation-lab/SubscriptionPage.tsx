@@ -467,12 +467,17 @@ export const SubscriptionPage: React.FC = () => {
     setCardGeneralError('');
   };
 
-  const handlePayment = () => {
+  const handlePayment = (e?: React.MouseEvent<HTMLButtonElement>) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    
     const isNumberValid = validateCardNumber(cardNumber, true);
     const isExpiryValid = validateExpiry(cardExpiry, true);
     const isCvvValid = validateCvv(cardCvv, true);
     
-    if (!isNumberValid || !isExpiryValid || !isCvvValid) return;
+    if (!isNumberValid || !isExpiryValid || !isCvvValid) {
+      return;
+    }
     
     const cleanNumber = cardNumber.replace(/\s/g, '');
     

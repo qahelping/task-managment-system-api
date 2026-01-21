@@ -24,7 +24,15 @@ const OverlaysPage = lazy(() => import('./pages/automation-lab/OverlaysPage').th
 const FramesShadowDOMPage = lazy(() => import('./pages/automation-lab/FramesShadowDOMPage').then(m => ({ default: m.FramesShadowDOMPage })));
 const DynamicPage = lazy(() => import('./pages/automation-lab/DynamicPage').then(m => ({ default: m.DynamicPage })));
 const ClipboardPage = lazy(() => import('./pages/automation-lab/ClipboardPage').then(m => ({ default: m.ClipboardPage })));
-const SubscriptionPage = lazy(() => import('./pages/automation-lab/SubscriptionPage').then(m => ({ default: m.SubscriptionPage })));
+const SubscriptionPage = lazy(() => 
+  import('./pages/automation-lab/SubscriptionPage')
+    .then(m => ({ default: m.SubscriptionPage }))
+    .catch((error) => {
+      console.error('Failed to load SubscriptionPage:', error);
+      // Fallback для Firefox и других браузеров
+      return import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage }));
+    })
+);
 
 function App() {
   const { checkAuth, isAuthenticated, isLoading, logout } = useAuthStore();
@@ -127,18 +135,10 @@ function App() {
             </AdminRoute>
           }
         />
+        {/* Специфичные роуты automation-lab должны идти перед общим роутом /automation-lab */}
         <Route
-          path="/automation-lab"
-          element={<AutomationLabHomePage />}
-        />
-        <Route
-          path="/automation-lab/index.html"
-          element={<AutomationLabHomePage />}
-        />
-        {/* Редирект старого пути на главную */}
-        <Route
-          path="/automation-lab/index"
-          element={<Navigate to="/" replace />}
+          path="/automation-lab/subscription"
+          element={<SubscriptionPage />}
         />
         <Route
           path="/automation-lab/cards"
@@ -169,8 +169,18 @@ function App() {
           element={<ClipboardPage />}
         />
         <Route
-          path="/automation-lab/subscription"
-          element={<SubscriptionPage />}
+          path="/automation-lab/index.html"
+          element={<AutomationLabHomePage />}
+        />
+        {/* Редирект старого пути на главную */}
+        <Route
+          path="/automation-lab/index"
+          element={<Navigate to="/" replace />}
+        />
+        {/* Общий роут /automation-lab должен быть последним */}
+        <Route
+          path="/automation-lab"
+          element={<AutomationLabHomePage />}
         />
         <Route path="/404" element={<NotFoundPage />} />
         <Route path="*" element={<Navigate to="/404" replace />} />

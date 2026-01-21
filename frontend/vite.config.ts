@@ -69,6 +69,12 @@ export default defineConfig({
     hmr: {
       overlay: true,
     },
+    // Настройки для Firefox и других браузеров
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    },
     proxy: {
       '/api': {
         target: process.env.VITE_API_BASE_URL || 'http://localhost:8000',
