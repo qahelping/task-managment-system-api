@@ -41,8 +41,17 @@ export const useBoardsStore = create<BoardsState>((set, get) => ({
       const board = await boardsService.getBoardById(boardId);
       set({ currentBoard: board, loading: false });
     } catch (error: any) {
+      const detail = error.response?.data?.detail;
+      const message = error.response?.status === 403
+        ? 'Доступ к доске запрещён'
+        : typeof detail === 'string'
+          ? detail
+          : Array.isArray(detail)
+            ? detail.map((d: any) => d.msg || d.message || String(d)).join(', ')
+            : 'Не удалось загрузить доску';
       set({
-        error: error.response?.data?.detail || 'Failed to fetch board',
+        currentBoard: null,
+        error: message,
         loading: false,
       });
     }
@@ -110,6 +119,7 @@ export const useBoardsStore = create<BoardsState>((set, get) => ({
     set({ error: null });
   },
 }));
+
 
 
 

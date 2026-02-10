@@ -43,7 +43,7 @@ export const LoginPage: React.FC = () => {
 
     try {
       await login(formData.email, formData.password);
-      navigate('/');
+      navigate('/dashboard');
     } catch (error: any) {
       const message =
         error.response?.data?.detail || 'Ошибка входа. Проверьте данные.';

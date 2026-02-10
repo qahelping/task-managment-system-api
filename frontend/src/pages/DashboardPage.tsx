@@ -7,23 +7,36 @@ import { Loader } from '@/components/ui/Loader';
 import { EmptyState } from '@/components/ui/EmptyState';
 import { useBoardsStore } from '@/stores/boardsStore';
 import { useUIStore } from '@/stores/uiStore';
-import { CreateBoardModal } from '@/components/modals/CreateBoardModal';
+import { useAuthStore } from '@/stores/authStore';
 import { statsService } from '@/services/stats.service';
-import { DashboardStats } from '@/types';
-import { FiGrid, FiCheckCircle, FiRefreshCw, FiCircle } from 'react-icons/fi';
+import { DashboardStats, Board } from '@/types';
+import { FiGrid, FiCheckCircle, FiRefreshCw, FiCircle, FiPlus } from 'react-icons/fi';
 import { format } from 'date-fns';
 import ru from 'date-fns/locale/ru';
+import { getRecentBoardsFiltered } from '@/utils/recentBoards';
 
 export const DashboardPage: React.FC = () => {
   const { boards, fetchBoards, loading } = useBoardsStore();
   const { openModal, modals } = useUIStore();
+  const { user } = useAuthStore();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
+  const [recentBoards, setRecentBoards] = useState<Board[]>([]);
 
   useEffect(() => {
     fetchBoards();
     loadStats();
   }, [fetchBoards]);
+
+  useEffect(() => {
+    // Обновляем список последних открытых досок при изменении списка досок или пользователя
+    if (user?.id && boards.length > 0) {
+      const recent = getRecentBoardsFiltered(user.id, boards);
+      setRecentBoards(recent);
+    } else {
+      setRecentBoards([]);
+    }
+  }, [boards, user?.id]);
 
   const loadStats = async () => {
     try {
@@ -56,7 +69,8 @@ export const DashboardPage: React.FC = () => {
             onClick={() => openModal('createBoard')}
             data-qa="dashboard-create-board-button"
           >
-            Создать доску
+            <FiPlus className="icon-sm" />
+            <span>Создать доску</span>
           </Button>
         </div>
 
@@ -124,14 +138,23 @@ export const DashboardPage: React.FC = () => {
                     onClick={() => openModal('createBoard')}
                     data-qa="dashboard-empty-create-board-button"
                   >
-                    Создать доску
+                    <FiPlus className="icon-sm" />
+                    <span>Создать доску</span>
                   </Button>
                 }
               />
             </Card>
+          ) : recentBoards.length === 0 ? (
+            <Card>
+              <EmptyState
+                title="Нет недавно открытых досок"
+                message="Откройте доску, чтобы она появилась здесь"
+              />
+            </Card>
           ) : (
             <div className="grid grid-cols-3 gap-4">
-              {boards.slice(0, 6).map((board) => (
+              {/* Отображаем максимум 6 последних открытых досок, отсортированных от последней открытой */}
+              {recentBoards.slice(0, 6).map((board) => (
                 <Card key={board.id} hover onClick={() => {}}>
                   <Link to={`/boards/${board.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <h3 className="text-base font-semibold" style={{ color: 'var(--text)', marginBottom: '8px' }}>
@@ -161,8 +184,6 @@ export const DashboardPage: React.FC = () => {
           )}
         </div>
       </div>
-
-      {modals.createBoard && <CreateBoardModal />}
     </Layout>
   );
 };

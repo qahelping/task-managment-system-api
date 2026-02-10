@@ -103,7 +103,7 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
     return {"user_id": user_id}
 
 
-def check_board_access(board, user_id: int, user_role: str, action: str = "read"):
+def check_board_access(board, user_id: int, user_role: str, action: str = "read", db=None):
     """
     Проверка прав доступа к доске.
     
@@ -112,14 +112,34 @@ def check_board_access(board, user_id: int, user_role: str, action: str = "read"
         user_id: ID пользователя
         user_role: Роль пользователя (admin, user, guest)
         action: Действие (read, write, delete)
+        db: Сессия базы данных (опционально, для проверки участников)
     """
     # Админы имеют полный доступ
     if user_role == "admin":
         return True
     
-    # Владелец доски имеет полный доступ
+    # Владелец доски (автор) имеет полный доступ
     if board.created_by == user_id:
         return True
+    
+    # Проверяем, является ли пользователь участником доски
+    if db is not None:
+        from app.models.board_member import BoardMember
+        is_member = db.query(BoardMember).filter(
+            BoardMember.board_id == board.id,
+            BoardMember.user_id == user_id
+        ).first()
+        
+        if is_member:
+            # Участники доски имеют доступ на чтение
+            if action == "read":
+                return True
+            # Для записи и удаления только владелец или админ
+            if action in ("write", "delete"):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Only board owner or admin can modify the board"
+                )
     
     # Обычные пользователи имеют доступ к своим доскам
     if user_role == "user" and action != "read":
@@ -151,5 +171,5 @@ def check_board_access(board, user_id: int, user_role: str, action: str = "read"
     # По умолчанию запрещаем доступ
     raise HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
-        detail="Access denied"
+        detail="Access denied. You are not a member of this board"
     )

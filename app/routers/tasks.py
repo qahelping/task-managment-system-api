@@ -4,11 +4,15 @@
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from sqlalchemy.orm import Session
+from sqlalchemy import or_
 
 from app.database import get_db
-from app.schemas.task import TaskCreate, TaskUpdate, TaskResponse, BulkStatusUpdate, BulkDelete, ReorderTasks
+from app.schemas.task import TaskCreate, TaskUpdate, TaskResponse, BulkStatusUpdate, BulkDelete, ReorderTasks, AccessibleTasksResponse
 from app.services import task_service, board_service, user_service
 from app.core.security import get_current_user_id, check_board_access
+from app.models.task import Task
+from app.models.board import Board
+from app.models.board_member import BoardMember
 
 router = APIRouter(tags=["Tasks"])
 
@@ -40,7 +44,7 @@ def get_tasks(
     # Проверяем права доступа
     user = user_service.get_user_by_id(db, current_user_id)
     if user:
-        check_board_access(board, current_user_id, user.role, action="read")
+        check_board_access(board, current_user_id, user.role, action="read", db=db)
     
     tasks = task_service.get_tasks_by_board(
         db, board_id,
@@ -108,6 +112,7 @@ def update_task(
     """
     Обновить задачу.
     Требуется аутентификация.
+    Любой пользователь с доступом к доске может редактировать задачи.
     """
     # Проверка существования задачи
     task = task_service.get_task_by_id(db, task_id)
@@ -116,6 +121,19 @@ def update_task(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Task not found"
         )
+    
+    # Проверяем доступ к доске (любой пользователь с доступом может редактировать задачи)
+    board = board_service.get_board_by_id(db, board_id)
+    if not board:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Board not found"
+        )
+    
+    user = user_service.get_user_by_id(db, current_user_id)
+    if user:
+        # Проверяем доступ на чтение доски (если есть доступ на чтение, можно редактировать задачи)
+        check_board_access(board, current_user_id, user.role, action="read", db=db)
     
     task = task_service.update_task(db, task_id, task_data)
     return task
@@ -208,6 +226,101 @@ def update_task_priority(
     return task
 
 
+@router.get("/tasks/accessible", response_model=AccessibleTasksResponse)
+def get_accessible_tasks(
+    skip: int = Query(0, ge=0),
+    limit: int = Query(100, ge=1, le=1000),
+    status_filter: Optional[str] = Query(None, alias="status"),
+    priority_filter: Optional[str] = Query(None, alias="priority"),
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id)
+):
+    """
+    Получить все задачи, доступные текущему пользователю.
+    Включает:
+    - Задачи на досках, созданных пользователем
+    - Задачи на досках, где пользователь является участником
+    - Задачи на публичных досках
+    - Задачи, назначенные на пользователя (assignee_id)
+    Для админов возвращает все задачи.
+    """
+    user = user_service.get_user_by_id(db, current_user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found"
+        )
+    
+    # Получаем ID досок, к которым у пользователя есть доступ
+    accessible_board_ids = set()
+    
+    # 1. Доски, созданные пользователем
+    user_boards = db.query(Board.id).filter(Board.created_by == current_user_id).all()
+    accessible_board_ids.update([board.id for board in user_boards])
+    
+    # 2. Доски, где пользователь является участником
+    member_boards = db.query(BoardMember.board_id).filter(
+        BoardMember.user_id == current_user_id
+    ).all()
+    accessible_board_ids.update([board.board_id for board in member_boards])
+    
+    # 3. Публичные доски (доступны всем)
+    public_boards = db.query(Board.id).filter(Board.public == True).all()
+    accessible_board_ids.update([board.id for board in public_boards])
+    
+    # 4. Для админов - все доски
+    if user.role == "admin":
+        all_boards = db.query(Board.id).all()
+        accessible_board_ids.update([board.id for board in all_boards])
+    
+    # Строим запрос для задач
+    if accessible_board_ids:
+        query = db.query(Task).filter(Task.board_id.in_(accessible_board_ids))
+    else:
+        # Если нет доступных досок, создаем пустой запрос
+        query = db.query(Task).filter(False)
+    
+    # Добавляем фильтры
+    if status_filter:
+        query = query.filter(Task.status == status_filter)
+    if priority_filter:
+        query = query.filter(Task.priority == priority_filter)
+    
+    # Также включаем задачи, назначенные на пользователя
+    assigned_query = db.query(Task).filter(Task.assignee_id == current_user_id)
+    if status_filter:
+        assigned_query = assigned_query.filter(Task.status == status_filter)
+    if priority_filter:
+        assigned_query = assigned_query.filter(Task.priority == priority_filter)
+    
+    # Объединяем запросы: задачи на доступных досках ИЛИ назначенные на пользователя
+    if accessible_board_ids:
+        combined_query = db.query(Task).filter(
+            or_(
+                Task.board_id.in_(accessible_board_ids),
+                Task.assignee_id == current_user_id
+            )
+        )
+    else:
+        combined_query = assigned_query
+    
+    if status_filter:
+        combined_query = combined_query.filter(Task.status == status_filter)
+    if priority_filter:
+        combined_query = combined_query.filter(Task.priority == priority_filter)
+    
+    # Подсчитываем общее количество
+    total = combined_query.count()
+    
+    # Получаем задачи с пагинацией
+    tasks = combined_query.offset(skip).limit(limit).all()
+    
+    return AccessibleTasksResponse(
+        tasks=[TaskResponse.model_validate(task) for task in tasks],
+        total=total
+    )
+
+
 @router.get("/tasks/search", response_model=List[TaskResponse])
 def search_tasks(
     q: str = Query(..., min_length=1),
@@ -276,7 +389,7 @@ def reorder_tasks(
     
     user = user_service.get_user_by_id(db, current_user_id)
     if user:
-        check_board_access(board, current_user_id, user.role, action="write")
+        check_board_access(board, current_user_id, user.role, action="write", db=db)
     
     task_service.reorder_tasks(db, board_id, payload.ordered_ids)
     return {"message": "Tasks reordered successfully"}

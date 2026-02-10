@@ -477,6 +477,7 @@ pip install pytest pytest-asyncio httpx
 - **[ИНСТРУКЦИЯ_ДЛЯ_СТУДЕНТОВ.md](./ИНСТРУКЦИЯ_ДЛЯ_СТУДЕНТОВ.md)** - Подробная инструкция по развертыванию
 - **[PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)** - Структура проекта
 - **[ЗАДАЧИ_ФИЧИ.md](./ЗАДАЧИ_ФИЧИ.md)** - Задачи для бизнес-аналитиков
+- **[GITHUB_PAGES_DEPLOY.md](./GITHUB_PAGES_DEPLOY.md)** - Инструкция по развертыванию frontend на GitHub Pages
 
 ## 📖 Дополнительные ресурсы
 

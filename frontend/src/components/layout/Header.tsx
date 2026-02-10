@@ -123,7 +123,6 @@ export const Header: React.FC = () => {
                       )}
                     </div>
                   </div>
-                  <div className="header-user-dropdown-divider"></div>
                   <button
                     className="header-user-dropdown-item"
                     onClick={handleLogout}

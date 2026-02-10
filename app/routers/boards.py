@@ -64,11 +64,12 @@ def get_boards(
     current_user_id: int = Depends(get_current_user_id)
 ):
     """
-    Получить список всех досок.
+    Получить список досок пользователя.
+    Возвращает только доски, где пользователь является владельцем или участником.
     Требуется аутентификация.
     archived=true - получить только архивированные доски.
     """
-    boards = board_service.get_all_boards(db, skip=skip, limit=limit, archived=archived)
+    boards = board_service.get_all_boards(db, skip=skip, limit=limit, archived=archived, user_id=current_user_id)
     return boards
 
 
@@ -108,7 +109,7 @@ def get_board(
     # Проверяем права доступа
     user = user_service.get_user_by_id(db, current_user_id)
     if user:
-        check_board_access(board, current_user_id, user.role, action="read")
+        check_board_access(board, current_user_id, user.role, action="read", db=db)
     
     return board
 
@@ -136,7 +137,7 @@ def update_board(
     # Проверяем права доступа
     user = user_service.get_user_by_id(db, current_user_id)
     if user:
-        check_board_access(board, current_user_id, user.role, action="write")
+        check_board_access(board, current_user_id, user.role, action="write", db=db)
     
     board = board_service.update_board(db, board_id, board_data)
     return board
@@ -165,7 +166,7 @@ def delete_board(
     # Проверяем права доступа
     user = user_service.get_user_by_id(db, current_user_id)
     if user:
-        check_board_access(board, current_user_id, user.role, action="delete")
+        check_board_access(board, current_user_id, user.role, action="delete", db=db)
     
     board_service.delete_board(db, board_id)
     return None

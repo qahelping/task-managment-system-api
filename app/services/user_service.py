@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
 from app.models.user import User
-from app.schemas.user import UserCreate
+from app.schemas.user import UserCreate, UserUpdate
 from app.core.security import get_password_hash
 
 
@@ -142,4 +142,67 @@ def create_guest_user(db: Session, user_data: UserCreate) -> User:
     db.refresh(db_user)
     
     return db_user
+
+
+def update_user(db: Session, user_id: int, user_data: UserUpdate) -> User:
+    """
+    Обновить данные пользователя.
+    Проверяет уникальность email и username при изменении.
+    """
+    user = get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Обновление username
+    if user_data.username is not None and user_data.username != user.username:
+        existing_user = get_user_by_username(db, user_data.username)
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Username already taken"
+            )
+        user.username = user_data.username
+    
+    # Обновление email
+    if user_data.email is not None and user_data.email != user.email:
+        existing_user = get_user_by_email(db, user_data.email)
+        if existing_user:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Email already registered"
+            )
+        user.email = user_data.email
+    
+    # Обновление роли
+    if user_data.role is not None:
+        user.role = user_data.role
+    
+    # Обновление аватара
+    if user_data.avatar_url is not None:
+        user.avatar_url = user_data.avatar_url
+    
+    db.commit()
+    db.refresh(user)
+    
+    return user
+
+
+def delete_user(db: Session, user_id: int) -> bool:
+    """
+    Удалить пользователя.
+    """
+    user = get_user_by_id(db, user_id)
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    db.delete(user)
+    db.commit()
+    
+    return True
 

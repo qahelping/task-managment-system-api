@@ -25,7 +25,7 @@ def generate_random_cards(count: int) -> List[BankCardResponse]:
         "Global Trust",
         "PrimeBank",
         "Capital One",
-        "First National Bank",
+        "First Bank",
         "Crest Bank",
         "Alliance Bank",
         "Heritage Bank",

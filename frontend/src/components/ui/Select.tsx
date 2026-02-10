@@ -24,20 +24,19 @@ export const Select: React.FC<SelectProps> = ({
   'data-qa': dataQa,
   ...props
 }) => {
-  const selectId = id || `select-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
     <div className="w-full">
       {label && (
         <label
-          htmlFor={selectId}
+          htmlFor={`label-${dataQa}`}
           className="label"
         >
           {label}
         </label>
       )}
       <select
-        id={selectId}
+        id={`id-select-${dataQa}`}
         className={cn(
           'input-modern',
           error ? 'input-error' : '',

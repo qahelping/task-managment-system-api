@@ -3,9 +3,14 @@ import { Layout } from '@/components/layout/Layout';
 import { Card } from '@/components/ui/Card';
 import { Input } from '@/components/ui/Input';
 import { Loader } from '@/components/ui/Loader';
+import { Button } from '@/components/ui/Button';
 import { usersService } from '@/services/users.service';
 import { User } from '@/types';
-import { FiSearch, FiUser } from 'react-icons/fi';
+import { useUIStore } from '@/stores/uiStore';
+import { useAuthStore } from '@/stores/authStore';
+import { EditUserModal } from '@/components/modals/EditUserModal';
+import { DeleteUserModal } from '@/components/modals/DeleteUserModal';
+import { FiSearch, FiUser, FiEdit2, FiTrash2 } from 'react-icons/fi';
 import { format } from 'date-fns';
 import ru from 'date-fns/locale/ru';
 
@@ -14,6 +19,9 @@ export const AdminPage: React.FC = () => {
   const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const { openModal, modals } = useUIStore();
+  const { user: currentUser } = useAuthStore();
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   useEffect(() => {
     loadUsers();
@@ -88,6 +96,7 @@ export const AdminPage: React.FC = () => {
           <h1 className="admin-page-title">Административная панель</h1>
         </div>
 
+        {/* Пользователи */}
         <Card>
           <div>
             <h2 className="admin-section-title">
@@ -113,12 +122,13 @@ export const AdminPage: React.FC = () => {
                   <th>Email</th>
                   <th>Роль</th>
                   <th>Дата регистрации</th>
+                  <th>Действия</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredUsers.length === 0 ? (
                   <tr>
-                    <td colSpan={4} className="admin-table-empty">
+                    <td colSpan={5} className="admin-table-empty">
                       Пользователи не найдены
                     </td>
                   </tr>
@@ -157,6 +167,36 @@ export const AdminPage: React.FC = () => {
                           })}
                         </div>
                       </td>
+                      <td>
+                        <div className="flex gap-2">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              openModal('editUser');
+                            }}
+                            disabled={user.id === currentUser?.id}
+                            title={user.id === currentUser?.id ? 'Нельзя редактировать себя' : 'Редактировать'}
+                            data-qa={`edit-user-button-${user.id}`}
+                          >
+                            <FiEdit2 />
+                          </Button>
+                          <Button
+                            variant="danger"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedUser(user);
+                              openModal('deleteUser');
+                            }}
+                            disabled={user.id === currentUser?.id}
+                            title={user.id === currentUser?.id ? 'Нельзя удалить себя' : 'Удалить'}
+                            data-qa={`delete-user-button-${user.id}`}
+                          >
+                            <FiTrash2 />
+                          </Button>
+                        </div>
+                      </td>
                     </tr>
                   ))
                 )}
@@ -165,6 +205,26 @@ export const AdminPage: React.FC = () => {
           </div>
         </Card>
       </div>
+
+      {/* Modals */}
+      {modals.editUser && selectedUser && (
+        <EditUserModal
+          user={selectedUser}
+          onUserUpdated={() => {
+            loadUsers();
+            setSelectedUser(null);
+          }}
+        />
+      )}
+      {modals.deleteUser && selectedUser && (
+        <DeleteUserModal
+          user={selectedUser}
+          onUserDeleted={() => {
+            loadUsers();
+            setSelectedUser(null);
+          }}
+        />
+      )}
     </Layout>
   );
 };

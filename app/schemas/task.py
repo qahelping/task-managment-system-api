@@ -12,6 +12,7 @@ class TaskCreate(BaseModel):
     description: Optional[str] = None
     status: str = Field(default="todo", pattern="^(todo|in_progress|done)$")
     priority: str = Field(default="medium", pattern="^(low|medium|high)$")
+    assignee_id: Optional[int] = None  # ID назначенного пользователя
 
 
 class TaskUpdate(BaseModel):
@@ -20,6 +21,7 @@ class TaskUpdate(BaseModel):
     description: Optional[str] = None
     status: Optional[str] = Field(None, pattern="^(todo|in_progress|done)$")
     priority: Optional[str] = Field(None, pattern="^(low|medium|high)$")
+    assignee_id: Optional[int] = None  # ID назначенного пользователя
 
 
 class TaskResponse(BaseModel):
@@ -31,6 +33,7 @@ class TaskResponse(BaseModel):
     priority: str
     board_id: int
     created_by: int
+    assignee_id: Optional[int] = None
     created_at: datetime
     updated_at: datetime
     
@@ -52,3 +55,9 @@ class BulkDelete(BaseModel):
 class ReorderTasks(BaseModel):
     """Схема изменения порядка задач"""
     ordered_ids: List[int]
+
+
+class AccessibleTasksResponse(BaseModel):
+    """Схема ответа со списком доступных задач"""
+    tasks: List[TaskResponse]
+    total: int

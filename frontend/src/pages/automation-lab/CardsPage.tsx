@@ -62,7 +62,7 @@ export const CardsPage: React.FC = () => {
     <AutomationLabLayout subtitle="Async & Dynamic • Data Cards">
           <Link to="/automation-lab" className="back-link">Назад</Link>
           
-          <div className="page-header">
+          <div className="page-header" style={{ marginTop: '2rem' }}>
             <h2 className="page-title">Карточки подгружаются асинхронно</h2>
             <p className="page-description">
               Карточки догружаются через fake network delay. Тест ищет карточку сразу → NoSuchElement/timeout.

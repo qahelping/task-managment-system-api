@@ -5,9 +5,13 @@ import { Card } from '@/components/ui/Card';
 import { cn } from '@/utils/cn';
 import { format } from 'date-fns';
 import ru from 'date-fns/locale/ru';
-import { FiEdit2 } from 'react-icons/fi';
+import { FiEdit2, FiUser } from 'react-icons/fi';
 import { useUIStore } from '@/stores/uiStore';
 import { useTasksStore } from '@/stores/tasksStore';
+import { useBoardsStore } from '@/stores/boardsStore';
+import { useState, useEffect } from 'react';
+import { usersService } from '@/services/users.service';
+import { User } from '@/types';
 
 interface TaskCardProps {
   task: Task;
@@ -17,9 +21,40 @@ interface TaskCardProps {
 export const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging }) => {
   const { setNodeRef, attributes, listeners, transform, transition } = useSortable({
     id: task.id.toString(),
+    data: {
+      type: 'task',
+      status: task.status,
+    },
   });
   const { openModal } = useUIStore();
   const { setCurrentTask } = useTasksStore();
+  const { currentBoard } = useBoardsStore();
+  const [assignee, setAssignee] = useState<User | null>(null);
+
+  useEffect(() => {
+    if (task.assignee_id) {
+      loadAssignee();
+    } else {
+      setAssignee(null);
+    }
+  }, [task.assignee_id]);
+
+  const loadAssignee = async () => {
+    if (!task.assignee_id) {
+      setAssignee(null);
+      return;
+    }
+    
+    try {
+      // Получаем информацию о пользователе по его ID
+      const user = await usersService.getUserById(task.assignee_id);
+      setAssignee(user);
+    } catch (error) {
+      console.error('Failed to load assignee:', error);
+      // Если не удалось загрузить пользователя, очищаем assignee
+      setAssignee(null);
+    }
+  };
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -27,17 +62,42 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging }) => {
     opacity: isDragging ? 0.5 : 1,
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Не открываем модальное окно, если клик был на кнопке редактирования
+    if ((e.target as HTMLElement).closest('.task-card-edit-btn')) {
+      return;
+    }
+    setCurrentTask(task);
+    openModal('editTask');
+  };
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    // Убеждаемся, что task имеет board_id
+    if (!task.board_id && currentBoard) {
+      const taskWithBoardId = { ...task, board_id: currentBoard.id };
+      setCurrentTask(taskWithBoardId);
+    } else {
+      setCurrentTask(task);
+    }
+    openModal('editTask');
+  };
+
   return (
-    <div ref={setNodeRef} style={style} {...attributes} {...listeners} data-qa={`task-card-${task.id}`}>
+    <div 
+      ref={setNodeRef} 
+      style={style} 
+      {...attributes} 
+      {...listeners}
+      data-qa={`task-card-${task.id}`}
+    >
       <Card
         className={cn(
           'task-card cursor-move',
           isDragging && 'task-card--dragging'
         )}
-        onClick={() => {
-          setCurrentTask(task);
-          openModal('editTask');
-        }}
+        onClick={handleCardClick}
         data-qa={`task-card-content-${task.id}`}
       >
         <div className="task-card-content">
@@ -45,22 +105,43 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, isDragging }) => {
             <h4 className="task-card-title" data-qa={`task-title-${task.id}`}>
               {task.title}
             </h4>
-            <button
+            <div
               onClick={(e) => {
                 e.stopPropagation();
-                setCurrentTask(task);
-                openModal('editTask');
               }}
-              className="task-card-edit-btn"
-              data-qa={`task-edit-button-${task.id}`}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+              }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+              }}
+              style={{ display: 'inline-block' }}
             >
-              <FiEdit2 />
-            </button>
+              <button
+                type="button"
+                onClick={handleEditClick}
+                className="task-card-edit-btn"
+                data-qa={`task-edit-button-${task.id}`}
+                title="Редактировать задачу"
+                style={{ pointerEvents: 'auto', zIndex: 10, position: 'relative' }}
+              >
+                <FiEdit2 />
+              </button>
+            </div>
           </div>
           {task.description && (
             <p className="task-card-description">
               {task.description}
             </p>
+          )}
+          {assignee && (
+            <div 
+              className="task-card-assignee" 
+              title={assignee.username}
+            >
+              <FiUser />
+              <span>{assignee.username}</span>
+            </div>
           )}
           <div className="task-card-footer">
             <span className={cn('task-card-priority', `task-card-priority--${task.priority}`)}>

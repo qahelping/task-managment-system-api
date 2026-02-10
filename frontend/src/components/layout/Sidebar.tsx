@@ -3,7 +3,7 @@ import { useBoardsStore } from '@/stores/boardsStore';
 import { useUIStore } from '@/stores/uiStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useEffect, useState } from 'react';
-import { FiHome, FiGrid, FiMenu, FiX, FiSettings } from 'react-icons/fi';
+import { FiHome, FiGrid, FiMenu, FiX, FiSettings, FiCheckCircle } from 'react-icons/fi';
 import { cn } from '@/utils/cn';
 
 export const Sidebar: React.FC = () => {
@@ -96,6 +96,18 @@ export const Sidebar: React.FC = () => {
             >
               <FiGrid style={{ width: '20px', height: '20px' }} />
               <span>Все доски</span>
+            </Link>
+            <Link
+              to="/tasks"
+              className={cn(
+                'sidebar-link',
+                isActive('/tasks') && 'active'
+              )}
+              onClick={() => setSidebarOpen(false)}
+              data-qa="sidebar-tasks-link"
+            >
+              <FiCheckCircle style={{ width: '20px', height: '20px' }} />
+              <span>Все задачи</span>
             </Link>
             {user?.role === 'admin' && (
               <Link

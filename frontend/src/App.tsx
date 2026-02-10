@@ -14,6 +14,7 @@ const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ de
 const BoardsPage = lazy(() => import('./pages/boards/BoardsPage').then(m => ({ default: m.BoardsPage })));
 const BoardDetailPage = lazy(() => import('./pages/boards/BoardDetailPage').then(m => ({ default: m.BoardDetailPage })));
 const PublicBoardPage = lazy(() => import('./pages/boards/PublicBoardPage').then(m => ({ default: m.PublicBoardPage })));
+const TasksPage = lazy(() => import('./pages/tasks/TasksPage').then(m => ({ default: m.TasksPage })));
 const AdminPage = lazy(() => import('./pages/admin/AdminPage').then(m => ({ default: m.AdminPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const AutomationLabHomePage = lazy(() => import('./pages/automation-lab/AutomationLabHomePage').then(m => ({ default: m.AutomationLabHomePage })));
@@ -126,6 +127,14 @@ function App() {
         <Route
           path="/public/boards/:id"
           element={<PublicBoardPage />}
+        />
+        <Route
+          path="/tasks"
+          element={
+            <PrivateRoute>
+              <TasksPage />
+            </PrivateRoute>
+          }
         />
         <Route
           path="/admin"

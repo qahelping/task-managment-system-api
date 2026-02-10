@@ -4,7 +4,7 @@ import { cn } from '@/utils/cn';
 interface CardProps {
   children: React.ReactNode;
   className?: string;
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent) => void;
   hover?: boolean;
 }
 
