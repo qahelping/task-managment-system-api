@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Redirecting...</title>
+    <script>
+      // GitHub Pages не поддерживает серверную маршрутизацию для SPA
+      // Этот файл перенаправляет все запросы на index.html
+      // React Router затем обработает маршрут на клиенте
+      
+      const path = window.location.pathname;
+      const search = window.location.search;
+      const hash = window.location.hash;
+      
+      // Определяем base path из текущего пути
+      // Если файл находится в подпапке (например, /repository-name/404.html),
+      // то base path будет /repository-name/
+      const pathParts = path.split('/').filter(Boolean);
+      const isInSubfolder = pathParts.length > 1 && pathParts[pathParts.length - 1] === '404.html';
+      const basePath = isInSubfolder ? '/' + pathParts[0] + '/' : '/';
+      
+      // Если путь не заканчивается на статический файл, перенаправляем на index.html
+      if (!path.match(/\.(html|css|js|json|png|jpg|jpeg|gif|svg|ico|woff|woff2|ttf|eot|map)$/)) {
+        // Сохраняем оригинальный путь для React Router
+        const redirectPath = path.replace(/\/404\.html$/, '') + search + hash;
+        sessionStorage.setItem('redirect', redirectPath);
+        // Перенаправляем на index.html
+        window.location.replace(basePath.replace(/\/$/, '') + '/index.html' + search + hash);
+      }
+    </script>
+  </head>
+  <body>
+    <noscript>
+      <p>Please enable JavaScript to view this site.</p>
+    </noscript>
+  </body>
+</html>
