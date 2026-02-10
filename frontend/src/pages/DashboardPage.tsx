@@ -17,7 +17,7 @@ import { getRecentBoardsFiltered } from '@/utils/recentBoards';
 
 export const DashboardPage: React.FC = () => {
   const { boards, fetchBoards, loading } = useBoardsStore();
-  const { openModal, modals } = useUIStore();
+  const { openModal } = useUIStore();
   const { user } = useAuthStore();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [statsLoading, setStatsLoading] = useState(true);
