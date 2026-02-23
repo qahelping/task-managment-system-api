@@ -30,6 +30,15 @@ export const usersService = {
     const response = await api.get<User>('/users/me');
     return response.data;
   },
+
+  async updateUser(userId: number, data: { username?: string; email?: string; role?: string; avatar_url?: string }): Promise<User> {
+    const response = await api.put<User>(`/users/${userId}`, data);
+    return response.data;
+  },
+
+  async deleteUser(userId: number): Promise<void> {
+    await api.delete(`/users/${userId}`);
+  },
 };
 
 

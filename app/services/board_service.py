@@ -16,9 +16,26 @@ def get_board_by_id(db: Session, board_id: int) -> Optional[Board]:
     return db.query(Board).filter(Board.id == board_id).first()
 
 
-def get_all_boards(db: Session, skip: int = 0, limit: int = 100, archived: bool = False) -> List[Board]:
-    """Получить список всех досок"""
-    query = db.query(Board).filter(Board.archived == archived)
+def get_all_boards(db: Session, skip: int = 0, limit: int = 100, archived: bool = False, user_id: Optional[int] = None) -> List[Board]:
+    """
+    Получить список досок пользователя.
+    Возвращает только доски, где пользователь является владельцем или участником.
+    """
+    if user_id is None:
+        # Если user_id не указан, возвращаем все доски (для обратной совместимости)
+        query = db.query(Board).filter(Board.archived == archived)
+        return query.offset(skip).limit(limit).all()
+    
+    # Получаем доски, где пользователь является владельцем или участником
+    query = db.query(Board).filter(
+        Board.archived == archived
+    ).filter(
+        (Board.created_by == user_id) |
+        Board.id.in_(
+            db.query(BoardMember.board_id).filter(BoardMember.user_id == user_id)
+        )
+    )
+    
     return query.offset(skip).limit(limit).all()
 
 
@@ -32,7 +49,10 @@ def get_public_boards(db: Session, skip: int = 0, limit: int = 100) -> List[Boar
 
 
 def create_board(db: Session, board_data: BoardCreate, user_id: int) -> Board:
-    """Создать новую доску"""
+    """
+    Создать новую доску.
+    Автоматически добавляет создателя доски как участника.
+    """
     db_board = Board(
         title=board_data.title,
         description=board_data.description,
@@ -43,6 +63,17 @@ def create_board(db: Session, board_data: BoardCreate, user_id: int) -> Board:
     db.add(db_board)
     db.commit()
     db.refresh(db_board)
+    
+    # Автоматически добавляем создателя доски как участника
+    existing_member = db.query(BoardMember).filter(
+        BoardMember.board_id == db_board.id,
+        BoardMember.user_id == user_id
+    ).first()
+    
+    if not existing_member:
+        member = BoardMember(board_id=db_board.id, user_id=user_id)
+        db.add(member)
+        db.commit()
     
     return db_board
 

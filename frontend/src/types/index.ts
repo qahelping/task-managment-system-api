@@ -71,6 +71,7 @@ export interface Task {
   priority: TaskPriority;
   board_id: number;
   created_by: number;
+  assignee_id?: number | null;
   created_at: string;
   updated_at: string;
 }
@@ -80,6 +81,7 @@ export interface TaskCreate {
   description?: string | null;
   status?: TaskStatus;
   priority?: TaskPriority;
+  assignee_id?: number | null;
 }
 
 export interface TaskUpdate {
@@ -87,6 +89,7 @@ export interface TaskUpdate {
   description?: string | null;
   status?: TaskStatus;
   priority?: TaskPriority;
+  assignee_id?: number | null;
 }
 
 // UI types
@@ -104,6 +107,9 @@ export interface ModalState {
   editTask: boolean;
   deleteBoard: boolean;
   deleteTask: boolean;
+  boardMembers: boolean;
+  editUser: boolean;
+  deleteUser: boolean;
 }
 
 // Stats types
@@ -130,6 +136,7 @@ export interface DashboardStats {
     done: number;
   };
 }
+
 
 
 

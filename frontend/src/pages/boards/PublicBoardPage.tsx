@@ -7,10 +7,13 @@ import { boardsService } from '@/services/boards.service';
 import { BoardWithTasks, TaskStatus, TaskPriority } from '@/types';
 import { Link } from 'react-router-dom';
 import { FiHome, FiLock } from 'react-icons/fi';
+import { useAuthStore } from '@/stores/authStore';
+import { trackBoardOpen } from '@/utils/recentBoards';
 
 export const PublicBoardPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   const boardId = parseInt(id || '0', 10);
   const [board, setBoard] = useState<BoardWithTasks | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,6 +39,11 @@ export const PublicBoardPage: React.FC = () => {
       // Используем публичный эндпоинт - он уже возвращает доску с задачами
       const publicBoard = await boardsService.getPublicBoard(boardId);
       setBoard(publicBoard);
+      
+      // Отслеживаем открытие публичной доски для авторизованных пользователей
+      if (user?.id) {
+        trackBoardOpen(boardId, user.id);
+      }
     } catch (err: any) {
       setError(err.response?.data?.detail || 'Не удалось загрузить доску');
     } finally {

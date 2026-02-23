@@ -34,3 +34,11 @@ class PasswordUpdate(BaseModel):
 class AvatarUpdate(BaseModel):
     """Схема обновления аватара"""
     avatar_url: str = Field(..., min_length=1)
+
+
+class UserUpdate(BaseModel):
+    """Схема обновления пользователя администратором"""
+    username: Optional[str] = Field(None, min_length=3, max_length=50)
+    email: Optional[str] = Field(None, pattern=r"^[^@]+@[^@]+\.[^@]+$")
+    role: Optional[str] = Field(None, pattern=r"^(admin|user|guest)$")
+    avatar_url: Optional[str] = None

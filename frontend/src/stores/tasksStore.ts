@@ -97,17 +97,15 @@ export const useTasksStore = create<TasksState>((set) => ({
   },
 
   updateTaskStatus: async (taskId: number, status: TaskStatus) => {
-    set({ loading: true, error: null });
+    // Не устанавливаем loading: true, чтобы избежать полного ререндера
     try {
       const updatedTask = await tasksService.updateTaskStatus(taskId, status);
       set((state) => ({
         tasks: state.tasks.map((t) => (t.id === taskId ? updatedTask : t)),
-        loading: false,
       }));
     } catch (error: any) {
       set({
         error: error.response?.data?.detail || 'Failed to update task status',
-        loading: false,
       });
       throw error;
     }

@@ -7,7 +7,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.schemas.user import UserResponse, PasswordUpdate, AvatarUpdate
+from app.schemas.user import UserResponse, PasswordUpdate, AvatarUpdate, UserUpdate
 from app.services import user_service
 from app.core.security import get_current_user_id
 
@@ -183,4 +183,54 @@ def get_user_avatar(
         )
     
     return {"user_id": user_id, "avatar_url": user.avatar_url or None}
+
+
+@router.put("/{user_id}", response_model=UserResponse)
+def update_user(
+    user_id: int,
+    payload: UserUpdate,
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id)
+):
+    """
+    Обновить данные пользователя.
+    Только для администраторов.
+    """
+    current_user = user_service.get_user_by_id(db, current_user_id)
+    if not current_user or current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can update users"
+        )
+    
+    updated_user = user_service.update_user(db, user_id, payload)
+    return updated_user
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id)
+):
+    """
+    Удалить пользователя.
+    Только для администраторов.
+    """
+    current_user = user_service.get_user_by_id(db, current_user_id)
+    if not current_user or current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can delete users"
+        )
+    
+    # Нельзя удалить самого себя
+    if user_id == current_user_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You cannot delete yourself"
+        )
+    
+    user_service.delete_user(db, user_id)
+    return None
 

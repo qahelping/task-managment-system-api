@@ -5,27 +5,37 @@ import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { useTasksStore } from '@/stores/tasksStore';
 import { useUIStore } from '@/stores/uiStore';
-import { Task, TaskStatus, TaskPriority } from '@/types';
+import { useBoardsStore } from '@/stores/boardsStore';
+import { useAuthStore } from '@/stores/authStore';
+import { boardsService } from '@/services/boards.service';
+import { usersService } from '@/services/users.service';
+import { Task, TaskStatus, TaskPriority, User } from '@/types';
 import { format } from 'date-fns';
 import ru from 'date-fns/locale/ru';
 
 interface EditTaskModalProps {
   task: Task;
   boardId: number;
+  onTaskUpdated?: () => void;
 }
 
-export const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, boardId }) => {
+export const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, boardId, onTaskUpdated }) => {
   const { updateTask, deleteTask } = useTasksStore();
   const { closeModal, modals, addNotification } = useUIStore();
+  const { currentBoard } = useBoardsStore();
+  const { user } = useAuthStore();
   const [formData, setFormData] = useState({
     title: task.title,
     description: task.description || '',
     status: task.status,
     priority: task.priority,
+    assignee_id: task.assignee_id || null,
   });
   const [errors, setErrors] = useState<{ title?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [boardUsers, setBoardUsers] = useState<User[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   useEffect(() => {
     setFormData({
@@ -33,8 +43,59 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, boardId }) =
       description: task.description || '',
       status: task.status,
       priority: task.priority,
+      assignee_id: task.assignee_id || null,
     });
   }, [task]);
+
+  useEffect(() => {
+    if (modals.editTask && boardId) {
+      loadBoardUsers();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [modals.editTask, boardId]);
+
+  const loadBoardUsers = async () => {
+    setLoadingUsers(true);
+    try {
+      // Получаем участников доски
+      const members = await boardsService.getBoardMembers(boardId);
+      const memberIds = members.map((m: any) => m.id);
+      
+      // Получаем доску для определения создателя
+      let boardCreatorId: number | null = null;
+      if (currentBoard && currentBoard.id === boardId) {
+        boardCreatorId = currentBoard.created_by;
+      } else {
+        // Если currentBoard не установлен, загружаем доску
+        try {
+          const board = await boardsService.getBoardById(boardId);
+          boardCreatorId = board.created_by;
+        } catch (error) {
+          console.error('Failed to load board:', error);
+        }
+      }
+      
+      // Добавляем создателя доски, если его нет в списке участников
+      if (boardCreatorId && !memberIds.includes(boardCreatorId)) {
+        memberIds.push(boardCreatorId);
+      }
+      
+      // Получаем всех пользователей и фильтруем по участникам доски
+      const allUsers = await usersService.getAllUsers();
+      const users = allUsers.filter(u => memberIds.includes(u.id));
+      
+      // Добавляем текущего пользователя, если его нет в списке
+      if (user && !users.find(u => u.id === user.id)) {
+        users.push(user);
+      }
+      
+      setBoardUsers(users);
+    } catch (error) {
+      console.error('Failed to load board users:', error);
+    } finally {
+      setLoadingUsers(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -52,11 +113,15 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, boardId }) =
         description: formData.description || undefined,
         status: formData.status,
         priority: formData.priority,
+        assignee_id: formData.assignee_id || null,
       });
       addNotification({
         type: 'success',
         message: 'Задача успешно обновлена!',
       });
+      if (onTaskUpdated) {
+        onTaskUpdated();
+      }
       closeModal('editTask');
     } catch (error: any) {
       addNotification({
@@ -80,6 +145,9 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, boardId }) =
         type: 'success',
         message: 'Задача успешно удалена!',
       });
+      if (onTaskUpdated) {
+        onTaskUpdated();
+      }
       closeModal('editTask');
     } catch (error: any) {
       addNotification({
@@ -91,19 +159,22 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, boardId }) =
     }
   };
 
+  const handleClose = () => {
+    closeModal('editTask');
+    setFormData({
+      title: task.title,
+      description: task.description || '',
+      status: task.status,
+      priority: task.priority,
+      assignee_id: task.assignee_id || null,
+    });
+    setErrors({});
+  };
+
   return (
     <Modal
       isOpen={modals.editTask}
-      onClose={() => {
-        closeModal('editTask');
-        setFormData({
-          title: task.title,
-          description: task.description || '',
-          status: task.status,
-          priority: task.priority,
-        });
-        setErrors({});
-      }}
+      onClose={handleClose}
       title="Редактировать задачу"
       size="lg"
       data-qa="edit-task-modal"
@@ -138,7 +209,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, boardId }) =
           <Select
             label="Статус"
             options={[
-              { value: 'todo', label: 'К выполнению' },
+              { value: 'todo', label: 'В работу' },
               { value: 'in_progress', label: 'В работе' },
               { value: 'done', label: 'Выполнено' },
             ]}
@@ -165,6 +236,25 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, boardId }) =
             data-qa="edit-task-priority-select"
           />
         </div>
+        <Select
+          label="Назначено"
+          options={[
+            { value: '', label: 'Не назначено' },
+            ...boardUsers.map((u) => ({
+              value: u.id.toString(),
+              label: `${u.username}${u.id === user?.id ? ' (Вы)' : ''}`,
+            })),
+          ]}
+          value={formData.assignee_id?.toString() || ''}
+          onChange={(e) =>
+            setFormData({
+              ...formData,
+              assignee_id: e.target.value ? parseInt(e.target.value) : null,
+            })
+          }
+          disabled={loadingUsers}
+          data-qa="edit-task-assignee-select"
+        />
         <div className="border-t border-gray-200 pt-4">
           <p className="text-sm text-gray-600 mb-2">
             <strong>Создана:</strong>{' '}
@@ -193,16 +283,7 @@ export const EditTaskModal: React.FC<EditTaskModalProps> = ({ task, boardId }) =
             <Button
               type="button"
               variant="outline"
-              onClick={() => {
-                closeModal('editTask');
-                setFormData({
-                  title: task.title,
-                  description: task.description || '',
-                  status: task.status,
-                  priority: task.priority,
-                });
-                setErrors({});
-              }}
+              onClick={handleClose}
               data-qa="edit-task-cancel-button"
             >
               Отмена

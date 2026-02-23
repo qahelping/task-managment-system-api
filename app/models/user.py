@@ -23,5 +23,6 @@ class User(Base):
     
     # Relationships
     boards = relationship("Board", back_populates="creator", cascade="all, delete-orphan")
-    tasks = relationship("Task", back_populates="creator", cascade="all, delete-orphan")
+    tasks = relationship("Task", foreign_keys="Task.created_by", back_populates="creator", cascade="all, delete-orphan")
+    assigned_tasks = relationship("Task", foreign_keys="Task.assignee_id", back_populates="assignee")
     board_memberships = relationship("BoardMember", back_populates="user", cascade="all, delete-orphan")

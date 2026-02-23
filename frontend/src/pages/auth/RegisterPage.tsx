@@ -62,7 +62,7 @@ export const RegisterPage: React.FC = () => {
         type: 'success',
         message: 'Регистрация успешна!',
       });
-      navigate('/login');
+      navigate('/dashboard');
     } catch (error: any) {
       const message =
         error.response?.data?.detail || 'Ошибка регистрации. Попробуйте снова.';

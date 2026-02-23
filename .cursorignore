@@ -1,0 +1,90 @@
+# Node modules
+node_modules/
+**/node_modules/**
+
+# Build outputs
+dist/
+**/dist/**
+build/
+**/build/**
+.next/
+**/.next/**
+.turbo/
+**/.turbo/**
+
+# Git
+.git/
+**/.git/**
+
+# Python cache
+__pycache__/
+**/__pycache__/**
+*.pyc
+*.pyo
+*.pyd
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+app.db/
+data/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/
+
+# Coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Frontend build artifacts
+frontend/dist/
+frontend/.vite/
+frontend/.cache/
+*.map
+
+# Large documentation files (optional - uncomment if not needed)
+# *.md
+# !README.md
+
+# Docker volumes and data
+app.db/
+data/
+*.db-shm
+*.db-wal
+
+# Package manager files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Test results
+allure-results/
+allure-report/
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+.temp/
+

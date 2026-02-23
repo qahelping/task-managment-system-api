@@ -66,6 +66,12 @@ const PROMO_CODES: PromoCode[] = [
     validFrom: '2024-01-01', validUntil: '2025-01-01', usageLimit: null, usedCount: 2150,
     minPurchase: 300, singleUsePerUser: true, excludedTariffs: ['basic'],
     description: 'Скидка 15% для лояльных клиентов (мин. 300₷)'
+  },
+  {
+    code: 'ALWAYS', type: 'percent', value: 15, applicableTo: ['all'],
+    validFrom: '2024-01-01', validUntil: '2035-01-01', usageLimit: null, usedCount: 2150,
+    minPurchase: 300, singleUsePerUser: true, excludedTariffs: [],
+    description: 'Скидка 15% для для всех тарифов'
   }
 ];
 
@@ -528,11 +534,14 @@ export const SubscriptionPage: React.FC = () => {
           <div className="header-content">
             <Link to="/automation-lab" className="brand flex-shrink-0">
               <div className="brand-mark">
-                <svg width="40" height="40" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" className="brand-logo-img">
-                  <rect width="64" height="64" rx="12" fill="#6366F1"/>
-                  <path d="M32 16L20 28V44H28V36H36V44H44V28L32 16Z" fill="white"/>
-                  <circle cx="32" cy="48" r="4" fill="white"/>
-                </svg>
+              <img 
+                  src="/logo.png" 
+                  alt="Logo" 
+                  className="brand-logo-img" 
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                  }} 
+                />
               </div>
               <div className="brand-text">
                 <div className="brand-title">StreamVibe</div>
@@ -711,40 +720,51 @@ export const SubscriptionPage: React.FC = () => {
                     
                     <div className="card-fields">
                       <div className="card-number-field">
-                        <label className="card-label">Номер карты</label>
+                        <label htmlFor="card-number-input" className="card-label">Номер карты</label>
                         <input 
+                          id="card-number-input"
                           type="text" 
                           className={`card-input card-number ${cardValid.number ? 'valid' : ''} ${cardNumberError ? 'invalid' : ''}`}
                           placeholder="0000 0000 0000 0000"
                           value={cardNumber}
                           onChange={handleCardNumberChange}
                           data-testid="card-number"
+                          autoComplete="off"
+                          name="card-number-disabled"
                         />
                         {cardNumberError && <div className="field-error">{cardNumberError}</div>}
                       </div>
                       
                       <div className="card-row">
                         <div className="card-expiry-field">
-                          <label className="card-label">ММ / ГГ</label>
+                          <label htmlFor="card-expiry-input" className="card-label">ММ / ГГ</label>
                           <input 
+                            id="card-expiry-input"
                             type="text" 
                             className={`card-input card-expiry ${cardValid.expiry ? 'valid' : ''} ${cardExpiryError ? 'invalid' : ''}`}
                             placeholder="MM/YY"
                             value={cardExpiry}
                             onChange={handleCardExpiryChange}
                             data-testid="card-expiry"
+                            autoComplete="off"
+                            name="card-expiry-disabled"
+                            data-form-type="other"
                           />
                           {cardExpiryError && <div className="field-error">{cardExpiryError}</div>}
                         </div>
                         <div className="card-cvv-field">
-                          <label className="card-label">CVV</label>
+                          <label htmlFor="card-cvv-input" className="card-label">CVV</label>
                           <input 
+                            id="card-cvv-input"
                             type={showCvv ? 'text' : 'password'}
                             className={`card-input card-cvv ${cardValid.cvv ? 'valid' : ''} ${cardCvvError ? 'invalid' : ''}`}
                             placeholder={cardType === 'amex' ? '••••' : '•••'}
                             value={cardCvv}
                             onChange={handleCardCvvChange}
                             data-testid="card-cvv"
+                            autoComplete="new-password"
+                            name="card-cvv-disabled"
+                            data-form-type="other"
                           />
                           <button type="button" className="cvv-toggle" onClick={() => setShowCvv(!showCvv)} aria-label="Показать CVV">
                             <svg className="eye-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -915,14 +935,13 @@ export const SubscriptionPage: React.FC = () => {
                     </div>
                     <div className="promo-code-card">
                       <div className="promo-code-header">
-                        <code className="promo-code-value">LOYALTY15</code>
+                        <code className="promo-code-value">ALWAYS</code>
                         <span className="promo-type-badge percent">-15%</span>
                       </div>
-                      <p className="promo-code-desc">Скидка 15% для лояльных клиентов</p>
+                      <p className="promo-code-desc">Скидка 15% для для всех тарифов</p>
                       <div className="promo-code-details">
-                        <div className="detail-row"><span className="detail-label">Тарифы:</span><span className="detail-value">Премиум, Семейный <span className="excluded">(не Базовый!)</span></span></div>
-                        <div className="detail-row"><span className="detail-label">Действует:</span><span className="detail-value">01.01.2024 — 01.01.2025</span></div>
-                        <div className="detail-row"><span className="detail-label">Мин. сумма:</span><span className="detail-value warning">300₷</span></div>
+                        <div className="detail-row"><span className="detail-label">Тарифы:</span><span className="detail-value">Все тарифы</span></div>
+                        <div className="detail-row"><span className="detail-label">Действует:</span><span className="detail-value">01.01.2024 — 31.12.2035</span></div>
                       </div>
                     </div>
                   </div>

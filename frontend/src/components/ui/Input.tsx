@@ -17,20 +17,19 @@ export const Input: React.FC<InputProps> = ({
   'data-qa': dataQa,
   ...props
 }) => {
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
 
   return (
     <div className="w-full">
       {label && (
         <label
-          htmlFor={inputId}
+          htmlFor={`label-${dataQa}`}
           className="label"
         >
           {label}
         </label>
       )}
       <input
-        id={inputId}
+        id={`id-input-${dataQa}`}
         className={cn(
           'input',
           error && 'input-error',

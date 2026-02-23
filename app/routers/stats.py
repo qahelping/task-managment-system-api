@@ -1,16 +1,20 @@
 """
 Роутер для статистики и аналитики.
 """
-from typing import Dict
+from typing import Dict, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
+from typing import List
 from app.database import get_db
 from app.models.board import Board
 from app.models.task import Task
 from app.models.user import User
 from app.core.security import get_current_user_id
+from app.services import user_service
+from app.schemas.board import BoardResponse
+from app.schemas.task import TaskResponse
 
 router = APIRouter(prefix="/stats", tags=["Statistics"])
 
@@ -92,5 +96,73 @@ def get_user_activity(
         "created_tasks": created_tasks,
         "updated_tasks": updated_tasks,
         "boards_created": boards_created
+    }
+
+
+@router.get("/admin/all-boards")
+def get_all_boards_admin(
+    skip: int = 0,
+    limit: int = 100,
+    archived: Optional[bool] = None,
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id)
+):
+    """
+    Получить все доски (только для администратора).
+    """
+    current_user = user_service.get_user_by_id(db, current_user_id)
+    if not current_user or current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can access this endpoint"
+        )
+    
+    query = db.query(Board)
+    if archived is not None:
+        query = query.filter(Board.archived == archived)
+    
+    total_query = query
+    boards = query.offset(skip).limit(limit).all()
+    total = total_query.count()
+    
+    return {
+        "boards": [BoardResponse.model_validate(board) for board in boards],
+        "total": total
+    }
+
+
+@router.get("/admin/all-tasks")
+def get_all_tasks_admin(
+    skip: int = 0,
+    limit: int = 100,
+    status_filter: Optional[str] = None,
+    priority_filter: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id)
+):
+    """
+    Получить все задачи (только для администратора).
+    """
+    current_user = user_service.get_user_by_id(db, current_user_id)
+    if not current_user or current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only administrators can access this endpoint"
+        )
+    
+    query = db.query(Task)
+    
+    if status_filter:
+        query = query.filter(Task.status == status_filter)
+    if priority_filter:
+        query = query.filter(Task.priority == priority_filter)
+    
+    total_query = query
+    tasks = query.offset(skip).limit(limit).all()
+    total = total_query.count()
+    
+    return {
+        "tasks": [TaskResponse.model_validate(task) for task in tasks],
+        "total": total
     }
 

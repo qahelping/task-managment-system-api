@@ -22,11 +22,13 @@ class Task(Base):
     parent_task_id = Column(Integer, ForeignKey("tasks.id"), nullable=True)  # Для подзадач
     board_id = Column(Integer, ForeignKey("boards.id"), nullable=False)
     created_by = Column(Integer, ForeignKey("users.id"), nullable=False)
+    assignee_id = Column(Integer, ForeignKey("users.id"), nullable=True)  # Назначенный пользователь
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False)
     
     # Relationships
     board = relationship("Board", back_populates="tasks")
-    creator = relationship("User", back_populates="tasks")
+    creator = relationship("User", foreign_keys=[created_by], back_populates="tasks")
+    assignee = relationship("User", foreign_keys=[assignee_id], back_populates="assigned_tasks")
     parent_task = relationship("Task", remote_side=[id], backref="subtasks")
     comments = relationship("TaskComment", back_populates="task", cascade="all, delete-orphan")

@@ -20,9 +20,12 @@ if (import.meta.env.DEV) {
   }
 }
 
+// Получаем base path из переменной окружения или используем '/'
+const basePath = import.meta.env.BASE_URL || '/';
+
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={basePath}>
       <App />
     </BrowserRouter>
   </React.StrictMode>

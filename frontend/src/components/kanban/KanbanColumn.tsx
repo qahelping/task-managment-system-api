@@ -11,6 +11,10 @@ interface KanbanColumnProps {
 export const KanbanColumn: React.FC<KanbanColumnProps> = ({ column, children }) => {
   const { setNodeRef, isOver } = useDroppable({
     id: column.id,
+    data: {
+      type: 'column',
+      status: column.id,
+    },
   });
 
   const columnClassMap = {

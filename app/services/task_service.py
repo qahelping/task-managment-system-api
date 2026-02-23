@@ -40,13 +40,25 @@ def get_tasks_by_board(
 
 def create_task(db: Session, board_id: int, task_data: TaskCreate, user_id: int) -> Task:
     """Создать новую задачу"""
+    # Получаем доску для определения создателя доски
+    board = db.query(Board).filter(Board.id == board_id).first()
+    if not board:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Board not found"
+        )
+    
+    # Если assignee_id не указан, назначаем создателя доски по умолчанию
+    assignee_id = task_data.assignee_id if task_data.assignee_id is not None else board.created_by
+    
     db_task = Task(
         title=task_data.title,
         description=task_data.description,
         status=task_data.status,
         priority=task_data.priority,
         board_id=board_id,
-        created_by=user_id
+        created_by=user_id,
+        assignee_id=assignee_id
     )
     
     db.add(db_task)

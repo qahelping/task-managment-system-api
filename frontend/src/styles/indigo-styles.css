@@ -223,6 +223,7 @@ code{
   box-shadow: var(--shadow-2);
   z-index: 1000;
   overflow: hidden;
+  background-color: var(--bg);
 }
 
 .header-user-dropdown-info {
@@ -552,7 +553,6 @@ code{
   align-items: flex-start;
   width: 100%;
   padding: 0;
-  padding-top: 74px;
   margin-top: 0;
 }
 .container{
@@ -563,7 +563,7 @@ code{
 }
 
 .page-header{
-  padding: 16px 18px;
+  padding: 24px 28px;
   border-radius: var(--radius-xl);
   border: 1px solid var(--stroke);
   background: var(--panel);
@@ -778,7 +778,7 @@ code{
 
 /* Hero с модификатором --home: карточка с градиентом */
 .hero--home{
-  margin-top: 6px;
+  margin-top: 90px;
   padding: 28px 20px;
   border-radius: 22px;
   border: 1px solid rgba(255,255,255,.12);
@@ -805,7 +805,6 @@ code{
 
 /* Заголовок */
 .hero--home .hero-title{
-  margin: 0 0 12px;
   font-size: 36px;
   line-height: 1.15;
   letter-spacing: .2px;
@@ -1541,6 +1540,17 @@ code{
   cursor: pointer;
 }
 
+select.input-modern {
+  padding-right: 32px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  background-size: 12px;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
 .input-modern:focus {
   border-color: rgba(124, 92, 255, 0.5);
   background: rgba(255, 255, 255, 0.1);
@@ -2057,6 +2067,7 @@ code{
 }
 
 .justify-between {
+  gap: 20px;
   justify-content: space-between;
 }
 
@@ -2275,6 +2286,29 @@ code{
   white-space: nowrap;
 }
 
+.task-card-assignee {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  max-width: 100%;
+  margin-bottom: 8px;
+}
+
+.task-card-assignee svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.task-card-assignee span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+}
+
 /* =========================================================
    SIDEBAR MOBILE STYLES
    ========================================================= */
@@ -2297,13 +2331,15 @@ code{
 .kanban-column {
   border-radius: var(--radius-lg);
   padding: 15px;
-  transition: all 0.3s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
   backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
   height: 100%;
   background: rgba(99, 166, 255, 0.1);
   border: 1px solid rgba(99, 166, 255, 0.2);
+  min-height: 0;
+  overflow: hidden;
 }
 
 .kanban-column.is-over {
@@ -2379,7 +2415,6 @@ code{
 .layout-with-sidebar .main {
   grid-area: main;
   overflow-y: auto;
-  padding-top: 74px;
 }
 
 .layout-with-sidebar .footer {
@@ -2616,6 +2651,96 @@ code{
 }
 
 .boards-table-container {
+  width: 100%;
+}
+
+/* =========================================================
+   TASKS PAGE
+   ========================================================= */
+
+.tasks-page {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.tasks-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tasks-page-title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.2px;
+}
+
+.tasks-filters {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 16px;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--stroke);
+  background: var(--panel);
+  backdrop-filter: blur(8px);
+}
+
+.tasks-search-container {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.tasks-search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.tasks-search-input {
+  width: 100%;
+  padding: 10px 12px 10px 38px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--stroke);
+  background: var(--panel-strong);
+  color: var(--text);
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+.tasks-search-input:focus {
+  outline: none;
+  border-color: rgba(124, 92, 255, 0.5);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.tasks-search-input::placeholder {
+  color: var(--muted);
+}
+
+.tasks-filter-item {
+  min-width: 180px;
+}
+
+.tasks-empty {
+  padding: 48px 24px;
+}
+
+.tasks-table-container {
   width: 100%;
   overflow-x: auto;
   border-radius: var(--radius-lg);
@@ -2954,18 +3079,56 @@ code{
   background: rgba(124, 92, 255, 0.16);
   color: rgba(124, 92, 255, 0.9);
   border: 1px solid rgba(124, 92, 255, 0.3);
+  font-size: 10px;
 }
 
 .admin-role-badge--user {
   background: rgba(99, 166, 255, 0.16);
   color: rgba(99, 166, 255, 0.9);
   border: 1px solid rgba(99, 166, 255, 0.3);
+  font-size: 10px;
 }
 
 .admin-role-badge--guest {
   background: rgba(255, 255, 255, 0.08);
   color: var(--muted);
   border: 1px solid var(--stroke);
+  font-size: 10px;
+}
+
+.admin-role-badge--priority-low {
+  background: rgba(99, 166, 255, 0.16);
+  color: rgba(99, 166, 255, 0.9);
+  border: 1px solid rgba(99, 166, 255, 0.3);
+  font-size: 10px;
+}
+
+.admin-role-badge--priority-medium {
+  background: rgba(255, 204, 102, 0.16);
+  color: rgba(255, 204, 102, 0.9);
+  border: 1px solid rgba(255, 204, 102, 0.3);
+  font-size: 10px;
+}
+
+.admin-role-badge--priority-high {
+  background: rgba(255, 90, 95, 0.16);
+  color: rgba(255, 90, 95, 0.9);
+  border: 1px solid rgba(255, 90, 95, 0.3);
+  font-size: 10px;
+}
+
+.admin-role-badge--todo {
+  background: rgba(196, 102, 255, 0.16);
+  color: rgba(196, 102, 255, 0.9);
+  border: 1px solid rgba(196, 102, 255, 0.3);
+  font-size: 10px;
+}
+
+.admin-role-badge--done {
+  background: rgba(90, 255, 107, 0.16);
+  color: rgba(90, 255, 107, 0.9);
+  border: 1px solid rgba(90, 255, 107, 0.3);
+  font-size: 10px;
 }
 
 
@@ -3423,11 +3586,6 @@ code{
   margin: -8%;
 }
 
-/* Network на classic картах */
-.card--classic .network--visa {
-  background: linear-gradient(135deg, #1434cb, #1a1f71);
-  border-color: rgba(255, 255, 255, .3);
-}
 
 .card--classic .network--unionpay {
   background: transparent;
