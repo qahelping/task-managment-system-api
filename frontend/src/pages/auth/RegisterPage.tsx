@@ -62,7 +62,7 @@ export const RegisterPage: React.FC = () => {
         type: 'success',
         message: 'Регистрация успешна!',
       });
-      navigate('/login');
+      navigate('/dashboard');
     } catch (error: any) {
       const message =
         error.response?.data?.detail || 'Ошибка регистрации. Попробуйте снова.';
@@ -84,9 +84,11 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="layout auth-page-layout">
-      <AuthHeader />
-      <main className="main auth-main">
+    <>
+      <div className="sky" aria-hidden="true"></div>
+      <div className="layout auth-page-layout">
+        <AuthHeader />
+        <main className="main auth-main">
         <div className="hero hero--home auth-form-container" data-qa="register-form-container">
         <div className="auth-form-header">
           <h2 className="hero-title__glow auth-form-title" data-qa="register-title">
@@ -160,30 +162,12 @@ export const RegisterPage: React.FC = () => {
           </Button>
         </form>
         
-        <div className="auth-form-divider">
-          <div className="auth-form-divider-content">
-            <p className="auth-form-divider-text">
-              Хотите попрактиковаться в автоматизации тестирования?
-            </p>
-            <a
-              href="/automation-lab/index.html"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn btn-primary auth-form-divider-link"
-            >
-              <span>🧪</span>
-              <span>Web Automation Torture Lab</span>
-              <span className="auth-form-divider-link-arrow">→</span>
-            </a>
-            <p className="auth-form-divider-note">
-              Лаборатория проблемных UI-элементов для автоматизаторов
-            </p>
-          </div>
+
         </div>
-        </div>
-      </main>
-      <AuthFooter />
-    </div>
+        </main>
+        <AuthFooter />
+      </div>
+    </>
   );
 };
 

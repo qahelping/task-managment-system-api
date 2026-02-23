@@ -26,7 +26,7 @@ export const AuthHeader: React.FC = () => {
         >
           <div className="brand-mark">
             <img 
-              src="/automation-lab/assets/logo.png" 
+              src="/logo.png" 
               alt="Logo" 
               className="brand-logo-img" 
               onClick={(e) => {

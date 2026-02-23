@@ -1,0 +1,42 @@
+{
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/.next/**": true,
+    "**/.turbo/**": true,
+    "**/.git/**": true,
+    "**/__pycache__/**": true,
+    "**/data/**": true,
+    "**/app.db/**": true,
+    "**/.pytest_cache/**": true,
+    "**/coverage/**": true,
+    "**/allure-results/**": true,
+    "**/allure-report/**": true,
+    "**/.vite/**": true,
+    "**/.cache/**": true
+  },
+  "search.exclude": {
+    "**/node_modules/**": true,
+    "**/dist/**": true,
+    "**/build/**": true,
+    "**/.next/**": true,
+    "**/__pycache__/**": true,
+    "**/data/**": true,
+    "**/app.db/**": true,
+    "**/.pytest_cache/**": true,
+    "**/coverage/**": true,
+    "**/allure-results/**": true,
+    "**/allure-report/**": true,
+    "**/.vite/**": true,
+    "**/.cache/**": true,
+    "**/*.map": true,
+    "**/*.log": true
+  },
+  "files.exclude": {
+    "**/.git": false,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true
+  }
+}
+

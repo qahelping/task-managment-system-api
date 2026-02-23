@@ -14,6 +14,7 @@ const DashboardPage = lazy(() => import('./pages/DashboardPage').then(m => ({ de
 const BoardsPage = lazy(() => import('./pages/boards/BoardsPage').then(m => ({ default: m.BoardsPage })));
 const BoardDetailPage = lazy(() => import('./pages/boards/BoardDetailPage').then(m => ({ default: m.BoardDetailPage })));
 const PublicBoardPage = lazy(() => import('./pages/boards/PublicBoardPage').then(m => ({ default: m.PublicBoardPage })));
+const TasksPage = lazy(() => import('./pages/tasks/TasksPage').then(m => ({ default: m.TasksPage })));
 const AdminPage = lazy(() => import('./pages/admin/AdminPage').then(m => ({ default: m.AdminPage })));
 const NotFoundPage = lazy(() => import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage })));
 const AutomationLabHomePage = lazy(() => import('./pages/automation-lab/AutomationLabHomePage').then(m => ({ default: m.AutomationLabHomePage })));
@@ -24,9 +25,18 @@ const OverlaysPage = lazy(() => import('./pages/automation-lab/OverlaysPage').th
 const FramesShadowDOMPage = lazy(() => import('./pages/automation-lab/FramesShadowDOMPage').then(m => ({ default: m.FramesShadowDOMPage })));
 const DynamicPage = lazy(() => import('./pages/automation-lab/DynamicPage').then(m => ({ default: m.DynamicPage })));
 const ClipboardPage = lazy(() => import('./pages/automation-lab/ClipboardPage').then(m => ({ default: m.ClipboardPage })));
+const SubscriptionPage = lazy(() => 
+  import('./pages/automation-lab/SubscriptionPage')
+    .then(m => ({ default: m.SubscriptionPage }))
+    .catch((error) => {
+      console.error('Failed to load SubscriptionPage:', error);
+      // Fallback для Firefox и других браузеров
+      return import('./pages/NotFoundPage').then(m => ({ default: m.NotFoundPage }));
+    })
+);
 
 function App() {
-  const { checkAuth, isAuthenticated, isLoading } = useAuthStore();
+  const { checkAuth, isAuthenticated, isLoading, logout } = useAuthStore();
   const { notifications, removeNotification } = useUIStore();
 
   useEffect(() => {
@@ -34,6 +44,29 @@ function App() {
       console.error('Auth check failed:', error);
     });
   }, [checkAuth]);
+
+  // Обработка события storage для синхронизации между вкладками
+  useEffect(() => {
+    const handleStorageChange = (e: StorageEvent) => {
+      // Если токен был удален в другой вкладке
+      if (e.key === 'token' && e.newValue === null && e.oldValue !== null) {
+        // Очищаем состояние и перенаправляем на логин, если не на странице логина/регистрации
+        const currentPath = window.location.pathname;
+        const isOnAuthPage = currentPath === '/login' || currentPath === '/register';
+        
+        if (!isOnAuthPage && isAuthenticated) {
+          logout();
+          // Используем replace вместо href, чтобы избежать добавления в историю
+          window.location.replace('/login');
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [isAuthenticated, logout]);
 
   // Показываем загрузку только если проверяем аутентификацию
   if (isLoading && !isAuthenticated) {
@@ -54,17 +87,21 @@ function App() {
         <Route
           path="/login"
           element={
-            isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginPage />
           }
         />
         <Route
           path="/register"
           element={
-            isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />
+            isAuthenticated ? <Navigate to="/dashboard" replace /> : <RegisterPage />
           }
         />
         <Route
           path="/"
+          element={<AutomationLabHomePage />}
+        />
+        <Route
+          path="/dashboard"
           element={
             <PrivateRoute>
               <DashboardPage />
@@ -92,6 +129,14 @@ function App() {
           element={<PublicBoardPage />}
         />
         <Route
+          path="/tasks"
+          element={
+            <PrivateRoute>
+              <TasksPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
           path="/admin"
           element={
             <AdminRoute>
@@ -99,13 +144,10 @@ function App() {
             </AdminRoute>
           }
         />
+        {/* Специфичные роуты automation-lab должны идти перед общим роутом /automation-lab */}
         <Route
-          path="/automation-lab"
-          element={<AutomationLabHomePage />}
-        />
-        <Route
-          path="/automation-lab/index.html"
-          element={<AutomationLabHomePage />}
+          path="/automation-lab/subscription"
+          element={<SubscriptionPage />}
         />
         <Route
           path="/automation-lab/cards"
@@ -134,6 +176,20 @@ function App() {
         <Route
           path="/automation-lab/clipboard"
           element={<ClipboardPage />}
+        />
+        <Route
+          path="/automation-lab/index.html"
+          element={<AutomationLabHomePage />}
+        />
+        {/* Редирект старого пути на главную */}
+        <Route
+          path="/automation-lab/index"
+          element={<Navigate to="/" replace />}
+        />
+        {/* Общий роут /automation-lab должен быть последним */}
+        <Route
+          path="/automation-lab"
+          element={<AutomationLabHomePage />}
         />
         <Route path="/404" element={<NotFoundPage />} />
         <Route path="*" element={<Navigate to="/404" replace />} />

@@ -118,7 +118,7 @@ export const CreateTaskModal: React.FC<CreateTaskModalProps> = ({ boardId }) => 
     >
       <form onSubmit={handleSubmit} className="space-y-4" data-qa="create-task-form">
         {formError && (
-          <div className="rounded-lg border border-red-200 bg-red-50 text-red-700 px-3 py-2 text-sm" role="alert" data-qa="create-task-error">
+          <div className="form-error-message" role="alert" data-qa="create-task-error">
             {formError}
           </div>
         )}

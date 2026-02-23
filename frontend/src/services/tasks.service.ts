@@ -90,5 +90,18 @@ export const tasksService = {
       ordered_ids: orderedIds,
     });
   },
+
+  async getAccessibleTasks(
+    skip: number = 0,
+    limit: number = 100,
+    status?: TaskStatus,
+    priority?: TaskPriority
+  ): Promise<{ tasks: Task[]; total: number }> {
+    const params: any = { skip, limit };
+    if (status) params.status = status;
+    if (priority) params.priority = priority;
+    const response = await api.get<{ tasks: Task[]; total: number }>('/tasks/accessible', { params });
+    return response.data;
+  },
 };
 

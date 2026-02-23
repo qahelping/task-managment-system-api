@@ -13,12 +13,11 @@
 - [Аутентификация](#-аутентификация)
 - [API Endpoints](#-api-endpoints)
 - [Тестирование](#-тестирование)
-- [Документация](#-документация)
 - [Troubleshooting](#-troubleshooting)
 
 ## 📋 Описание проекта
 
-Это учебный проект REST API, разработанный на FastAPI для управления досками и задачами. Проект предназначен для изучения:
+Это полнофункциональный учебный проект для управления досками и задачами (аналог Trello), состоящий из REST API (FastAPI) и веб-интерфейса (React). Проект реализует:
 
 - Работы с REST API
 - Работы с реляционной БД (SQLite)
@@ -27,69 +26,25 @@
 - Создания HTTP эндпоинтов
 - Написания API-тестов (pytest)
 - Работы с Pydantic-схемами и валидацией
-
+- Лаборатория для работы с элементами (automation-lab)
 ## 🛠 Технологический стек
 
 ### Backend
 - **Python** 3.10+
 - **FastAPI** - основной фреймворк
 - **SQLAlchemy 2.0** - ORM
-- **Alembic** - миграции (опционально)
 - **Pydantic v2** - валидация и схемы
 - **Passlib (bcrypt)** - хэширование паролей
 - **PyJWT** - работа с JWT токенами
 
+### Frontend
+- **React** - UI библиотека
+- **TypeScript** - типизация
+- **Vite** - сборщик
+- **Zustand** - управление состоянием
+
 ### База данных
 - **SQLite** - локальная база данных (файл `app.db`)
-
-### Тестирование
-- **pytest** - тестирование
-- **httpx** - HTTP клиент для тестов
-
-## 📁 Структура проекта
-
-```
-project/
-├── app/
-│   ├── main.py                 # Главный файл приложения
-│   ├── database.py             # Конфигурация базы данных
-│   ├── core/
-│   │   ├── config.py           # Настройки приложения
-│   │   └── security.py         # JWT и безопасность
-│   ├── models/                 # SQLAlchemy модели
-│   │   ├── user.py
-│   │   ├── board.py
-│   │   ├── task.py
-│   │   └── board_member.py
-│   ├── schemas/                # Pydantic схемы
-│   │   ├── user.py
-│   │   ├── board.py
-│   │   ├── task.py
-│   │   └── auth.py
-│   ├── routers/                # API endpoints
-│   │   ├── auth.py
-│   │   ├── users.py
-│   │   ├── boards.py
-│   │   └── tasks.py
-│   └── services/               # Бизнес-логика
-│       ├── user_service.py
-│       ├── board_service.py
-│       └── task_service.py
-├── tests/                      # Тесты
-│   ├── conftest.py
-│   ├── test_auth.py
-│   ├── test_users.py
-│   ├── test_boards.py
-│   ├── test_tasks.py
-│   └── helpers.py
-├── .env                        # Переменные окружения (создать самостоятельно)
-├── .gitignore
-├── requirements.txt
-└── README.md
-
-
-
-```
 
 ## 🚀 Быстрый старт
 
@@ -103,8 +58,6 @@ uvicorn app.main:app --reload
 ```
 
 Откройте http://localhost:8000/docs для интерактивной документации.
-
-Подробная инструкция: [QUICKSTART.md](./QUICKSTART.md)
 
 ## 🚀 Установка и запуск
 
@@ -143,6 +96,7 @@ JWT_SECRET=your-secret-key-change-in-production-min-32-chars
 JWT_EXPIRE_MINUTES=1440
 ADMIN_EMAIL=admin@example.com
 ADMIN_PASSWORD=admin123
+AUTO_FILL_DB=true
 ```
 
 ⚠️ **Важно**: Измените `JWT_SECRET` на свой уникальный ключ длиной минимум 32 символа.
@@ -165,43 +119,22 @@ uvicorn app.main:app --reload
 
 ## 🐳 Запуск с Docker
 
-Для быстрого запуска всего приложения (бэкенд + фронтенд + мониторинг) можно использовать Docker и Docker Compose.
+Для быстрого запуска всего приложения (бэкенд + фронтенд) используйте Docker Compose.
 
 ### Быстрый старт
 
 ```bash
-# Запуск в продакшн режиме (с мониторингом)
-./docker-monitoring.sh start
-
-# Или вручную
+# Запуск в продакшн режиме
 docker-compose up -d --build
+
+# Или через скрипт
+./docker-start.sh prod
 ```
 
 После запуска:
 - **Frontend**: http://localhost:3000
 - **Backend API**: http://localhost:8000
 - **API Docs**: http://localhost:8000/docs
-- **Prometheus**: http://localhost:9090
-- **Grafana**: http://localhost:3001 (admin/admin)
-
-### Управление сервисами
-
-```bash
-# Запуск только приложения (без мониторинга)
-./docker-monitoring.sh app
-
-# Запуск только мониторинга
-./docker-monitoring.sh monitoring
-
-# Просмотр использования ресурсов
-./docker-monitoring.sh stats
-
-# Просмотр логов
-./docker-monitoring.sh logs [service_name]
-
-# Остановка всех сервисов
-./docker-monitoring.sh stop
-```
 
 ### Режим разработки
 
@@ -210,19 +143,24 @@ docker-compose up -d --build
 ./docker-start.sh dev
 
 # Или вручную
-docker-compose -f docker-compose.dev.yml up
+docker-compose -f docker-compose.dev.yml up --build
 ```
 
-### Особенности Docker конфигурации
+### Управление контейнерами
 
-- ✅ **Volumes** - персистентное хранение данных (БД, метрики, конфигурация Grafana)
-- ✅ **Мониторинг** - Prometheus + Grafana для отслеживания метрик
-- ✅ **Ограничения ресурсов** - CPU и память ограничены для каждого контейнера
-- ✅ **Health checks** - автоматическая проверка здоровья сервисов
+```bash
+# Просмотр логов
+docker-compose logs -f
 
-### Дополнительная информация
+# Остановка
+docker-compose down
 
-Подробное руководство по Docker доступно в файле [DOCKER.md](./DOCKER.md).
+# Перезапуск
+docker-compose restart
+
+# Выполнение команды в контейнере
+docker-compose exec backend python fill_database.py
+```
 
 ## 📊 Модель данных
 
@@ -235,7 +173,7 @@ docker-compose -f docker-compose.dev.yml up
 | username | String | Уникальное имя пользователя |
 | email | String | Уникальный email |
 | password_hash | String | Хэш пароля |
-| role | String | Роль (по умолчанию "admin") |
+| role | String | Роль (admin, user, guest) |
 | created_at | DateTime | Дата создания |
 
 #### 2. boards (Доски)
@@ -244,6 +182,8 @@ docker-compose -f docker-compose.dev.yml up
 | id | Integer | Primary Key |
 | title | String | Название доски |
 | description | Text | Описание (опционально) |
+| public | Boolean | Публичная доска |
+| archived | Boolean | Архивная доска |
 | created_by | Integer | FK → users.id |
 | created_at | DateTime | Дата создания |
 
@@ -255,6 +195,7 @@ docker-compose -f docker-compose.dev.yml up
 | description | Text | Описание (опционально) |
 | status | String | Статус: todo, in_progress, done |
 | priority | String | Приоритет: low, medium, high |
+| order | Integer | Порядок сортировки |
 | board_id | Integer | FK → boards.id |
 | created_by | Integer | FK → users.id |
 | created_at | DateTime | Дата создания |
@@ -361,6 +302,7 @@ Authorization: Bearer <ваш_токен>
 **Query параметры**:
 - `skip` (int, default=0)
 - `limit` (int, default=100)
+- `public` (bool) - фильтр по публичным доскам
 
 #### `POST /boards/`
 Создать новую доску.
@@ -369,7 +311,8 @@ Authorization: Bearer <ваш_токен>
 ```json
 {
   "title": "Название доски",
-  "description": "Описание доски (опционально)"
+  "description": "Описание доски (опционально)",
+  "public": false
 }
 ```
 
@@ -383,7 +326,8 @@ Authorization: Bearer <ваш_токен>
 ```json
 {
   "title": "Новое название",
-  "description": "Новое описание"
+  "description": "Новое описание",
+  "public": true
 }
 ```
 
@@ -466,38 +410,7 @@ pytest tests/test_tasks.py
 pytest --cov=app --cov-report=html
 ```
 
-### Структура тестов
-
-- `test_auth.py` - тесты аутентификации
-- `test_users.py` - тесты пользователей
-- `test_boards.py` - тесты досок
-- `test_tasks.py` - тесты задач
-
-## 📝 Сценарий первого запуска
-
-### Шаг 1: Установка и запуск сервера
-
-```bash
-# 1. Создать виртуальное окружение
-python -m venv venv
-source venv/bin/activate  # или venv\Scripts\activate на Windows
-
-# 2. Установить зависимости
-pip install -r requirements.txt
-
-# 3. Создать .env файл (см. раздел "Настройка переменных окружения")
-
-# 4. Запустить сервер
-uvicorn app.main:app --reload
-```
-
-### Шаг 2: Проверка работоспособности
-
-Откройте браузер и перейдите по адресу: http://localhost:8000/health
-
-Должен вернуться ответ: `{"status": "ok"}`
-
-### Шаг 3: Заполнение базы данных тестовыми данными (опционально)
+## 📝 Заполнение базы данных тестовыми данными
 
 Для быстрого заполнения базы данных валидными тестовыми данными используйте скрипт:
 
@@ -515,53 +428,6 @@ docker-compose exec backend python fill_database.py
 - ~50-80 задач со всеми статусами и приоритетами
 - Участников досок, комментарии и логи аудита
 
-Подробнее см. [FILL_DATABASE.md](./FILL_DATABASE.md)
-
-### Шаг 4: Регистрация первого администратора (если не использовали fill_database.py)
-
-Используйте Swagger UI (http://localhost:8000/docs) или curl:
-
-```bash
-curl -X POST http://localhost:8000/auth/register-admin \
-  -H "Content-Type: application/json" \
-  -d '{
-    "username": "admin",
-    "email": "admin@example.com",
-    "password": "admin123"
-  }'
-```
-
-Сохраните полученный токен.
-
-### Шаг 5: Создание доски
-
-```bash
-curl -X POST http://localhost:8000/boards/ \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <ваш_токен>" \
-  -d '{
-    "title": "Моя первая доска",
-    "description": "Тестовая доска"
-  }'
-```
-
-### Шаг 6: Создание задачи
-
-```bash
-curl -X POST http://localhost:8000/boards/1/tasks \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer <ваш_токен>" \
-  -d '{
-    "title": "Моя первая задача",
-    "status": "todo",
-    "priority": "high"
-  }'
-```
-
-### Шаг 7: Просмотр в Swagger UI
-
-Откройте http://localhost:8000/docs и используйте интерактивную документацию для тестирования API.
-
 ## 🔧 Переменные окружения
 
 | Переменная | Описание | Значение по умолчанию |
@@ -571,6 +437,7 @@ curl -X POST http://localhost:8000/boards/1/tasks \
 | `JWT_EXPIRE_MINUTES` | Срок жизни токена (минуты) | `1440` (24 часа) |
 | `ADMIN_EMAIL` | Email первого админа (опц.) | `admin@example.com` |
 | `ADMIN_PASSWORD` | Пароль первого админа (опц.) | `admin123` |
+| `AUTO_FILL_DB` | Автоматическое заполнение БД при запуске | `true` |
 
 ## 🐛 Troubleshooting
 
@@ -588,7 +455,7 @@ uvicorn app.main:app --reload
 
 ### База данных не создаётся
 
-База данных создаётся автоматически при первом запуске. Проверьте наличие файла `app.db` в корне проекта.
+База данных создаётся автоматически при первом запуске. Проверьте наличие файла `app.db` в корне проекта (или `data/app.db` при использовании Docker).
 
 ### Тесты не запускаются
 
@@ -597,24 +464,20 @@ uvicorn app.main:app --reload
 pip install pytest pytest-asyncio httpx
 ```
 
-## 📚 Документация
+### Проблемы с Docker на Windows
 
-### Основные документы
+Если возникают проблемы при работе с Docker на Windows, см. файл `РЕШЕНИЕ_ПРОБЛЕМ_WINDOWS.md` (если существует) или проверьте:
+- Кодировку файлов (должна быть UTF-8 без BOM)
+- Окончания строк (LF вместо CRLF)
+- Настройки Docker Desktop
 
-- **[QUICKSTART.md](./QUICKSTART.md)** - Быстрый старт за 5 минут
-- **[DOCKER.md](./DOCKER.md)** - Подробное руководство по Docker
-- **[FILL_DATABASE.md](./FILL_DATABASE.md)** - Заполнение базы данных тестовыми данными
+## 📚 Дополнительная документация
+
+- **[START.md](./START.md)** - Быстрый старт и основные команды
+- **[ИНСТРУКЦИЯ_ДЛЯ_СТУДЕНТОВ.md](./ИНСТРУКЦИЯ_ДЛЯ_СТУДЕНТОВ.md)** - Подробная инструкция по развертыванию
 - **[PROJECT_STRUCTURE.md](./PROJECT_STRUCTURE.md)** - Структура проекта
-- **[ENV_SETUP.md](./ENV_SETUP.md)** - Настройка переменных окружения
-- **[EXAMPLES.md](./EXAMPLES.md)** - Примеры использования API
-- **[POSTMAN.md](./POSTMAN.md)** - Инструкции для Postman
-
-### Специализированная документация
-
-- **[ADVANCED_FEATURES.md](./ADVANCED_FEATURES.md)** - Расширенные функции API
-- **[GUEST_ACCESS.md](./GUEST_ACCESS.md)** - Гостевой доступ и публичные доски
-- **[ALLURE_REPORTING.md](./ALLURE_REPORTING.md)** - Отчетность Allure
-- **[CONTRIBUTING.md](./CONTRIBUTING.md)** - Руководство для разработчиков
+- **[ЗАДАЧИ_ФИЧИ.md](./ЗАДАЧИ_ФИЧИ.md)** - Задачи для бизнес-аналитиков
+- **[GITHUB_PAGES_DEPLOY.md](./GITHUB_PAGES_DEPLOY.md)** - Инструкция по развертыванию frontend на GitHub Pages
 
 ## 📖 Дополнительные ресурсы
 
@@ -630,4 +493,3 @@ pip install pytest pytest-asyncio httpx
 ---
 
 **Примечание**: Это учебный проект. Не используйте его в продакшене без дополнительных мер безопасности и оптимизации.
-

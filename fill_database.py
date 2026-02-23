@@ -45,12 +45,17 @@ def create_users(db):
         {"username": "guest2", "email": "guest2@example.com", "password": "password123", "role": "guest"},
     ]
     
+    # Оптимизация: проверяем существующих пользователей одним запросом
+    emails = [u["email"] for u in users_data]
+    existing_users = {u.email: u for u in db.query(User).filter(User.email.in_(emails)).all()}
+    
     created_users = []
+    new_users = []
+    
     for user_data in users_data:
-        existing_user = db.query(User).filter(User.email == user_data["email"]).first()
-        if existing_user:
+        if user_data["email"] in existing_users:
             print(f"   ⚠ Пользователь {user_data['email']} уже существует, пропускаем")
-            created_users.append(existing_user)
+            created_users.append(existing_users[user_data["email"]])
         else:
             user = User(
                 username=user_data["username"],
@@ -59,11 +64,17 @@ def create_users(db):
                 role=user_data["role"],
                 created_at=datetime.utcnow() - timedelta(days=randint(1, 30))
             )
-            db.add(user)
-            db.commit()
-            db.refresh(user)
+            new_users.append(user)
             created_users.append(user)
-            print(f"   ✓ Создан пользователь: {user.username} ({user.role})")
+    
+    # Используем add_all вместо bulk_save_objects для сохранения связи с сессией
+    if new_users:
+        db.add_all(new_users)
+        db.commit()
+        # Обновляем ID для новых пользователей
+        for user in new_users:
+            db.refresh(user)
+        print(f"   ✓ Создано {len(new_users)} пользователей")
     
     return created_users
 
@@ -127,22 +138,38 @@ def create_boards(db, users):
         },
     ]
     
+    # Оптимизация: проверяем существующие доски одним запросом
+    titles = [b["title"] for b in boards_data]
+    existing_boards = {b.title: b for b in db.query(Board).filter(Board.title.in_(titles)).all()}
+    
     created_boards = []
+    new_boards = []
+    
     for i, board_data in enumerate(boards_data):
-        creator = choice(all_creators)
-        board = Board(
-            title=board_data["title"],
-            description=board_data["description"],
-            public=board_data["public"],
-            archived=board_data["archived"],
-            created_by=creator.id,
-            created_at=datetime.utcnow() - timedelta(days=randint(1, 60))
-        )
-        db.add(board)
+        if board_data["title"] in existing_boards:
+            print(f"   ⚠ Доска '{board_data['title']}' уже существует, пропускаем")
+            created_boards.append(existing_boards[board_data["title"]])
+        else:
+            creator = choice(all_creators)
+            board = Board(
+                title=board_data["title"],
+                description=board_data["description"],
+                public=board_data["public"],
+                archived=board_data["archived"],
+                created_by=creator.id,
+                created_at=datetime.utcnow() - timedelta(days=randint(1, 60))
+            )
+            new_boards.append(board)
+            created_boards.append(board)
+    
+    # Используем add_all вместо bulk_save_objects для сохранения связи с сессией
+    if new_boards:
+        db.add_all(new_boards)
         db.commit()
-        db.refresh(board)
-        created_boards.append(board)
-        print(f"   ✓ Создана доска: {board.title} (публичная: {board.public}, архив: {board.archived})")
+        # Обновляем ID для новых досок
+        for board in new_boards:
+            db.refresh(board)
+        print(f"   ✓ Создано {len(new_boards)} досок")
     
     return created_boards
 
@@ -218,14 +245,15 @@ def create_tasks(db, boards, users):
     ]
     
     created_tasks = []
+    new_tasks = []
+    board_users = [u for u in users if u.role != "guest"]  # Гости не создают задачи
+    
     for board in boards:
         if board.archived:
             # Для архивных досок создаем меньше задач
             num_tasks = randint(2, 4)
         else:
             num_tasks = randint(5, 10)
-        
-        board_users = [u for u in users if u.role != "guest"]  # Гости не создают задачи
         
         for i in range(num_tasks):
             template = choice(task_templates)
@@ -242,12 +270,17 @@ def create_tasks(db, boards, users):
                 created_at=datetime.utcnow() - timedelta(days=randint(0, 30)),
                 updated_at=datetime.utcnow() - timedelta(days=randint(0, 15))
             )
-            db.add(task)
-            db.commit()
-            db.refresh(task)
+            new_tasks.append(task)
             created_tasks.append(task)
-        
-        print(f"   ✓ Создано {num_tasks} задач для доски: {board.title}")
+    
+    # Используем add_all вместо bulk_save_objects для сохранения связи с сессией
+    if new_tasks:
+        db.add_all(new_tasks)
+        db.commit()
+        # Обновляем ID для новых задач
+        for task in new_tasks:
+            db.refresh(task)
+        print(f"   ✓ Создано {len(new_tasks)} задач")
     
     return created_tasks
 
@@ -256,10 +289,21 @@ def create_board_members(db, boards, users):
     """Добавление участников к доскам"""
     print("\n👥 Добавление участников к доскам...")
     
-    for board in boards:
-        if board.archived:
-            continue  # Не добавляем участников к архивным доскам
-        
+    # Оптимизация: получаем все существующие связи одним запросом
+    active_boards = [b for b in boards if not b.archived]
+    if not active_boards:
+        return
+    
+    board_ids = [b.id for b in active_boards]
+    existing_members = {
+        (bm.board_id, bm.user_id) 
+        for bm in db.query(BoardMember).filter(BoardMember.board_id.in_(board_ids)).all()
+    }
+    
+    new_members = []
+    total_added = 0
+    
+    for board in active_boards:
         # Создатель доски уже является участником через связь
         # Добавляем еще несколько участников
         potential_members = [u for u in users if u.id != board.created_by]
@@ -268,20 +312,20 @@ def create_board_members(db, boards, users):
         
         for member in selected_members:
             # Проверяем, не добавлен ли уже
-            existing = db.query(BoardMember).filter(
-                BoardMember.board_id == board.id,
-                BoardMember.user_id == member.id
-            ).first()
-            
-            if not existing:
+            if (board.id, member.id) not in existing_members:
                 board_member = BoardMember(
                     board_id=board.id,
                     user_id=member.id
                 )
-                db.add(board_member)
-        
+                new_members.append(board_member)
+                existing_members.add((board.id, member.id))
+                total_added += 1
+    
+    # Массовая вставка всех участников одним коммитом
+    if new_members:
+        db.bulk_save_objects(new_members)
         db.commit()
-        print(f"   ✓ Добавлено {num_members} участников к доске: {board.title}")
+        print(f"   ✓ Добавлено {total_added} участников к доскам")
 
 
 def create_comments(db, tasks, users):
@@ -301,12 +345,13 @@ def create_comments(db, tasks, users):
         "Требуется тестирование",
     ]
     
-    total_comments = 0
+    new_comments = []
+    task_users = [u for u in users if u.role != "guest"]
+    
     for task in tasks:
         # Добавляем комментарии только к активным задачам
         if task.status != "done":
             num_comments = randint(0, 3)
-            task_users = [u for u in users if u.role != "guest"]
             
             for _ in range(num_comments):
                 comment = TaskComment(
@@ -315,11 +360,13 @@ def create_comments(db, tasks, users):
                     content=choice(comment_templates),
                     created_at=datetime.utcnow() - timedelta(days=randint(0, 10))
                 )
-                db.add(comment)
-                total_comments += 1
+                new_comments.append(comment)
     
-    db.commit()
-    print(f"   ✓ Создано {total_comments} комментариев")
+    # Массовая вставка всех комментариев одним коммитом
+    if new_comments:
+        db.bulk_save_objects(new_comments)
+        db.commit()
+        print(f"   ✓ Создано {len(new_comments)} комментариев")
 
 
 def create_audit_logs(db, users, boards, tasks):
@@ -327,9 +374,7 @@ def create_audit_logs(db, users, boards, tasks):
     print("\n📊 Создание логов аудита...")
     
     actions = ["create", "update", "delete", "login", "logout", "view"]
-    entity_types = ["board", "task", "user", "comment"]
-    
-    total_logs = 0
+    new_logs = []
     
     # Логи для досок
     for board in boards:
@@ -341,8 +386,7 @@ def create_audit_logs(db, users, boards, tasks):
             details=f'{{"title": "{board.title}", "public": {str(board.public).lower()}}}',
             created_at=board.created_at
         )
-        db.add(log)
-        total_logs += 1
+        new_logs.append(log)
     
     # Логи для задач
     for task in tasks[:20]:  # Логируем первые 20 задач
@@ -354,8 +398,7 @@ def create_audit_logs(db, users, boards, tasks):
             details=f'{{"title": "{task.title}", "status": "{task.status}"}}',
             created_at=task.created_at
         )
-        db.add(log)
-        total_logs += 1
+        new_logs.append(log)
     
     # Логи входа пользователей
     for user in users[:5]:  # Логируем входы для первых 5 пользователей
@@ -368,11 +411,13 @@ def create_audit_logs(db, users, boards, tasks):
                 details=f'{{"username": "{user.username}"}}',
                 created_at=datetime.utcnow() - timedelta(days=randint(0, 30))
             )
-            db.add(log)
-            total_logs += 1
+            new_logs.append(log)
     
-    db.commit()
-    print(f"   ✓ Создано {total_logs} логов аудита")
+    # Массовая вставка всех логов одним коммитом
+    if new_logs:
+        db.bulk_save_objects(new_logs)
+        db.commit()
+        print(f"   ✓ Создано {len(new_logs)} логов аудита")
 
 
 def main():
@@ -426,9 +471,4 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-
-
-
 

@@ -43,7 +43,7 @@ export const LoginPage: React.FC = () => {
 
     try {
       await login(formData.email, formData.password);
-      navigate('/');
+      navigate('/dashboard');
     } catch (error: any) {
       let message = 'Ошибка входа. Проверьте данные.';
       const detail = error.response?.data?.detail;
@@ -61,9 +61,11 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="layout auth-page-layout">
-      <AuthHeader />
-      <main className="main auth-main">
+    <>
+      <div className="sky" aria-hidden="true"></div>
+      <div className="layout auth-page-layout">
+        <AuthHeader />
+        <main className="main auth-main">
         <div className="hero hero--home auth-form-container" data-qa="login-form-container">
         <div className="auth-form-header">
           <h2 className="hero-title__glow auth-form-title" data-qa="login-title">
@@ -111,9 +113,10 @@ export const LoginPage: React.FC = () => {
           </Button>
         </form>
         </div>
-      </main>
-      <AuthFooter />
-    </div>
+        </main>
+        <AuthFooter />
+      </div>
+    </>
   );
 };
 

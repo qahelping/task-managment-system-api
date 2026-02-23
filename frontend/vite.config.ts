@@ -3,7 +3,15 @@ import react from '@vitejs/plugin-react'
 import path from 'path'
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  // Base path для GitHub Pages (если репозиторий не в корне)
+  // Для репозитория в корне используйте '/'
+  // Для репозитория в подпапке используйте '/repository-name/'
+  // Vite автоматически делает переменные с префиксом VITE_ доступными через import.meta.env
+  const basePath = process.env.VITE_BASE_PATH || '/';
+  
+  return {
+  base: basePath,
   plugins: [
     react(),
     // Middleware для перехвата запросов к HTML файлам automation-lab
@@ -69,6 +77,12 @@ export default defineConfig({
     hmr: {
       overlay: true,
     },
+    // Настройки для Firefox и других браузеров
+    headers: {
+      'Cache-Control': 'no-cache, no-store, must-revalidate',
+      'Pragma': 'no-cache',
+      'Expires': '0',
+    },
     proxy: {
       '/api': {
         target: process.env.VITE_API_BASE_URL || 'http://localhost:8000',
@@ -79,4 +93,5 @@ export default defineConfig({
   },
   // Включить hot reload для статических файлов в public
   publicDir: 'public',
+  };
 })
