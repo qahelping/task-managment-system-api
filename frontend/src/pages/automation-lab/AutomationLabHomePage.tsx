@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AutomationLabLayout } from './components/AutomationLabLayout';
+import '../../../styles/automation-lab/home.css';
 
 export const AutomationLabHomePage: React.FC = () => {
   return (

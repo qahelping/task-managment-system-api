@@ -1,0 +1,193 @@
+/**
+ * Automation Lab — главная (категории, фичи, карточки)
+ * Подключать только в AutomationLabHomePage
+ */
+
+.section-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  margin: 0 0 8px;
+  font-size: 22px;
+  letter-spacing: 0.2px;
+  font-weight: 850;
+  color: var(--text);
+}
+
+.features {
+  margin-top: 8px;
+  margin-bottom: 22px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.feature-card {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--stroke);
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  padding: 14px;
+  box-shadow: var(--shadow-2);
+  min-height: 190px;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.feature-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(99, 166, 255, 0.22);
+  box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45), 0 0 26px rgba(99, 166, 255, 0.12);
+}
+
+.feature-card h4,
+.feature-card p {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.feature-card h4 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 850;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-card p {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-icon {
+  width: 55px;
+  height: 55px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.1);
+  display: grid;
+  place-items: center;
+  margin-bottom: 10px;
+  position: relative;
+  z-index: 1;
+}
+
+.feature-icon svg {
+  width: 48px;
+  height: 48px;
+  display: block;
+}
+
+.feature-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.feature-title {
+  margin: 10px 0 0;
+  font-size: 15px;
+  font-weight: 850;
+}
+
+.feature-desc {
+  margin: 6px 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.feature-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  justify-content: center;
+  margin-top: auto;
+  padding-top: 12px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.92);
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+  padding: 10px 16px;
+  border-radius: 12px;
+  width: fit-content;
+  position: relative;
+  z-index: 1;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(10px);
+}
+
+.feature-link::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(124, 92, 255, 0.2), rgba(99, 166, 255, 0.15));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: -1;
+}
+
+.feature-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(180deg, rgba(124, 92, 255, 0.9), rgba(99, 166, 255, 0.7));
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.feature-link:hover {
+  transform: translateY(-2px);
+  border-color: rgba(99, 166, 255, 0.35);
+  background: linear-gradient(135deg, rgba(99, 166, 255, 0.18), rgba(124, 92, 255, 0.12));
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 20px rgba(99, 166, 255, 0.2);
+  color: rgba(255, 255, 255, 0.98);
+}
+
+.feature-link:hover::before {
+  opacity: 1;
+}
+
+.feature-link:hover::after {
+  opacity: 1;
+}
+
+.feature-link:active {
+  transform: translateY(0);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3), 0 0 12px rgba(99, 166, 255, 0.15);
+}
+
+@media (max-width: 1100px) {
+  .features-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .features-grid {
+    grid-template-columns: 1fr;
+  }
+}

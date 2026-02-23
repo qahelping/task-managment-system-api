@@ -1,0 +1,457 @@
+/**
+ * Automation Lab — банковские карточки (страница /automation-lab/cards)
+ * Подключать только в CardsPage
+ */
+
+/* Design tokens для карточек */
+:root {
+  --card-w: 420px;
+  --card-h: 250px;
+  --g-classic: radial-gradient(1200px 400px at 15% 0%, rgba(255, 255, 255, 0.18), transparent 40%),
+    linear-gradient(135deg, #f2f4f7, #d9dee7);
+  --g-gold: radial-gradient(900px 420px at 20% 0%, rgba(255, 255, 255, 0.22), transparent 55%),
+    linear-gradient(135deg, #f3d98b, #b9862f);
+  --g-premium: radial-gradient(900px 420px at 20% 0%, rgba(255, 255, 255, 0.18), transparent 55%),
+    linear-gradient(135deg, #7bb3ff, #2a55c6);
+  --g-platinum: radial-gradient(900px 420px at 20% 0%, rgba(255, 255, 255, 0.14), transparent 60%),
+    linear-gradient(135deg, #3a3f4a, #0f1217);
+  --g-infinite: radial-gradient(900px 420px at 20% 0%, rgba(255, 255, 255, 0.35), transparent 60%),
+    linear-gradient(135deg, #3a3f4a, #1a1d26);
+  --g-business: radial-gradient(900px 420px at 20% 0%, rgba(255, 255, 255, 0.14), transparent 60%),
+    linear-gradient(135deg, #233a6c, #0b1638);
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  gap: 22px;
+  align-items: start;
+}
+
+.cards-grid .card {
+  position: relative;
+  width: 100%;
+  max-width: var(--card-w);
+  height: var(--card-h);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  isolation: isolate;
+  transform: translateZ(0);
+  color: rgba(173, 187, 212, 0.92);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.cards-grid .card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.45);
+}
+
+.cards-grid .card__bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  filter: saturate(1.05);
+}
+
+.cards-grid .card::before {
+  content: "";
+  position: absolute;
+  inset: -40% -30%;
+  background: radial-gradient(closest-side at 25% 30%, rgba(255, 255, 255, 0.28), transparent 55%);
+  transform: rotate(-12deg);
+  opacity: 0.65;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.cards-grid .card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.08), transparent 40%),
+    radial-gradient(600px 200px at 70% 90%, rgba(255, 255, 255, 0.1), transparent 60%);
+  mix-blend-mode: soft-light;
+  opacity: 0.8;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.cards-grid .card__top,
+.cards-grid .card__bottom,
+.cards-grid .card__pan {
+  position: relative;
+  z-index: 2;
+}
+
+.cards-grid .card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 18px 18px 0 18px;
+  gap: 12px;
+}
+
+.bank__name {
+  font-size: 22px;
+  font-weight: 720;
+  letter-spacing: 0.2px;
+  line-height: 1.1;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+  color: #fff;
+}
+
+.bank__tier {
+  margin-top: 8px;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  font-weight: 650;
+  color: #d1d5db;
+}
+
+.badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 650;
+  letter-spacing: 0.1em;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(10px);
+}
+
+.badge--tier {
+  text-transform: uppercase;
+}
+
+.badge--virtual {
+  opacity: 0.95;
+}
+
+.card__pan {
+  margin-top: 34px;
+  padding: 0 clamp(12px, 2vw, 18px);
+  font-family: var(--mono);
+  font-size: clamp(12px, 2.2vw, 20px);
+  letter-spacing: clamp(0.06em, 0.1vw, 0.2em);
+  text-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+  color: #fff;
+  overflow: visible;
+  word-break: keep-all;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  text-overflow: clip;
+}
+
+.card__holder-name {
+  position: relative;
+  z-index: 2;
+  margin-top: 12px;
+  padding: 0 18px;
+}
+
+.card__bottom {
+  position: absolute;
+  left: 18px;
+  right: 18px;
+  bottom: 16px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.card__bottom .holder {
+  display: none;
+}
+
+.balance__label {
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  margin-bottom: 6px;
+  color: #d1d5db;
+}
+
+.holder__name {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+.meta {
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+}
+
+.balance__value {
+  font-size: 18px;
+  font-weight: 780;
+  letter-spacing: 0.02em;
+  text-align: right;
+  white-space: nowrap;
+  color: #fff;
+}
+
+.network {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 70px;
+  height: 45px;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.network__icon {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  pointer-events: none;
+}
+
+.network__icon[src$="visa.svg"] {
+  padding: 4px;
+}
+
+.network__icon[src$="mastercard.svg"] {
+  padding: 0;
+  width: 126%;
+  height: 126%;
+  transform: scale(1.17);
+  margin: -8%;
+}
+
+.network__icon[src$="unionpay.svg"] {
+  padding: 0;
+  width: 126%;
+  height: 126%;
+  transform: scale(1.17);
+  margin: -8%;
+}
+
+.card--classic .network--unionpay {
+  background: transparent;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Tier modifiers */
+.card--classic {
+  color: #1f2937;
+  border-color: rgba(20, 30, 40, 0.18);
+}
+
+.card--classic .bank__name,
+.card--classic .card__pan,
+.card--classic .holder__name {
+  color: #111827;
+  text-shadow: none;
+}
+
+.card--classic .holder__label,
+.card--classic .balance__label,
+.card--classic .bank__tier {
+  color: #4b5563;
+}
+
+.card--classic .balance__value {
+  color: #111827;
+  text-shadow: none;
+}
+
+.card--classic .badge {
+  background: rgba(255, 255, 255, 0.55);
+  border-color: rgba(20, 30, 40, 0.16);
+}
+
+.card--classic::before {
+  opacity: 0.35;
+}
+
+.card--classic::after {
+  opacity: 0.45;
+}
+
+.card--classic .card__bg {
+  background: var(--g-classic);
+}
+
+.card--gold {
+  color: #1f2937;
+}
+
+.card--gold .bank__name,
+.card--gold .card__pan {
+  color: #111827;
+}
+
+.card--gold .bank__tier {
+  color: #4b5563;
+}
+
+.card--gold .card__holder-name .holder__name {
+  color: #111827;
+  text-shadow: none;
+}
+
+.card--gold .holder__label,
+.card--gold .balance__label,
+.card--gold .bank__tier {
+  color: #4b5563;
+}
+
+.card--gold .balance__value {
+  color: #f5d27a;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.card--gold .card__bg {
+  background: var(--g-gold);
+}
+
+.card--premium .bank__name,
+.card--premium .card__pan,
+.card--premium .holder__name {
+  color: #fff;
+}
+
+.card--premium .holder__label,
+.card--premium .balance__label,
+.card--premium .bank__tier {
+  color: #d1d5db;
+}
+
+.card--premium .balance__value {
+  color: #f2f2f2;
+}
+
+.card--premium .card__bg {
+  background: var(--g-premium);
+}
+
+.card--platinum .bank__name,
+.card--platinum .card__pan,
+.card--platinum .holder__name {
+  color: #fff;
+}
+
+.card--platinum .holder__label,
+.card--platinum .balance__label,
+.card--platinum .bank__tier {
+  color: #d1d5db;
+}
+
+.card--platinum .balance__value {
+  color: #f2f2f2;
+}
+
+.card--platinum .card__bg {
+  background: var(--g-platinum);
+}
+
+.card--infinite .bank__name,
+.card--infinite .card__pan,
+.card--infinite .holder__name {
+  color: #fff;
+}
+
+.card--infinite .holder__label,
+.card--infinite .balance__label,
+.card--infinite .bank__tier {
+  color: #d1d5db;
+}
+
+.card--infinite .balance__value {
+  color: #f2f2f2;
+}
+
+.card--infinite .card__bg {
+  background: var(--g-infinite);
+}
+
+.card--business .bank__name,
+.card--business .card__pan,
+.card--business .holder__name {
+  color: #fff;
+}
+
+.card--business .holder__label,
+.card--business .balance__label,
+.card--business .bank__tier {
+  color: #d1d5db;
+}
+
+.card--business .balance__value {
+  color: #f2f2f2;
+}
+
+.card--business .card__bg {
+  background: var(--g-business);
+}
+
+.card[data-virtual="true"] {
+  border-style: dashed;
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.card[data-virtual="true"] .badge--virtual {
+  background: rgba(123, 110, 243, 0.16);
+  border-color: rgba(123, 110, 243, 0.35);
+  color: #1f0982;
+}
+
+.card[data-virtual="true"] .badge--virtual::before {
+  content: "VIRTUAL";
+}
+
+.card[data-virtual="false"] .badge--virtual::before {
+  content: "PHYSICAL";
+}
+
+.card[data-status="blocked"] {
+  filter: grayscale(0.12) saturate(0.9);
+}
+
+.card[data-status="blocked"] .badge--tier {
+  background: rgba(255, 75, 75, 0.14);
+  border-color: rgba(255, 75, 75, 0.35);
+}
+
+@media (max-width: 520px) {
+  .cards-grid .card {
+    height: 230px;
+  }
+
+  .cards-grid .card__pan {
+    font-size: clamp(11px, 2vw, 16px);
+    letter-spacing: clamp(0.06em, 0.08vw, 0.15em);
+    padding: 0 clamp(10px, 1.5vw, 16px);
+  }
+
+  .cards-grid .bank__name {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 360px) {
+  .cards-grid .card__pan {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 0 10px;
+  }
+}
