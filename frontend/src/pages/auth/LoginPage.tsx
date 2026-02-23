@@ -45,15 +45,18 @@ export const LoginPage: React.FC = () => {
       await login(formData.email, formData.password);
       navigate('/');
     } catch (error: any) {
-      const message =
-        error.response?.data?.detail || 'Ошибка входа. Проверьте данные.';
+      let message = 'Ошибка входа. Проверьте данные.';
+      const detail = error.response?.data?.detail;
+      if (error.response?.status === 401 && detail) {
+        message = typeof detail === 'string' ? detail : 'Пользователь не найден или неверный пароль.';
+        setErrors({ password: message });
+      } else if (detail) {
+        message = typeof detail === 'string' ? detail : message;
+      }
       addNotification({
         type: 'error',
         message,
       });
-      if (error.response?.status === 401) {
-        setErrors({ password: 'Неверный email или пароль' });
-      }
     }
   };
 

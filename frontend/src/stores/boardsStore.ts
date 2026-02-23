@@ -36,7 +36,7 @@ export const useBoardsStore = create<BoardsState>((set, get) => ({
   },
 
   fetchBoard: async (boardId: number) => {
-    set({ loading: true, error: null });
+    set({ loading: true, error: null, currentBoard: null });
     try {
       const board = await boardsService.getBoardById(boardId);
       set({ currentBoard: board, loading: false });

@@ -74,3 +74,12 @@ networks:
   app-network:
     name: task-management-network
 
+
+
+dev:
+  base_url: "https://dev.api.example.com"
+  timeout: 10
+
+stage:
+  base_url: "https://stage.api.example.com"
+  timeout: 15

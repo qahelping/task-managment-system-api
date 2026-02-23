@@ -6,7 +6,7 @@ import { useBoardsStore } from '@/stores/boardsStore';
 import { useUIStore } from '@/stores/uiStore';
 
 export const CreateBoardModal: React.FC = () => {
-  const { createBoard } = useBoardsStore();
+  const { createBoard, fetchBoards } = useBoardsStore();
   const { closeModal, modals, addNotification } = useUIStore();
   const [formData, setFormData] = useState({
     title: '',
@@ -59,6 +59,7 @@ export const CreateBoardModal: React.FC = () => {
         description: trimmedDescription || undefined,
         public: formData.public,
       });
+      await fetchBoards();
       addNotification({
         type: 'success',
         message: 'Доска успешно создана!',

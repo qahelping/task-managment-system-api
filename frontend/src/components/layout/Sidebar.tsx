@@ -12,17 +12,19 @@ export const Sidebar: React.FC = () => {
   const { boards, fetchBoards } = useBoardsStore();
   const { sidebarOpen, toggleSidebar, setSidebarOpen, openModal } = useUIStore();
   const { user } = useAuthStore();
-  const [isMobile, setIsMobile] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => typeof window !== 'undefined' && window.innerWidth < 1024);
 
   useEffect(() => {
     fetchBoards();
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 1024);
+      const small = window.innerWidth < 1024;
+      setIsMobile(small);
+      if (small) setSidebarOpen(false);
     };
     checkMobile();
     window.addEventListener('resize', checkMobile);
     return () => window.removeEventListener('resize', checkMobile);
-  }, [fetchBoards]);
+  }, [fetchBoards, setSidebarOpen]);
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -34,11 +36,13 @@ export const Sidebar: React.FC = () => {
       {isMobile && (
         <button
           className="sidebar-mobile-toggle"
+          type="button"
+          aria-label={sidebarOpen ? 'Закрыть меню' : 'Открыть меню'}
           style={{
             position: 'fixed',
-            top: '24px',
-            left: '24px',
-            zIndex: 40,
+            top: '20px',
+            left: '16px',
+            zIndex: 1001,
             padding: '12px',
             borderRadius: 'var(--radius-md)',
             border: '1px solid var(--stroke)',

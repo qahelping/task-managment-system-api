@@ -35,22 +35,28 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
   useEffect(() => {
     if (initialTasks) {
-      // Используем переданные задачи (для публичного доступа)
       setTasks(initialTasks);
     } else {
-      // Загружаем задачи через API (для авторизованных пользователей)
       fetchTasks(boardId, statusFilter, priorityFilter);
     }
   }, [boardId, statusFilter, priorityFilter, fetchTasks, initialTasks, setTasks]);
 
-  // Filter tasks by search query
-  const filteredTasks = tasks.filter((task) => {
-    if (!searchQuery) return true;
-    const query = searchQuery.toLowerCase();
-    return (
-      task.title.toLowerCase().includes(query) ||
-      task.description?.toLowerCase().includes(query)
-    );
+  const displayTasks = initialTasks !== undefined && tasks.length === 0 ? initialTasks : tasks;
+
+  // Filter tasks by search query, status and priority
+  const filteredTasks = displayTasks.filter((task) => {
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      if (
+        !task.title.toLowerCase().includes(query) &&
+        !task.description?.toLowerCase().includes(query)
+      ) {
+        return false;
+      }
+    }
+    if (statusFilter && task.status !== statusFilter) return false;
+    if (priorityFilter && task.priority !== priorityFilter) return false;
+    return true;
   });
 
   // Group tasks by status
@@ -61,7 +67,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
 
   const handleDragStart = (event: DragStartEvent) => {
     const { active } = event;
-    const task = tasks.find((t) => t.id === parseInt(active.id as string));
+    const task = displayTasks.find((t) => t.id === parseInt(active.id as string));
     setActiveTask(task || null);
   };
 
@@ -74,7 +80,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     const taskId = parseInt(active.id as string);
     const newStatus = over.id as TaskStatus;
 
-    const task = tasks.find((t) => t.id === taskId);
+    const task = displayTasks.find((t) => t.id === taskId);
     if (!task || task.status === newStatus) return;
 
     try {
@@ -86,7 +92,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     }
   };
 
-  if (loading) {
+  if (!initialTasks && loading) {
     return <Loader fullScreen />;
   }
 

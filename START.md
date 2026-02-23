@@ -18,6 +18,9 @@ python run.py
 
 # Вариант B: Через uvicorn напрямую
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+
+
+
 ```
 
 ✅ Backend будет доступен на: http://localhost:8000

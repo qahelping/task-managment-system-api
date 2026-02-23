@@ -113,14 +113,14 @@ def login(
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password"
+            detail="Пользователь с таким email не найден в системе"
         )
     
     # Проверка пароля
     if not verify_password(login_data.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password"
+            detail="Неверный пароль"
         )
     
     # Создание токена

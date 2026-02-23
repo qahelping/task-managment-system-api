@@ -21,7 +21,7 @@ export const BoardDetailPage: React.FC = () => {
   const navigate = useNavigate();
   const boardId = parseInt(id || '0', 10);
   const { currentBoard, fetchBoard, loading } = useBoardsStore();
-  const { fetchTasks, currentTask } = useTasksStore();
+  const { currentTask, setTasks } = useTasksStore();
   const { user } = useAuthStore();
   const { openModal, modals, addNotification, searchQuery } = useUIStore();
   const [statusFilter, setStatusFilter] = useState<TaskStatus | ''>('');
@@ -30,10 +30,10 @@ export const BoardDetailPage: React.FC = () => {
 
   useEffect(() => {
     if (boardId) {
+      setTasks([]);
       fetchBoard(boardId);
-      fetchTasks(boardId);
     }
-  }, [boardId, fetchBoard, fetchTasks]);
+  }, [boardId, fetchBoard, setTasks]);
 
   const isOwnerOrAdmin =
     user?.role === 'admin' || currentBoard?.created_by === user?.id;
@@ -202,6 +202,7 @@ export const BoardDetailPage: React.FC = () => {
             searchQuery={searchQuery}
             statusFilter={statusFilter || undefined}
             priorityFilter={priorityFilter || undefined}
+            initialTasks={currentBoard.tasks}
           />
         </div>
       </div>
