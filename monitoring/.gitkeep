@@ -1,0 +1,2 @@
+# Директория нужна для Docker dev: при volume mount .:/app
+# uvicorn/watchfiles может обращаться к /app/monitoring; без папки — FileNotFoundError.
