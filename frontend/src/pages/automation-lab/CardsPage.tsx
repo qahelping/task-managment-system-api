@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { AutomationLabLayout } from './components/AutomationLabLayout';
-import '../../../styles/automation-lab/cards.css';
+import '../../styles/automation-lab/cards.css';
 
 interface BankCard {
   id: string;

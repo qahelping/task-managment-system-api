@@ -1,20 +1,22 @@
-import React from 'react';
+import { type FC, type SelectHTMLAttributes } from 'react';
 import { cn } from '@/utils/cn';
 
-interface SelectOption {
+export interface SelectOption {
   value: string;
   label: string;
 }
 
-interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
+interface SelectProps extends SelectHTMLAttributes<HTMLSelectElement> {
   label?: string;
   error?: string;
   helperText?: string;
   options: SelectOption[];
   'data-qa'?: string;
+  className?: string;
+  id?: string;
 }
 
-export const Select: React.FC<SelectProps> = ({
+export const Select: FC<SelectProps> = ({
   label,
   error,
   helperText,
@@ -23,29 +25,27 @@ export const Select: React.FC<SelectProps> = ({
   id,
   'data-qa': dataQa,
   ...props
-}) => {
+}: SelectProps) => {
+  const selectId = id ?? `id-select-${dataQa ?? 'select'}`;
 
   return (
     <div className="w-full">
       {label && (
-        <label
-          htmlFor={`label-${dataQa}`}
-          className="label"
-        >
+        <label htmlFor={selectId} className="label">
           {label}
         </label>
       )}
       <select
-        id={`id-select-${dataQa}`}
+        id={selectId}
         className={cn(
           'input-modern',
           error ? 'input-error' : '',
           className
         )}
-        data-qa={dataQa || (label ? `select-${label.toLowerCase().replace(/\s+/g, '-')}` : 'select')}
+        data-qa={dataQa ?? (label ? `select-${label.toLowerCase().replace(/\s+/g, '-')}` : 'select')}
         {...props}
       >
-        {options.map((option) => (
+        {options.map((option: SelectOption) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>

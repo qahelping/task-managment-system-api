@@ -34,10 +34,8 @@ export const BoardDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const boardId = parseInt(id || '0', 10);
-  const { currentBoard, fetchBoard, loading } = useBoardsStore();
-  const { currentTask, setTasks } = useTasksStore();
   const { currentBoard, fetchBoard, loading, error: boardError, clearError, setCurrentBoard } = useBoardsStore();
-  const { fetchTasks, currentTask, setCurrentTask } = useTasksStore();
+  const { currentTask, fetchTasks, setCurrentTask } = useTasksStore();
   const { user } = useAuthStore();
   const { openModal, modals, addNotification, searchQuery } = useUIStore();
   const [statusFilter, setStatusFilter] = useState<TaskStatus | ''>('');

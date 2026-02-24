@@ -360,13 +360,8 @@ code{
 .admin-table thead {
   background: linear-gradient(180deg, rgba(99,166,255,.06) 0%, rgba(99,166,255,.02) 100%);
   border-bottom: 1px solid var(--stroke);
-.header-search-input:focus {
-  outline: none;
-  border-color: rgba(124, 92, 255, 0.5);
-  background: rgba(255, 255, 255, 0.1);
 }
 
-.header-search-input::placeholder {
 .admin-table th {
   padding: 14px 20px;
   text-align: left;
@@ -2173,39 +2168,25 @@ select.input-modern {
    TASK CARD STYLES
    ========================================================= */
 .task-card {
-  padding: 0;
+  padding: 12px;
   border: 1px solid var(--stroke);
   background: var(--panel);
   border-radius: var(--radius-md);
   cursor: move;
-  transition: all .15s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
   position: relative;
   width: 100%;
-  transition: all 0.2s ease;
   user-select: none;
 }
 
-.task-card-inner {
-  position: relative;
-  padding: 12px;
-}
-
-.task-card-drag-area {
-  padding-right: 32px;
-  min-height: 100%;
-}
-
 .task-card:hover {
-  transform: translateY(-2px);
   border-color: rgba(99, 166, 255, 0.3);
-  border-color: rgba(99,166,255,.3);
-  box-shadow: 0 4px 12px rgba(0,0,0,.2), 0 0 8px rgba(99,166,255,.1);
-  transform: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2), 0 0 8px rgba(99, 166, 255, 0.1);
 }
 
 .task-card--dragging {
   opacity: 0.5;
-  transform: rotate(2deg) scale(1.05);
+  transform: rotate(2deg) scale(1.02);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
   z-index: 1000;
 }
@@ -2213,7 +2194,8 @@ select.input-modern {
 .task-card-content {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
+  min-width: 0;
 }
 
 .task-card-header {
@@ -2221,19 +2203,52 @@ select.input-modern {
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
+  min-width: 0;
+}
+
+.task-card-drag-handle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  margin: -2px 0 0 -2px;
+  color: var(--muted);
+  cursor: grab;
+  border-radius: var(--radius-sm);
+  touch-action: none;
+}
+
+.task-card-drag-handle:active {
+  cursor: grabbing;
+}
+
+.task-card-drag-handle:hover {
+  color: var(--text);
+}
+
+.task-card-drag-handle svg {
+  width: 14px;
+  height: 14px;
 }
 
 .task-card-title {
   margin: 0;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 600;
   color: var(--text);
   line-height: 1.4;
   flex: 1;
-  word-break: break-word;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 .task-card-edit-btn {
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2241,35 +2256,61 @@ select.input-modern {
   height: 28px;
   padding: 0;
   border: none;
-  background: transparent;
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--muted);
   cursor: pointer;
-  border-radius: var(--radius-md);
-  transition: all 0.2s ease;
-  flex-shrink: 0;
-  opacity: 0;
-}
-
-.task-card:hover .task-card-edit-btn {
-  opacity: 1;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
 .task-card-edit-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: var(--text);
+  color: var(--accent);
+  background: rgba(99, 166, 255, 0.15);
+}
+
+.task-card-edit-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(99, 166, 255, 0.4);
 }
 
 .task-card-edit-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
 .task-card-description {
   margin: 0;
-  font-size: 13px;
+  font-size: 12px;
   color: var(--muted);
   line-height: 1.5;
   word-break: break-word;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.task-card-assignee {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--muted);
+  min-width: 0;
+}
+
+.task-card-assignee svg {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+  color: var(--muted);
+}
+
+.task-card-assignee span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .task-card-footer {
@@ -2277,8 +2318,8 @@ select.input-modern {
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  margin-top: auto;
   padding-top: 8px;
+  margin-top: 4px;
   border-top: 1px solid var(--stroke);
 }
 
@@ -2287,8 +2328,8 @@ select.input-modern {
   font-weight: 600;
   padding: 4px 8px;
   border-radius: var(--radius-md);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  display: inline-flex;
+  align-items: center;
 }
 
 .task-card-priority--low {
@@ -2310,62 +2351,9 @@ select.input-modern {
 }
 
 .task-card-date {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--muted);
   white-space: nowrap;
-}
-
-.task-card-edit-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  z-index: 2;
-  flex-shrink: 0;
-  padding: 6px;
-  border-radius: var(--radius-md);
-  border: none;
-  background: rgba(255,255,255,.06);
-  color: var(--muted);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all .2s ease;
-  width: 28px;
-  height: 28px;
-}
-
-.task-card-assignee {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--muted);
-  max-width: 100%;
-  margin-bottom: 8px;
-}
-
-.task-card-assignee svg {
-  width: 12px;
-  height: 12px;
-  flex-shrink: 0;
-}
-
-.task-card-assignee span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 120px;
-}
-
-.task-card-edit-btn:hover {
-  color: var(--accent);
-  background: rgba(99, 166, 255, 0.15);
-}
-
-.task-card-edit-btn:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(99,166,255,.4);
 }
 
 /* =========================================================
@@ -2382,11 +2370,6 @@ select.input-modern {
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(4px);
   z-index: 99;
-}
-
-.task-card-edit-btn svg {
-  width: 14px;
-  height: 14px;
 }
 
 /* =========================================================

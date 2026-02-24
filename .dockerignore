@@ -53,8 +53,6 @@ logs/
 frontend/
 node_modules/
 
-# Monitoring
-monitoring/
 
 # Other
 .DS_Store

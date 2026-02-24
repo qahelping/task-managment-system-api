@@ -6,6 +6,7 @@ interface CardProps {
   className?: string;
   onClick?: (e: React.MouseEvent) => void;
   hover?: boolean;
+  'data-qa'?: string;
 }
 
 export const Card: React.FC<CardProps> = ({
@@ -13,6 +14,7 @@ export const Card: React.FC<CardProps> = ({
   className,
   onClick,
   hover = false,
+  'data-qa': dataQa,
 }) => {
   return (
     <div
@@ -22,6 +24,7 @@ export const Card: React.FC<CardProps> = ({
         className
       )}
       onClick={onClick}
+      data-qa={dataQa}
     >
       {children}
     </div>

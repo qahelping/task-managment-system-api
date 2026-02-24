@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, type FC, type ChangeEvent, type MouseEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Layout } from '@/components/layout/Layout';
 import { Button } from '@/components/ui/Button';
@@ -12,20 +12,20 @@ import { useAuthStore } from '@/stores/authStore';
 import { statsService } from '@/services/stats.service';
 import { tasksService } from '@/services/tasks.service';
 import { EditTaskModal } from '@/components/modals/EditTaskModal';
-import { Task } from '@/types';
+import { Task, Board } from '@/types';
 import { FiSearch, FiPlus, FiChevronDown, FiChevronUp, FiEdit2 } from 'react-icons/fi';
 import { format } from 'date-fns';
 import ru from 'date-fns/locale/ru';
 import { getRecentBoards } from '@/utils/recentBoards';
 
-export const BoardsPage: React.FC = () => {
+export const BoardsPage: FC = () => {
   const { boards, fetchBoards, loading, fetchBoard } = useBoardsStore();
   const { openModal, closeModal, modals } = useUIStore();
   const { user } = useAuthStore();
   const [editingTask, setEditingTask] = useState<{ task: Task; boardId: number } | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [showOnlyPublic, setShowOnlyPublic] = useState(false);
-  const [allBoards, setAllBoards] = useState<any[]>([]);
+  const [allBoards, setAllBoards] = useState<Board[]>([]);
   const [loadingAllBoards, setLoadingAllBoards] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalBoards, setTotalBoards] = useState(0);
@@ -90,7 +90,7 @@ export const BoardsPage: React.FC = () => {
   const isLoading = isAdmin ? loadingAllBoards : loading;
 
   // Фильтрация (для неадминов применяется на клиенте, для админов данные уже отфильтрованы на сервере)
-  const filteredBySearch = boardsToDisplay.filter((board) => {
+  const filteredBySearch = boardsToDisplay.filter((board: Board) => {
     const matchesSearch = board.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesPublicFilter = !showOnlyPublic || board.public;
     return matchesSearch && matchesPublicFilter;
@@ -98,12 +98,12 @@ export const BoardsPage: React.FC = () => {
 
   // Убираем дубликаты по id (на случай если API вернул одну доску дважды)
   const uniqueById = Array.from(
-    new Map(filteredBySearch.map((b) => [b.id, b])).values()
-  );
+    new Map(filteredBySearch.map((b: Board) => [b.id, b])).values()
+  ) as Board[];
 
   // Сортировка по времени последнего использования: сначала недавно открытые
   const recentOrder = user?.id ? getRecentBoards(user.id).map((r) => r.boardId) : [];
-  const filteredBoards = [...uniqueById].sort((a, b) => {
+  const filteredBoards = [...uniqueById].sort((a: Board, b: Board) => {
     const indexA = recentOrder.indexOf(a.id);
     const indexB = recentOrder.indexOf(b.id);
     if (indexA === -1 && indexB === -1) {
@@ -141,7 +141,7 @@ export const BoardsPage: React.FC = () => {
         try {
           const tasks = await tasksService.getTasksByBoard(boardId);
           setBoardTasks({ ...boardTasks, [boardId]: tasks });
-        } catch (error) {
+        } catch (error: unknown) {
           console.error('Failed to load tasks for board:', error);
         } finally {
           setLoadingTasks({ ...loadingTasks, [boardId]: false });
@@ -169,7 +169,7 @@ export const BoardsPage: React.FC = () => {
     openModal('editTask');
     
     // Загружаем доску для модального окна (не блокируем открытие)
-    fetchBoard(boardId).catch((error) => {
+    fetchBoard(boardId).catch((error: unknown) => {
       console.error('Failed to load board for task editing:', error);
     });
   };
@@ -209,7 +209,7 @@ export const BoardsPage: React.FC = () => {
               type="text"
               placeholder="Поиск досок"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchQuery(e.target.value)}
               className="boards-search-input"
               data-qa="boards-search-input"
             />
@@ -219,7 +219,7 @@ export const BoardsPage: React.FC = () => {
               type="checkbox"
               id="public-only"
               checked={showOnlyPublic}
-              onChange={(e) => setShowOnlyPublic(e.target.checked)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setShowOnlyPublic(e.target.checked)}
               className="checkbox"
               data-qa="boards-public-only-checkbox"
             />
@@ -243,6 +243,7 @@ export const BoardsPage: React.FC = () => {
               <table className="admin-table">
                 <thead>
                   <tr>
+                    <th aria-label="Развернуть" />
                     <th>Название</th>
                     <th>Описание</th>
                     <th>Публичная</th>
@@ -254,12 +255,12 @@ export const BoardsPage: React.FC = () => {
                 <tbody>
                   {paginatedBoards.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="admin-table-empty">
+                      <td colSpan={7} className="admin-table-empty">
                         {boardsToDisplay.length === 0 ? 'Доски не найдены' : 'Ничего не найдено'}
                       </td>
                     </tr>
                   ) : (
-                    paginatedBoards.map((board) => {
+                    paginatedBoards.map((board: Board) => {
                       const isExpanded = expandedBoards.has(board.id);
                       const tasks = boardTasks[board.id] || [];
                       const isLoadingTasks = loadingTasks[board.id];
@@ -268,18 +269,18 @@ export const BoardsPage: React.FC = () => {
                         <React.Fragment key={board.id}>
                           <tr>
                             <td>
+                              <button
+                                type="button"
+                                onClick={() => toggleBoardExpansion(board.id)}
+                                className="p-1 rounded hover:bg-gray-100"
+                                aria-label={isExpanded ? 'Свернуть' : 'Развернуть'}
+                                data-qa={`board-expand-${board.id}`}
+                              >
+                                {isExpanded ? <FiChevronUp /> : <FiChevronDown />}
+                              </button>
+                            </td>
+                            <td>
                               <div className="flex items-center gap-2">
-                                <button
-                                  onClick={() => toggleBoardExpansion(board.id)}
-                                  className="p-1 hover:bg-gray-100 rounded"
-                                  data-qa={`toggle-board-tasks-${board.id}`}
-                                >
-                                  {isExpanded ? (
-                                    <FiChevronUp className="w-4 h-4" />
-                                  ) : (
-                                    <FiChevronDown className="w-4 h-4" />
-                                  )}
-                                </button>
                                 <div className="font-medium">{board.title}</div>
                               </div>
                             </td>
@@ -316,32 +317,18 @@ export const BoardsPage: React.FC = () => {
                           </tr>
                           {isExpanded && (
                             <tr>
-                              <td colSpan={6} className="p-4 bg-gray-50">
+                              <td colSpan={7} className="p-4 bg-gray-50">
                                 {isLoadingTasks ? (
                                   <Loader />
                                 ) : tasks.length === 0 ? (
                                   <p className="text-sm text-gray-500">Нет задач</p>
                                 ) : (
                                   <div className="space-y-2">
-                                    {tasks.map((task) => {
-                                      const handleClick = (e: React.MouseEvent) => {
+                                    {tasks.map((task: Task) => {
+                                      const handleClick = (e: MouseEvent<HTMLButtonElement>) => {
                                         e.preventDefault();
                                         e.stopPropagation();
-                                        console.log('Button clicked!', { 
-                                          task, 
-                                          boardId: board.id,
-                                          taskId: task.id,
-                                          handleEditTask: typeof handleEditTask
-                                        });
-                                        if (handleEditTask && task && board?.id) {
-                                          handleEditTask(task, board.id);
-                                        } else {
-                                          console.error('Cannot edit task:', { 
-                                            hasHandleEditTask: !!handleEditTask,
-                                            hasTask: !!task,
-                                            hasBoardId: !!board?.id
-                                          });
-                                        }
+                                        handleEditTask(task, board.id);
                                       };
                                       
                                       return (

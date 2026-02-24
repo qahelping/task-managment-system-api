@@ -74,3 +74,33 @@ def init_db():
     
     # Создание всех таблиц
     Base.metadata.create_all(bind=engine)
+    # Применяем миграции для существующих БД (добавляем отсутствующие колонки)
+    _run_schema_migrations()
+
+
+def _run_schema_migrations():
+    """Добавляет отсутствующие колонки в таблицы (миграции без сторонних инструментов)."""
+    if not settings.DATABASE_URL.startswith("sqlite"):
+        return
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        try:
+            result = conn.execute(text("PRAGMA table_info(tasks)"))
+            columns = [row[1] for row in result.fetchall()]
+        except Exception:
+            return
+        conn.commit()
+        if not columns:
+            return  # таблица только что создана create_all(), все колонки уже есть
+        if "assignee_id" not in columns:
+            try:
+                conn.execute(text("ALTER TABLE tasks ADD COLUMN assignee_id INTEGER REFERENCES users(id)"))
+                conn.commit()
+            except Exception:
+                conn.rollback()
+        if "order" not in columns:
+            try:
+                conn.execute(text("ALTER TABLE tasks ADD COLUMN \"order\" INTEGER DEFAULT 0 NOT NULL"))
+                conn.commit()
+            except Exception:
+                conn.rollback()

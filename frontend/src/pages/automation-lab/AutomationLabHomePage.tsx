@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { AutomationLabLayout } from './components/AutomationLabLayout';
-import '../../../styles/automation-lab/home.css';
+import '../../styles/automation-lab/home.css';
 
 export const AutomationLabHomePage: React.FC = () => {
   return (
@@ -26,7 +26,7 @@ export const AutomationLabHomePage: React.FC = () => {
 
         <div className="features-grid">
           {/* 1 - Clicks */}
-          {/* <div className="feature-card">
+          <div className="feature-card">
             <div className="feature-top">
               <div className="feature-icon">
                 <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -40,7 +40,7 @@ export const AutomationLabHomePage: React.FC = () => {
             <h4 className="feature-title">Клики и взаимодействия</h4>
             <p className="feature-desc">Double/Right click, hover, перекрытия, sticky, проблемы с кликабельностью.</p>
             <Link to="/automation-lab/clicks" className="feature-link">Открыть →</Link>
-          </div> */}
+          </div>
 
           {/* 2 - Forms */}
           {/* <div className="feature-card">
